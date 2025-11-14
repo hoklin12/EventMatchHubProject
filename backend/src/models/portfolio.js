@@ -54,8 +54,8 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.TEXT,
         allowNull: true,
       },
-      created_at: DataTypes.DATE,
-      updated_at: DataTypes.DATE,
+      // created_at: DataTypes.DATE,
+      // updated_at: DataTypes.DATE,
     },
     {
       sequelize,

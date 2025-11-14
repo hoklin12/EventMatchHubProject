@@ -24,10 +24,20 @@ router.delete("/me", authMiddleware, userController.deleteCurrentUser);
 // router.get("/:id", userController.getUserProfilePublic); // Assuming this method exists
 
 // POST /api/users/portfolio - Create a portfolio item for the authenticated user
-router.post("/portfolio", authMiddleware, userController.createPortfolio);
+router.post(
+  "/portfolio",
+  authMiddleware,
+  rbacMiddleware(["participant"]),
+  userController.createPortfolio
+);
 
 //GET /api/users/portfolio - Get all portfolio item
-router.get("/portfolio", authMiddleware, userController.getAllPortfolios);
+router.get(
+  "/portfolio",
+  authMiddleware,
+  rbacMiddleware(["participant"]),
+  userController.getAllPortfolios
+);
 
 // DELETE /api/users/portfolio/:portf_id - Delete a portfolio item
 router.delete(

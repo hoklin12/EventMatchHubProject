@@ -65,8 +65,8 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.DECIMAL(10, 2),
         allowNull: true,
       },
-      created_at: DataTypes.DATE,
-      updated_at: DataTypes.DATE,
+      // created_at: DataTypes.DATE,
+      // updated_at: DataTypes.DATE,
     },
     {
       sequelize,

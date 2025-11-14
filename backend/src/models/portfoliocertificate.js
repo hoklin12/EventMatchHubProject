@@ -32,8 +32,8 @@ module.exports = (sequelize, DataTypes) => {
         onUpdate: "CASCADE",
         onDelete: "CASCADE",
       },
-      created_at: DataTypes.DATE,
-      updated_at: DataTypes.DATE,
+      // created_at: DataTypes.DATE,
+      // updated_at: DataTypes.DATE,
     },
     {
       sequelize,

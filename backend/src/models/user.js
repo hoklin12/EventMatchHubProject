@@ -70,8 +70,8 @@ module.exports = (sequelize, DataTypes) => {
       password_hash: { type: DataTypes.STRING(255), allowNull: false },
       organization_name: { type: DataTypes.STRING(255) },
       skills: { type: DataTypes.TEXT }, // Or DataTypes.JSON
-      created_at: DataTypes.DATE,
-      updated_at: DataTypes.DATE,
+      // created_at: DataTypes.DATE,
+      // updated_at: DataTypes.DATE,
     },
     {
       sequelize,

@@ -28,4 +28,19 @@ router.get(
   eventController.viewEventParticipants
 );
 
+// GET /api/events/:event_id/certificates/:cert_id - View specific certificate details
+router.get(
+  "/:event_id/certificates/:cert_id",
+  authMiddleware,
+  eventController.viewSpecificCertificate
+);
+
+// GET /api/events/:event_id/certificates - View all certificates for an event (only for organizers)
+router.get(
+  "/:event_id/certificates",
+  authMiddleware,
+  rbacMiddleware(["organizer"]),
+  eventController.viewAllCertificates
+);
+
 module.exports = router;

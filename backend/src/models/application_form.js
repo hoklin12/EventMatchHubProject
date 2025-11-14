@@ -43,8 +43,8 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: false,
       },
 
-      created_at: DataTypes.DATE,
-      updated_at: DataTypes.DATE,
+      // created_at: DataTypes.DATE,
+      // updated_at: DataTypes.DATE,
     },
     {
       sequelize,

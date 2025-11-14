@@ -259,6 +259,102 @@ exports.viewEventParticipants = async (req, res, next) => {
   }
 };
 
+exports.viewAllCertificates = async (req, res, next) => {
+  const userId = req.user.userId;
+  const eventId = req.params.event_id;
+  try {
+    const organizerId = await models.Role.findOne({
+      where: { role_name: "organizer" },
+      attributes: ["role_id"],
+    });
+    const isOrganizerRole = await models.UserRoles.findOne({
+      where: {
+        user_id: userId,
+        role_id: organizerId.role_id,
+      },
+    });
+    if (!isOrganizerRole) {
+      return res.status(404).json({
+        status: "fail",
+        message: "User is not an organizer.",
+      });
+    }
+    const isOrganizer = await models.Event.findOne({
+      where: { event_id: eventId, user_id: userId },
+    });
+    if (!isOrganizer) {
+      return res.status(404).json({
+        status: "fail",
+        message: "User is not an organizer of this event.",
+      });
+    }
+
+    const certificate = await models.Certificate.findAll({
+      where: {
+        event_id: eventId,
+      },
+      order: [["updated_at", "DESC"]],
+    });
+
+    if (!certificate) {
+      return res
+        .status(404)
+        .json({ status: "fail", message: "Certificate not found." });
+    }
+    return res.status(200).json({
+      status: "success",
+      data: certificate,
+    });
+  } catch (error) {
+    console.error("View Certificate Error:", error);
+    next(error);
+  }
+};
+
+exports.viewSpecificCertificate = async (req, res, next) => {
+  const userId = req.user.userId;
+  const eventId = req.params.event_id;
+  const certId = req.params.cert_id;
+  try {
+    // Check if the user is an organizer for that event or participant with the certificate
+    const organizerId = await models.Role.findOne({
+      where: { role_name: "organizer" },
+      attributes: ["role_id"],
+    });
+    const isOrganizerRole = await models.UserRoles.findOne({
+      where: {
+        user_id: userId,
+        role_id: organizerId.role_id,
+      },
+    });
+
+    const isParticipantRole = await models.Certificate.findOne({
+      where: {
+        certificate_id: certId,
+        event_id: eventId,
+        user_id: userId,
+      },
+    });
+
+    if (!isOrganizerRole && !isParticipantRole) {
+      return res.status(404).json({
+        status: "fail",
+        message:
+          "User is not an organizer this event or participant with this certificate.",
+      });
+    }
+
+    const certificate = await models.Certificate.findByPk(certId);
+
+    return res.status(200).json({
+      status: "success",
+      data: certificate,
+    });
+  } catch (error) {
+    console.error("View Specific Certificate Error:", error);
+    next(error);
+  }
+};
 exports.generateCertificate = async (req, res, next) => {
   const userId = req.user.userId;
   const eventId = req.params.event_id;
