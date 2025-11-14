@@ -32,6 +32,27 @@ exports.userRegisterForEvent = async (req, res, next) => {
       }
     }
 
+    // Checking user already has an application form
+    const userApplicationForm = await models.ApplicationForm.findAll({
+      where: { user_id: userId },
+      attributes: ["applicationform_id"],
+    });
+    let existedRegister = null;
+    userApplicationForm.forEach((form) => {
+      existedRegister = models.Registration.findOne({
+        where: {
+          applicationform_id: form.applicationform_id,
+          event_id: eventId,
+        },
+      });
+    });
+    if (existedRegister) {
+      return res.status(400).json({
+        status: "fail",
+        message: "User already registered for this event.",
+      });
+    }
+
     // Create a new application form for the user
     const newApplicationForm = await models.ApplicationForm.create({
       portfolio_id: portfolioId,
@@ -47,7 +68,7 @@ exports.userRegisterForEvent = async (req, res, next) => {
       status: "pending",
       registration_date: new Date(),
     });
-    res.status(201).json({
+    return res.status(201).json({
       status: "success",
       message: "User registered for event successfully.",
       data: {
@@ -55,7 +76,7 @@ exports.userRegisterForEvent = async (req, res, next) => {
       },
     });
   } catch (error) {
-    console.error("User Register for Event Error:", error);
+    // console.error("User Register for Event Error:", error);
     next(error);
   }
 };
@@ -63,7 +84,7 @@ exports.userRegisterForEvent = async (req, res, next) => {
 exports.listEvents = async (req, res, next) => {
   try {
     const events = await models.Event.findAll();
-    res.json({
+    return res.status(200).json({
       status: "success",
       data: events,
     });
@@ -82,7 +103,7 @@ exports.viewSpecificEvent = async (req, res, next) => {
         .status(404)
         .json({ status: "fail", message: "Event not found." });
     }
-    res.json({
+    return res.status(200).json({
       status: "success",
       data: {
         title: event.title,
@@ -144,7 +165,6 @@ exports.viewEventParticipants = async (req, res, next) => {
 
     const portCertMap = {};
 
-    // 1. Get all portfolio_ids first
     // 1. Get portfolio IDs from registrations
     const portfolioIds = registrations.map(
       (r) => r.ApplicationForm.Portfolio.portfolio_id
@@ -169,7 +189,7 @@ exports.viewEventParticipants = async (req, res, next) => {
       combinedPortfolioCertificate[id] = allCertificateIDs[index] || [];
     });
 
-    // 3. Fetch certificates for each user only once
+    // 4. Fetch certificates for each user only once
     await Promise.all(
       registrations.map(async (item) => {
         const portfolioId = item.ApplicationForm.Portfolio.portfolio_id;
@@ -195,7 +215,7 @@ exports.viewEventParticipants = async (req, res, next) => {
         }
       })
     );
-    // 4. Build final response
+    // 5. Build final response
     const participants = registrations
       .map((item) => {
         const user = item.ApplicationForm.User;
@@ -224,12 +244,12 @@ exports.viewEventParticipants = async (req, res, next) => {
       .sort((a, b) => new Date(b.updated_at) - new Date(a.updated_at));
 
     if (participants.length === 0) {
-      return res.json({
+      return res.status(404).json({
         status: "fail",
         message: "No participants registered for this event.",
       });
     }
-    res.json({
+    return res.status(200).json({
       status: "success",
       data: participants,
     });

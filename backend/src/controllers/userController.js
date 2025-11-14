@@ -17,7 +17,7 @@ exports.getCurrentUser = async (req, res, next) => {
     }
 
     // Format response to be clean
-    res.json({
+    return res.status(200).json({
       status: "success",
       user: {
         user_id: user.user_id,
@@ -57,7 +57,7 @@ exports.updateCurrentUser = async (req, res, next) => {
       password_hash, // If password_hash is sent, the hook will hash it.
     });
 
-    res.json({
+    return res.status(200).json({
       status: "success",
       message: "User profile updated successfully.",
     });
@@ -75,7 +75,9 @@ exports.deleteCurrentUser = async (req, res, next) => {
       where: { user_id: userId },
       force: true,
     });
-    res.json({ status: "success", message: "User deleted successfully." });
+    return res
+      .status(200)
+      .json({ status: "success", message: "User deleted successfully." });
   } catch (error) {
     console.error("Delete User Error:", error);
     next(error);
@@ -197,7 +199,7 @@ exports.createPortfolio = async (req, res, next) => {
       }
     });
 
-    res.json({
+    return res.status(201).json({
       status: "success",
       portfolio: {
         title: newPortfolio.title,
@@ -241,7 +243,7 @@ exports.getAllPortfolios = async (req, res, next) => {
     }
 
     // Respond with all portfolio details
-    res.json({
+    return res.status(200).json({
       status: "success",
       count: portfolios.length,
       portfolios: portfolios
@@ -281,7 +283,9 @@ exports.deletePortfolio = async (req, res, next) => {
         .json({ status: "fail", message: "Portfolio not found." });
     }
 
-    res.json({ status: "success", message: "Portfolio deleted successfully." });
+    return res
+      .status(200)
+      .json({ status: "success", message: "Portfolio deleted successfully." });
   } catch (error) {
     console.error("Delete Portfolio Error:", error);
     next(error);

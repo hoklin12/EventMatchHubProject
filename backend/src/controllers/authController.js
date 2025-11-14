@@ -59,7 +59,7 @@ exports.register = async (req, res, next) => {
     const token = generateToken(userWithRoles);
 
     // 6. Send response
-    res.status(201).json({
+    return res.status(201).json({
       status: "success",
       message: "User registered successfully!",
       token,
