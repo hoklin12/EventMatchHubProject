@@ -6,23 +6,8 @@ exports.createEvent = async (req, res, next) => {
   const { title, description, type, status, event_date, location, fee_amount } =
     req.body;
   try {
-    // //Check User is Organizer
-    // const organizerId = await models.Role.findOne({
-    //   where: { role_name: "organizer" },
-    //   attributes: ["role_id"],
-    // });
-    // const isOrganizerRole = await models.UserRoles.findOne({
-    //   where: {
-    //     user_id: userId,
-    //     role_id: organizerId.role_id,
-    //   },
-    // });
-    // if (!isOrganizerRole) {
-    //   return res.status(404).json({
-    //     status: "fail",
-    //     message: "User is not an organizer.",
-    //   });
-    // }
+    //Check only organizer role can create event
+    await checkUserRoleOrganizer(req.user);
 
     //Check Event Date Validity
     const eventDateObj = new Date(event_date);
@@ -65,6 +50,9 @@ exports.updateEvent = async (req, res, next) => {
   const { title, description, type, status, event_date, location, fee_amount } =
     req.body;
   try {
+    //Check only organizer role can update event
+    await checkUserRoleOrganizer(req.user);
+
     // Check if the event exists and if the user is an organizer for that event
     const event = await models.Event.findByPk(eventId);
     if (!event) {
@@ -106,6 +94,9 @@ exports.deleteEvent = async (req, res, next) => {
   const userId = req.user.userId;
   const eventId = req.params.event_id;
   try {
+    //Check only organizer role can delete event
+    await checkUserRoleOrganizer(req.user);
+
     // Check if the event exists and if the user is an organizer for that event
     const event = await models.Event.findByPk(eventId);
     if (!event) {
@@ -137,6 +128,9 @@ exports.userRegisterForEvent = async (req, res, next) => {
   const eventId = req.params.event_id;
   const { portfolioId, title, description } = req.body;
   try {
+    //Check only participant role can register for event
+    await checkUserRoleParticipant(req.user);
+
     //checking event existence
     const event = await models.Event.findByPk(eventId);
     if (!event) {
@@ -259,6 +253,9 @@ exports.viewEventParticipants = async (req, res, next) => {
   const userId = req.user.userId;
   const eventId = req.params.event_id;
   try {
+    //Check only organizer role can view participants
+    await checkUserRoleOrganizer(req.user);
+
     // Check if the event exists and if the user is an organizer for that event
     const event = await models.Event.findByPk(eventId);
     if (!event) {
@@ -398,22 +395,9 @@ exports.viewAllCertificates = async (req, res, next) => {
   const userId = req.user.userId;
   const eventId = req.params.event_id;
   try {
-    // const organizerId = await models.Role.findOne({
-    //   where: { role_name: "organizer" },
-    //   attributes: ["role_id"],
-    // });
-    // const isOrganizerRole = await models.UserRoles.findOne({
-    //   where: {
-    //     user_id: userId,
-    //     role_id: organizerId.role_id,
-    //   },
-    // });
-    // if (!isOrganizerRole) {
-    //   return res.status(404).json({
-    //     status: "fail",
-    //     message: "User is not an organizer.",
-    //   });
-    // }
+    //Check only organizer role can view participants
+    await checkUserRoleOrganizer(req.user);
+
     const isOrganizer = await models.Event.findOne({
       where: { event_id: eventId, user_id: userId },
     });

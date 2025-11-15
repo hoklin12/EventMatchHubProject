@@ -147,6 +147,9 @@ exports.createPortfolio = async (req, res, next) => {
   const userId = req.user.userId;
   const { title, description, certificates } = req.body;
   try {
+    //Check only participant role can create portfolio
+    await checkUserRoleParticipant(req.user);
+
     //Check certificate duplicates and belong to the user
     const hasDuplicate =
       new Set(certificates.map((c) => c.certificate_id)).size !==
@@ -237,6 +240,10 @@ exports.createPortfolio = async (req, res, next) => {
 exports.getAllPortfolios = async (req, res, next) => {
   const userId = req.user.userId;
   try {
+    //Check only organizer role can get all portfolios
+    await checkUserRoleOrganizer(req.user);
+
+    // Fetch all portfolios with associated certificates
     const portfolios = await models.Portfolio.findAll({
       where: { user_id: userId },
       include: [
@@ -475,6 +482,10 @@ exports.updatePortfolio = async (req, res, next) => {
   const { title, description, certificates } = req.body;
 
   try {
+    //Check only participant role can update portfolio
+    await checkUserRoleParticipant(req.user);
+
+    // Find portfolio by user_id and portfolio_id
     const portfolio = await models.Portfolio.findOne({
       where: { user_id: userId, portfolio_id: portfolioId },
     });
