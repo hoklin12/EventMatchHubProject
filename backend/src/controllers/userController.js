@@ -289,6 +289,160 @@ exports.getAllPortfolios = async (req, res, next) => {
   }
 };
 
+// Get specific Portfolio by portfolio_id only for participant role and organizer of event that participant join
+exports.getPortfolioById = async (req, res, next) => {
+  const userId = req.user.userId;
+  const portfolioId = req.params.portf_id;
+  try {
+    // //Get portfolio ownership
+    // const ownder = await models.Portfolio.findOne({
+    //   where: { portfolio_id: portfolioId },
+    //   attributes: ["user_id"],
+    // });
+
+    // //Get portfolio of owner
+    // const getOwnerPortfolio = await models.Portfolio.findAll({
+    //   where: { user_id: ownder.user_id },
+    // });
+
+    // const getPortfolioThisCertificate =
+    //   await models.PortfolioCertificates.findAll({
+    //     where: { portfolio_id: portfolioId },
+    //   });
+    // const portfolioThisCertificate = getPortfolioThisCertificate.map(
+    //   (p) => p.portfolio_id
+    // );
+    // console.log(
+    //   "Portfolio This Certificate:",
+    //   portfolioThisCertificate.map((p) => p)
+    // );
+
+    // const ownerPortfolioIds = getOwnerPortfolio.map((p) => p.portfolio_id);
+    // console.log("Portfolio This Certificate:", ownerPortfolioIds);
+    let portfolio = null;
+    //Check only event that participant join can access portfolio of participant
+
+    //Checking user role
+    const userRoles = req.user.roles;
+    if (userRoles.includes("organizer")) {
+      // Organizer can access only if the participant joined their event
+      // Finding Registered Events by organizer
+      const registeredEvents = await models.Registration.findAll({
+        include: [
+          {
+            model: models.ApplicationForm,
+            as: "ApplicationForm",
+            where: { portfolio_id: portfolioId },
+            attributes: ["applicationform_id"],
+          },
+        ],
+        attributes: ["event_id"],
+      });
+
+      const eventIdsThisPortfolio = registeredEvents.map((re) => re.event_id);
+      let allOrganizerOfEvents = [];
+      let organizerOfEvents = null;
+      for (const eventId of eventIdsThisPortfolio) {
+        console.log("Event IDs this portfolio:", eventId);
+        organizerOfEvents = await models.Event.findOne({
+          where: { event_id: eventId },
+          attributes: ["user_id"],
+        });
+        allOrganizerOfEvents.push(organizerOfEvents.user_id);
+      }
+
+      //Remove duplicate organizer IDs
+      allOrganizerOfEvents = [...new Set(allOrganizerOfEvents)];
+
+      if (!allOrganizerOfEvents.includes(userId)) {
+        return res.status(403).json({
+          status: "fail",
+          message: "You do not have permission to access this portfolio.",
+        });
+      }
+      // Find portfolio by portfolio_id
+      portfolio = await models.Portfolio.findOne({
+        where: { portfolio_id: portfolioId },
+        include: [
+          {
+            model: models.Certificate,
+            as: "Certificates",
+            attributes: [
+              "certificate_id",
+              "title",
+              "description",
+              "issued_date",
+              "expiration_duration",
+              "file_link",
+            ],
+          },
+        ],
+      });
+      if (!portfolio) {
+        return res
+          .status(404)
+          .json({ status: "fail", message: "Portfolio not found." });
+      }
+    } else if (userRoles.includes("participant")) {
+      // Participant can access only their own portfolio
+      // Find portfolio by user_id and portfolio_id
+      portfolio = await models.Portfolio.findOne({
+        where: { user_id: userId, portfolio_id: portfolioId },
+        include: [
+          {
+            model: models.Certificate,
+            as: "Certificates",
+            attributes: [
+              "certificate_id",
+              "title",
+              "description",
+              "issued_date",
+              "expiration_duration",
+              "file_link",
+            ],
+          },
+        ],
+      });
+      if (!portfolio) {
+        return res
+          .status(404)
+          .json({ status: "fail", message: "Portfolio not found." });
+      }
+    } else {
+      return res.status(403).json({
+        status: "fail",
+        message: "You do not have permission to access this portfolio.",
+      });
+    }
+    if (portfolio === null) {
+      return res.status(404).json({
+        status: "fail",
+        message: "Portfolio not found.",
+      });
+    }
+    return res.status(200).json({
+      status: "success",
+      portfolio: {
+        portfolio_id: portfolio.portfolio_id,
+        portfolio_items_id: portfolio.portfolio_items_id,
+        title: portfolio.title,
+        description: portfolio.description,
+        certificates: portfolio.Certificates.map((c) => ({
+          certificate_id: c.certificate_id,
+          title: c.title,
+          description: c.description,
+          issued_date: c.issued_date,
+          expiration_duration: c.expiration_duration,
+          file_link: c.file_link,
+        })),
+      },
+    });
+  } catch (error) {
+    console.error("Get Portfolio By ID Error:", error);
+    next(error);
+  }
+};
+
 // Delete Portfolio by portfolio_id only for participant role
 exports.deletePortfolio = async (req, res, next) => {
   const userId = req.user.userId;

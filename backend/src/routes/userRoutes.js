@@ -33,10 +33,17 @@ router.post(
 
 //GET /api/users/portfolio - Get all portfolio item
 router.get(
-  "/portfolio",
+  "/portfolios",
   authMiddleware,
   rbacMiddleware(["participant"]),
   userController.getAllPortfolios
+);
+
+// GET /api/users/portfolio/:portf_id - Get a specific portfolio item
+router.get(
+  "/portfolio/:portf_id",
+  authMiddleware,
+  userController.getPortfolioById
 );
 
 // PUT /api/users/portfolio/:portf_id - Update a portfolio item
