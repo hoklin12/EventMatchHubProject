@@ -17,6 +17,30 @@ router.post(
 // GET /api/events/ - List all events (accessible to all authenticated users)
 router.get("/", authMiddleware, eventController.listEvents);
 
+// POST /api/events/ - Create a new event (only for organizers)
+router.post(
+  "/",
+  authMiddleware,
+  rbacMiddleware(["organizer"]),
+  eventController.createEvent
+);
+
+//PUT /api/events/:event_id - Update event details (only for organizers)
+router.put(
+  "/:event_id",
+  authMiddleware,
+  rbacMiddleware(["organizer"]),
+  eventController.updateEvent
+);
+
+// DELETE /api/events/:event_id - Delete an event (only for organizers)
+router.delete(
+  "/:event_id",
+  authMiddleware,
+  rbacMiddleware(["organizer"]),
+  eventController.deleteEvent
+);
+
 // GET /api/events/:event_id - Get event details (accessible to all authenticated users)
 router.get("/:event_id", authMiddleware, eventController.viewSpecificEvent);
 

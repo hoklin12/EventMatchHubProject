@@ -1,6 +1,137 @@
-const { where } = require("sequelize");
 const models = require("../../models");
 
+// Create a new event only for organizers
+exports.createEvent = async (req, res, next) => {
+  const userId = req.user.userId;
+  const { title, description, type, status, event_date, location, fee_amount } =
+    req.body;
+  try {
+    // //Check User is Organizer
+    // const organizerId = await models.Role.findOne({
+    //   where: { role_name: "organizer" },
+    //   attributes: ["role_id"],
+    // });
+    // const isOrganizerRole = await models.UserRoles.findOne({
+    //   where: {
+    //     user_id: userId,
+    //     role_id: organizerId.role_id,
+    //   },
+    // });
+    // if (!isOrganizerRole) {
+    //   return res.status(404).json({
+    //     status: "fail",
+    //     message: "User is not an organizer.",
+    //   });
+    // }
+
+    //Check Event Date Validity
+    const eventDateObj = new Date(event_date);
+    const currentDate = new Date();
+    if (isNaN(eventDateObj.getTime()) || eventDateObj < currentDate) {
+      return res.status(400).json({
+        status: "fail",
+        message: "Invalid event date. It must be a future date.",
+      });
+    }
+
+    // Create Event
+    const newEvent = await models.Event.create({
+      user_id: userId,
+      title: title,
+      description: description,
+      type: type,
+      status: status,
+      event_date: event_date,
+      location: location,
+      fee_amount: fee_amount,
+    });
+    return res.status(201).json({
+      status: "success",
+      message: "Event created successfully.",
+      data: {
+        event: newEvent,
+      },
+    });
+  } catch (error) {
+    console.error("Create Event Error:", error);
+    next(error);
+  }
+};
+
+// Update event details only for organizers that created the event
+exports.updateEvent = async (req, res, next) => {
+  const userId = req.user.userId;
+  const eventId = req.params.event_id;
+  const { title, description, type, status, event_date, location, fee_amount } =
+    req.body;
+  try {
+    // Check if the event exists and if the user is an organizer for that event
+    const event = await models.Event.findByPk(eventId);
+    if (!event) {
+      return res
+        .status(404)
+        .json({ status: "fail", message: "Event not found." });
+    }
+    if (event.user_id !== userId) {
+      return res.status(403).json({
+        status: "fail",
+        message: `Access denied. You're Not organizer in event ID ${eventId}.`,
+      });
+    }
+    // Update event details
+    await event.update({
+      title: title || event.title,
+      description: description || event.description,
+      type: type || event.type,
+      status: status || event.status,
+      event_date: event_date || event.event_date,
+      location: location || event.location,
+      fee_amount: fee_amount || event.fee_amount,
+    });
+    return res.status(200).json({
+      status: "success",
+      message: "Event updated successfully.",
+      data: {
+        event: event,
+      },
+    });
+  } catch (error) {
+    console.error("Update Event Error:", error);
+    next(error);
+  }
+};
+
+// Delete an event only for organizers that created the event
+exports.deleteEvent = async (req, res, next) => {
+  const userId = req.user.userId;
+  const eventId = req.params.event_id;
+  try {
+    // Check if the event exists and if the user is an organizer for that event
+    const event = await models.Event.findByPk(eventId);
+    if (!event) {
+      return res
+        .status(404)
+        .json({ status: "fail", message: "Event not found." });
+    }
+    if (event.user_id !== userId) {
+      return res.status(403).json({
+        status: "fail",
+        message: `Access denied. You're Not organizer in event ID ${eventId}.`,
+      });
+    }
+    // Delete the event
+    await event.destroy();
+    return res.status(200).json({
+      status: "success",
+      message: "Event deleted successfully.",
+    });
+  } catch (error) {
+    console.error("Delete Event Error:", error);
+    next(error);
+  }
+};
+
+// User register for an event (only for participants)
 exports.userRegisterForEvent = async (req, res, next) => {
   const userId = req.user.userId;
   const eventId = req.params.event_id;
@@ -81,6 +212,7 @@ exports.userRegisterForEvent = async (req, res, next) => {
   }
 };
 
+// List all events (accessible to all authenticated users)
 exports.listEvents = async (req, res, next) => {
   try {
     const events = await models.Event.findAll();
@@ -94,6 +226,7 @@ exports.listEvents = async (req, res, next) => {
   }
 };
 
+// View specific event details (accessible to all authenticated users)
 exports.viewSpecificEvent = async (req, res, next) => {
   const eventId = req.params.event_id;
   try {
@@ -121,6 +254,7 @@ exports.viewSpecificEvent = async (req, res, next) => {
   }
 };
 
+// View participants of an event (only for organizers)
 exports.viewEventParticipants = async (req, res, next) => {
   const userId = req.user.userId;
   const eventId = req.params.event_id;
@@ -259,26 +393,27 @@ exports.viewEventParticipants = async (req, res, next) => {
   }
 };
 
+// View all certificates for an event (only for organizers that created the event)
 exports.viewAllCertificates = async (req, res, next) => {
   const userId = req.user.userId;
   const eventId = req.params.event_id;
   try {
-    const organizerId = await models.Role.findOne({
-      where: { role_name: "organizer" },
-      attributes: ["role_id"],
-    });
-    const isOrganizerRole = await models.UserRoles.findOne({
-      where: {
-        user_id: userId,
-        role_id: organizerId.role_id,
-      },
-    });
-    if (!isOrganizerRole) {
-      return res.status(404).json({
-        status: "fail",
-        message: "User is not an organizer.",
-      });
-    }
+    // const organizerId = await models.Role.findOne({
+    //   where: { role_name: "organizer" },
+    //   attributes: ["role_id"],
+    // });
+    // const isOrganizerRole = await models.UserRoles.findOne({
+    //   where: {
+    //     user_id: userId,
+    //     role_id: organizerId.role_id,
+    //   },
+    // });
+    // if (!isOrganizerRole) {
+    //   return res.status(404).json({
+    //     status: "fail",
+    //     message: "User is not an organizer.",
+    //   });
+    // }
     const isOrganizer = await models.Event.findOne({
       where: { event_id: eventId, user_id: userId },
     });
@@ -311,6 +446,7 @@ exports.viewAllCertificates = async (req, res, next) => {
   }
 };
 
+// View specific certificate details
 exports.viewSpecificCertificate = async (req, res, next) => {
   const userId = req.user.userId;
   const eventId = req.params.event_id;
@@ -355,6 +491,8 @@ exports.viewSpecificCertificate = async (req, res, next) => {
     next(error);
   }
 };
+
+// Generate certificate for a participant in an event (only for organizers that created the event)
 exports.generateCertificate = async (req, res, next) => {
   const userId = req.user.userId;
   const eventId = req.params.event_id;
