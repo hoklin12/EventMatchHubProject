@@ -398,6 +398,7 @@ exports.viewAllCertificates = async (req, res, next) => {
     //Check only organizer role can view participants
     await checkUserRoleOrganizer(req.user);
 
+    // Check if the event exists and if the user is an organizer for that event
     const isOrganizer = await models.Event.findOne({
       where: { event_id: eventId, user_id: userId },
     });

@@ -61,4 +61,12 @@ router.delete(
   userController.deletePortfolio
 );
 
+//Get detail user certificate
+router.get(
+  "/certificate/:cert_id",
+  rbacMiddleware(["participant"]),
+  authMiddleware,
+  userController.getCertificateById
+);
+
 module.exports = router;

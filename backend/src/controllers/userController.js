@@ -571,3 +571,36 @@ exports.updatePortfolio = async (req, res, next) => {
     next(error);
   }
 };
+
+// Get specific Certificate by cert_id only for participant role
+exports.getCertificateById = async (req, res, next) => {
+  const userId = req.user.userId;
+  const certId = req.params.cert_id;
+  try {
+    //Check only participant role can get certificate detail
+    await checkUserRoleParticipant(req.user);
+    // Find certificate by user_id and cert_id
+    const certificate = await models.Certificate.findOne({
+      where: { user_id: userId, certificate_id: certId },
+    });
+    if (!certificate) {
+      return res
+        .status(404)
+        .json({ status: "fail", message: "Certificate not found." });
+    }
+    return res.status(200).json({
+      status: "success",
+      certificate: {
+        certificate_id: certificate.certificate_id,
+        title: certificate.title,
+        description: certificate.description,
+        issued_date: certificate.issued_date,
+        expiration_duration: certificate.expiration_duration,
+        file_link: certificate.file_link,
+      },
+    });
+  } catch (error) {
+    console.error("Get Certificate By ID Error:", error);
+    next(error);
+  }
+};
