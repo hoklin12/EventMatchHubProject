@@ -7,7 +7,7 @@ module.exports = (sequelize, DataTypes) => {
     static associate(models) {
       if (models.Role) {
         Certificate.belongsToMany(models.Portfolio, {
-          through: "Portfolio_Certificates",
+          through: "PortfolioCertificates",
           foreignKey: "certificate_id",
           otherKey: "portfolio_id",
           as: "Portfolios",

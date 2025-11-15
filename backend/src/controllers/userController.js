@@ -2,6 +2,7 @@
 const models = require("../../models");
 const bcrypt = require("bcryptjs"); // For password comparison on update
 
+// Get current authenticated user's profile
 exports.getCurrentUser = async (req, res, next) => {
   try {
     // req.user is populated by authMiddleware
@@ -34,6 +35,7 @@ exports.getCurrentUser = async (req, res, next) => {
   }
 };
 
+// Update current authenticated user's profile
 exports.updateCurrentUser = async (req, res, next) => {
   const userId = req.user.userId; // Get ID from authenticated user
   const { full_name, contact_info, skills, organization_name, password_hash } =
@@ -67,6 +69,7 @@ exports.updateCurrentUser = async (req, res, next) => {
   }
 };
 
+// Delete current authenticated user's profile
 exports.deleteCurrentUser = async (req, res, next) => {
   const userId = req.user.userId;
 
@@ -139,10 +142,27 @@ exports.deleteCurrentUser = async (req, res, next) => {
 //   }
 // };
 
+// Create Portfolio only for participant role
 exports.createPortfolio = async (req, res, next) => {
   const userId = req.user.userId;
   const { title, description, certificates } = req.body;
   try {
+    //Check certificate duplicates and belong to the user
+    const hasDuplicate =
+      new Set(certificates.map((c) => c.certificate_id)).size !==
+      certificates.length;
+
+    const isCertificateBelongToUser = await models.Certificate.findAll({
+      where: { user_id: userId },
+    });
+
+    if (hasDuplicate || !isCertificateBelongToUser) {
+      return res.status(400).json({
+        status: "fail",
+        message: "Invalid certificates provided.",
+      });
+    }
+
     const all_certificate_id = [];
     const certificateRecords = await models.Certificate.findAll({
       where: { user_id: userId },
@@ -213,6 +233,7 @@ exports.createPortfolio = async (req, res, next) => {
   }
 };
 
+// Get all portfolios only for the organizer role
 exports.getAllPortfolios = async (req, res, next) => {
   const userId = req.user.userId;
   try {
@@ -268,6 +289,7 @@ exports.getAllPortfolios = async (req, res, next) => {
   }
 };
 
+// Delete Portfolio by portfolio_id only for participant role
 exports.deletePortfolio = async (req, res, next) => {
   const userId = req.user.userId;
   const portfolioId = req.params.portf_id;
@@ -288,6 +310,99 @@ exports.deletePortfolio = async (req, res, next) => {
       .json({ status: "success", message: "Portfolio deleted successfully." });
   } catch (error) {
     console.error("Delete Portfolio Error:", error);
+    next(error);
+  }
+};
+
+// Update Portfolio by portfolio_id only for participant role
+exports.updatePortfolio = async (req, res, next) => {
+  const userId = req.user.userId;
+  const portfolioId = req.params.portf_id;
+  const { title, description, certificates } = req.body;
+
+  try {
+    const portfolio = await models.Portfolio.findOne({
+      where: { user_id: userId, portfolio_id: portfolioId },
+    });
+
+    if (!portfolio) {
+      return res
+        .status(404)
+        .json({ status: "fail", message: "Portfolio not found." });
+    }
+
+    // Update portfolio info
+    await portfolio.update({ title, description });
+
+    // 1️ Check duplicates
+    if (new Set(certificates).size !== certificates.length) {
+      return res.status(400).json({
+        status: "fail",
+        message: "Duplicate certificate_id detected.",
+      });
+    }
+
+    // 2️ Check ownership (use for..of instead of forEach)
+    for (const id of certificates) {
+      const belongs = await models.Certificate.findOne({
+        where: { user_id: userId, certificate_id: id },
+      });
+
+      if (!belongs) {
+        return res.status(400).json({
+          status: "fail",
+          message: `You do not own this certificate id: ${id}`,
+        });
+      }
+    }
+
+    // 3️ Get current certificates
+    const current = await models.PortfolioCertificates.findAll({
+      where: { portfolio_id: portfolioId },
+      attributes: ["certificate_id"],
+    });
+
+    const currentIds = current.map((c) => c.certificate_id);
+
+    // 4️ Remove unselected certificates
+    for (const id of currentIds) {
+      if (!certificates.includes(id)) {
+        await portfolio.removeCertificates(id);
+      }
+    }
+
+    // 5️ Add new certificates
+    for (const id of certificates) {
+      if (!currentIds.includes(id)) {
+        await portfolio.addCertificates(id);
+      }
+    }
+
+    // 6️ Build response
+    const readCertificates = await portfolio.getCertificates();
+
+    const certificateDetails = readCertificates.map((cert) => ({
+      certificate_id: cert.certificate_id,
+      title: cert.title,
+      description: cert.description,
+      issued_date: cert.issued_date,
+      expiration_duration: cert.expiration_duration,
+      file_link: cert.file_link,
+    }));
+
+    return res.status(200).json({
+      status: "success",
+      message: "Portfolio updated successfully.",
+      data: {
+        portfolio_id: portfolio.portfolio_id,
+        portfolio_items_id: portfolio.portfolio_items_id,
+        title: portfolio.title,
+        description: portfolio.description,
+        certificates: certificateDetails,
+      },
+    });
+  } catch (error) {
+    console.error("Update Portfolio Error:", error);
     next(error);
   }
 };

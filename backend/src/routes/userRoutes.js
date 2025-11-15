@@ -39,6 +39,14 @@ router.get(
   userController.getAllPortfolios
 );
 
+// PUT /api/users/portfolio/:portf_id - Update a portfolio item
+router.put(
+  "/portfolio/:portf_id",
+  authMiddleware,
+  rbacMiddleware(["participant"]),
+  userController.updatePortfolio
+);
+
 // DELETE /api/users/portfolio/:portf_id - Delete a portfolio item
 router.delete(
   "/portfolio/:portf_id",
