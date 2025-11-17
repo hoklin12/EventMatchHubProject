@@ -29,12 +29,12 @@ module.exports = {
         onUpdate: "CASCADE",
         onDelete: "CASCADE",
       },
-      title: {
-        type: Sequelize.STRING(64),
+      organizer_name: {
+        type: Sequelize.STRING(36),
         allowNull: false,
       },
       description: {
-        type: Sequelize.STRING(255),
+        type: Sequelize.STRING(123),
         allowNull: false,
       },
       issued_date: {

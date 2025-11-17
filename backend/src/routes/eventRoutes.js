@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const userController = require("../controllers/userController");
+const certificateController = require("../controllers/certificateController");
 const eventController = require("../controllers/eventController");
 const authMiddleware = require("../middleware/authMiddleware");
 const rbacMiddleware = require("../middleware/rbacMiddleware"); // For role checks
@@ -52,11 +52,19 @@ router.get(
   eventController.viewEventParticipants
 );
 
+//POST /api/events/:event_id/certificates/generate - Generate certificates for event participants (only for organizers)
+router.post(
+  "/:event_id/certificates/generate",
+  authMiddleware,
+  rbacMiddleware(["organizer"]),
+  certificateController.createCertificates
+);
+
 // GET /api/events/:event_id/certificates/:cert_id - View specific certificate details
 router.get(
   "/:event_id/certificates/:cert_id",
   authMiddleware,
-  eventController.viewSpecificCertificate
+  certificateController.viewSpecificCertificate
 );
 
 // GET /api/events/:event_id/certificates - View all certificates for an event (only for organizers)
@@ -64,7 +72,7 @@ router.get(
   "/:event_id/certificates",
   authMiddleware,
   rbacMiddleware(["organizer"]),
-  eventController.viewAllCertificates
+  certificateController.viewAllCertificates
 );
 
 module.exports = router;

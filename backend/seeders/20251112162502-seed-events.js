@@ -21,7 +21,7 @@ module.exports = {
       },
       {
         event_id: "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
-        user_id: "e57a5708-5b21-4a82-abd4-a4a4ac682486",
+        user_id: "101d0a11-80cc-4c95-ba41-75a4f27b6d11",
         title: "Full-Stack Developer Workshop",
         description:
           "A 2-day hands-on coding workshop focusing on building and deploying full-stack applications using Node.js and React.",

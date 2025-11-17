@@ -6,9 +6,6 @@ exports.createEvent = async (req, res, next) => {
   const { title, description, type, status, event_date, location, fee_amount } =
     req.body;
   try {
-    //Check only organizer role can create event
-    await checkUserRoleOrganizer(req.user);
-
     //Check Event Date Validity
     const eventDateObj = new Date(event_date);
     const currentDate = new Date();
@@ -50,9 +47,6 @@ exports.updateEvent = async (req, res, next) => {
   const { title, description, type, status, event_date, location, fee_amount } =
     req.body;
   try {
-    //Check only organizer role can update event
-    await checkUserRoleOrganizer(req.user);
-
     // Check if the event exists and if the user is an organizer for that event
     const event = await models.Event.findByPk(eventId);
     if (!event) {
@@ -94,9 +88,6 @@ exports.deleteEvent = async (req, res, next) => {
   const userId = req.user.userId;
   const eventId = req.params.event_id;
   try {
-    //Check only organizer role can delete event
-    await checkUserRoleOrganizer(req.user);
-
     // Check if the event exists and if the user is an organizer for that event
     const event = await models.Event.findByPk(eventId);
     if (!event) {
@@ -128,9 +119,6 @@ exports.userRegisterForEvent = async (req, res, next) => {
   const eventId = req.params.event_id;
   const { portfolioId, title, description } = req.body;
   try {
-    //Check only participant role can register for event
-    await checkUserRoleParticipant(req.user);
-
     //checking event existence
     const event = await models.Event.findByPk(eventId);
     if (!event) {
@@ -253,9 +241,6 @@ exports.viewEventParticipants = async (req, res, next) => {
   const userId = req.user.userId;
   const eventId = req.params.event_id;
   try {
-    //Check only organizer role can view participants
-    await checkUserRoleOrganizer(req.user);
-
     // Check if the event exists and if the user is an organizer for that event
     const event = await models.Event.findByPk(eventId);
     if (!event) {
@@ -333,7 +318,7 @@ exports.viewEventParticipants = async (req, res, next) => {
             attributes: [
               "certificate_id",
               "event_id",
-              "title",
+              "organizer_name",
               "description",
               "issued_date",
               "expiration_duration",
@@ -386,106 +371,6 @@ exports.viewEventParticipants = async (req, res, next) => {
     });
   } catch (error) {
     console.error("View Event Participants Error:", error);
-    next(error);
-  }
-};
-
-// View all certificates for an event (only for organizers that created the event)
-exports.viewAllCertificates = async (req, res, next) => {
-  const userId = req.user.userId;
-  const eventId = req.params.event_id;
-  try {
-    //Check only organizer role can view participants
-    await checkUserRoleOrganizer(req.user);
-
-    // Check if the event exists and if the user is an organizer for that event
-    const isOrganizer = await models.Event.findOne({
-      where: { event_id: eventId, user_id: userId },
-    });
-    if (!isOrganizer) {
-      return res.status(404).json({
-        status: "fail",
-        message: "User is not an organizer of this event.",
-      });
-    }
-
-    const certificate = await models.Certificate.findAll({
-      where: {
-        event_id: eventId,
-      },
-      order: [["updated_at", "DESC"]],
-    });
-
-    if (!certificate) {
-      return res
-        .status(404)
-        .json({ status: "fail", message: "Certificate not found." });
-    }
-    return res.status(200).json({
-      status: "success",
-      data: certificate,
-    });
-  } catch (error) {
-    console.error("View Certificate Error:", error);
-    next(error);
-  }
-};
-
-// View specific certificate details
-exports.viewSpecificCertificate = async (req, res, next) => {
-  const userId = req.user.userId;
-  const eventId = req.params.event_id;
-  const certId = req.params.cert_id;
-  try {
-    // Check if the user is an organizer for that event or participant with the certificate
-    const organizerId = await models.Role.findOne({
-      where: { role_name: "organizer" },
-      attributes: ["role_id"],
-    });
-    const isOrganizerRole = await models.UserRoles.findOne({
-      where: {
-        user_id: userId,
-        role_id: organizerId.role_id,
-      },
-    });
-
-    const isParticipantRole = await models.Certificate.findOne({
-      where: {
-        certificate_id: certId,
-        event_id: eventId,
-        user_id: userId,
-      },
-    });
-
-    if (!isOrganizerRole && !isParticipantRole) {
-      return res.status(404).json({
-        status: "fail",
-        message:
-          "User is not an organizer this event or participant with this certificate.",
-      });
-    }
-
-    const certificate = await models.Certificate.findByPk(certId);
-
-    return res.status(200).json({
-      status: "success",
-      data: certificate,
-    });
-  } catch (error) {
-    console.error("View Specific Certificate Error:", error);
-    next(error);
-  }
-};
-
-// Generate certificate for a participant in an event (only for organizers that created the event)
-exports.generateCertificate = async (req, res, next) => {
-  const userId = req.user.userId;
-  const eventId = req.params.event_id;
-  const { title, description, expiration_duration } = req.body;
-  try {
-    // Verify that the user is registered for the event
-  } catch (error) {
-    console.error("Generate Certificate Error:", error);
     next(error);
   }
 };

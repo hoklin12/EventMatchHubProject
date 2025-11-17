@@ -2,6 +2,7 @@
 const express = require("express");
 const router = express.Router();
 const userController = require("../controllers/userController");
+const certificateController = require("../controllers/certificateController");
 const authMiddleware = require("../middleware/authMiddleware");
 const rbacMiddleware = require("../middleware/rbacMiddleware"); // For role checks
 const { validateUpdateUser } = require("../middleware/validationMiddleware"); // Assuming you'll create this validator
@@ -66,7 +67,7 @@ router.get(
   "/certificate/:cert_id",
   rbacMiddleware(["participant"]),
   authMiddleware,
-  userController.getCertificateById
+  certificateController.getCertificateById
 );
 
 module.exports = router;

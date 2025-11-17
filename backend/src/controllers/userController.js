@@ -147,9 +147,6 @@ exports.createPortfolio = async (req, res, next) => {
   const userId = req.user.userId;
   const { title, description, certificates } = req.body;
   try {
-    //Check only participant role can create portfolio
-    await checkUserRoleParticipant(req.user);
-
     //Check certificate duplicates and belong to the user
     const hasDuplicate =
       new Set(certificates.map((c) => c.certificate_id)).size !==
@@ -213,7 +210,7 @@ exports.createPortfolio = async (req, res, next) => {
       const cert = certificateRecords.find((c) => c.certificate_id === certId);
       if (cert) {
         certificateDetails.push({
-          title: cert.title,
+          organizer_name: cert.organizer_name,
           description: cert.description,
           issued_date: cert.issued_date,
           expiration_duration: cert.expiration_duration,
@@ -240,9 +237,6 @@ exports.createPortfolio = async (req, res, next) => {
 exports.getAllPortfolios = async (req, res, next) => {
   const userId = req.user.userId;
   try {
-    //Check only organizer role can get all portfolios
-    await checkUserRoleOrganizer(req.user);
-
     // Fetch all portfolios with associated certificates
     const portfolios = await models.Portfolio.findAll({
       where: { user_id: userId },
@@ -252,7 +246,7 @@ exports.getAllPortfolios = async (req, res, next) => {
           as: "Certificates",
           attributes: [
             "certificate_id",
-            "title",
+            "organizer_name",
             "description",
             "issued_date",
             "expiration_duration",
@@ -282,7 +276,7 @@ exports.getAllPortfolios = async (req, res, next) => {
           description: p.description,
           certificates: p.Certificates.map((c) => ({
             certificate_id: c.certificate_id,
-            title: c.title,
+            organizer_name: c.organizer_name,
             description: c.description,
             issued_date: c.issued_date,
             expiration_duration: c.expiration_duration,
@@ -376,7 +370,7 @@ exports.getPortfolioById = async (req, res, next) => {
             as: "Certificates",
             attributes: [
               "certificate_id",
-              "title",
+              "organizer_name",
               "description",
               "issued_date",
               "expiration_duration",
@@ -401,7 +395,7 @@ exports.getPortfolioById = async (req, res, next) => {
             as: "Certificates",
             attributes: [
               "certificate_id",
-              "title",
+              "organizer_name",
               "description",
               "issued_date",
               "expiration_duration",
@@ -436,7 +430,7 @@ exports.getPortfolioById = async (req, res, next) => {
         description: portfolio.description,
         certificates: portfolio.Certificates.map((c) => ({
           certificate_id: c.certificate_id,
-          title: c.title,
+          organizer_name: c.organizer_name,
           description: c.description,
           issued_date: c.issued_date,
           expiration_duration: c.expiration_duration,
@@ -482,9 +476,6 @@ exports.updatePortfolio = async (req, res, next) => {
   const { title, description, certificates } = req.body;
 
   try {
-    //Check only participant role can update portfolio
-    await checkUserRoleParticipant(req.user);
-
     // Find portfolio by user_id and portfolio_id
     const portfolio = await models.Portfolio.findOne({
       where: { user_id: userId, portfolio_id: portfolioId },
@@ -507,7 +498,7 @@ exports.updatePortfolio = async (req, res, next) => {
       });
     }
 
-    // 2️ Check ownership (use for..of instead of forEach)
+    // 2️ Check ownership
     for (const id of certificates) {
       const belongs = await models.Certificate.findOne({
         where: { user_id: userId, certificate_id: id },
@@ -548,7 +539,7 @@ exports.updatePortfolio = async (req, res, next) => {
 
     const certificateDetails = readCertificates.map((cert) => ({
       certificate_id: cert.certificate_id,
-      title: cert.title,
+      organizer_name: cert.organizer_name,
       description: cert.description,
       issued_date: cert.issued_date,
       expiration_duration: cert.expiration_duration,
@@ -568,39 +559,6 @@ exports.updatePortfolio = async (req, res, next) => {
     });
   } catch (error) {
     console.error("Update Portfolio Error:", error);
-    next(error);
-  }
-};
-
-// Get specific Certificate by cert_id only for participant role
-exports.getCertificateById = async (req, res, next) => {
-  const userId = req.user.userId;
-  const certId = req.params.cert_id;
-  try {
-    //Check only participant role can get certificate detail
-    await checkUserRoleParticipant(req.user);
-    // Find certificate by user_id and cert_id
-    const certificate = await models.Certificate.findOne({
-      where: { user_id: userId, certificate_id: certId },
-    });
-    if (!certificate) {
-      return res
-        .status(404)
-        .json({ status: "fail", message: "Certificate not found." });
-    }
-    return res.status(200).json({
-      status: "success",
-      certificate: {
-        certificate_id: certificate.certificate_id,
-        title: certificate.title,
-        description: certificate.description,
-        issued_date: certificate.issued_date,
-        expiration_duration: certificate.expiration_duration,
-        file_link: certificate.file_link,
-      },
-    });
-  } catch (error) {
-    console.error("Get Certificate By ID Error:", error);
     next(error);
   }
 };
