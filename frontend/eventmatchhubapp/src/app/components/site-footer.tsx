@@ -1,7 +1,8 @@
+/* eslint-disable @next/next/no-img-element */
 import Link from "next/link"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Facebook, Twitter, Instagram, Linkedin, Mail } from "lucide-react"
+import { Button } from "@/app/components/ui/button"
+import { Input } from "@/app/components/ui/input"
+import { Facebook, Instagram, Linkedin, Mail } from "lucide-react"
 
 export function SiteFooter() {
   return (
@@ -21,9 +22,6 @@ export function SiteFooter() {
             <div className="flex gap-3">
               <Button size="icon" variant="ghost" className="hover:bg-white/10 text-white">
                 <Facebook className="w-5 h-5" />
-              </Button>
-              <Button size="icon" variant="ghost" className="hover:bg-white/10 text-white">
-                <Twitter className="w-5 h-5" />
               </Button>
               <Button size="icon" variant="ghost" className="hover:bg-white/10 text-white">
                 <Instagram className="w-5 h-5" />

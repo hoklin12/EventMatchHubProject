@@ -1,8 +1,9 @@
+/* eslint-disable @next/next/no-img-element */
 "use client"
 
 import Link from "next/link"
-import { Button } from "@/components/ui/button"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Button } from "@/app/components/ui/button"
+import { Avatar, AvatarFallback, AvatarImage } from "@/app/components/ui/avatar"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -10,7 +11,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
+} from "@/app/components/ui/dropdown-menu"
 import { Bell, Settings, LogOut, User, Menu, X } from "lucide-react"
 import { useState } from "react"
 
@@ -23,29 +24,50 @@ interface SiteHeaderProps {
 export function SiteHeader({ variant = "default", userName, userAvatar }: SiteHeaderProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
-  const getNavLinks = () => {
-    switch (variant) {
-      case "participant":
-        return [
-          { href: "/dashboard/participant", label: "Dashboard" },
-          { href: "/events", label: "Explore Events" },
-          { href: "/my-registrations", label: "My Registrations" },
-          { href: "/messages", label: "Messages" },
-        ]
-      case "organizer":
-        return [
-          { href: "/dashboard/organizer", label: "Dashboard" },
-          { href: "/event-management", label: "My Events" },
-          { href: "/messages", label: "Messages" },
-          { href: "#analytics", label: "Analytics" },
-        ]
-      default:
-        return [
-          { href: "/", label: "Home" },
-          { href: "/events", label: "Browse Events" },
-          { href: "/about", label: "About" },
-        ]
-    }
+  // const getNavLinks = () => {
+  //   switch (variant) {
+  //     case "participant":
+  //       return [
+  //         { href: "/dashboard/participant", label: "Dashboard" },
+  //         { href: "/events", label: "Explore Events" },
+  //         { href: "/my-registrations", label: "My Registrations" },
+  //         { href: "/messages", label: "Messages" },
+  //       ]
+  //     case "organizer":
+  //       return [
+  //         { href: "/dashboard/organizer", label: "Dashboard" },
+  //         { href: "/event-management", label: "My Events" },
+  //         { href: "/messages", label: "Messages" },
+  //         { href: "#analytics", label: "Analytics" },
+  //       ]
+  //     default:
+  //       return [
+  //         { href: "/", label: "Home" },
+  //         { href: "/events", label: "Browse Events" },
+  //         { href: "/about", label: "About" },
+  //       ]
+  //   }
+  // }
+
+    const getNavLinks = () => {
+    const commonLinks = [
+      { href: "/", label: "Home" },
+      { href: "/events", label: "Browse Events" },
+      { href: "/about", label: "About" },
+    ]
+
+    const roleLinks =
+      variant === "participant"
+        ? [{ href: "/overview", label: "Overview" }]
+        : variant === "organizer"
+        ? [
+            { href: "/dashboard/organizer", label: "Dashboard" },
+            { href: "/event-management", label: "My Events" },
+            { href: "/messages", label: "Messages" },
+          ]
+        : []
+
+    return [...commonLinks, ...roleLinks]
   }
 
   const navLinks = getNavLinks()
