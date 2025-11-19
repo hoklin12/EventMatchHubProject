@@ -1,11 +1,33 @@
 const models = require("../../models");
+const crypto = require("crypto");
 
 // Generate certificates for event participants (only for organizers that created the event)
+function generateVerificationCode(eventID, userID) {
+  const hash = crypto
+    .createHash("sha256")
+    .update(`${eventID}-${userID}`)
+    .digest("hex")
+    .slice(0, 12)
+    .toUpperCase();
+
+  return `EMH-${hash}`;
+}
+
 exports.createCertificates = async (req, res, next) => {
   const userId = req.user.userId;
   const eventId = req.params.event_id;
   const { organizer_name, description, expiration_duration } = req.body;
   try {
+    // Check if the event exists and if the user is an organizer for that event
+    const isOrganizer = await models.Event.findOne({
+      where: { event_id: eventId, user_id: userId },
+    });
+    if (!isOrganizer) {
+      return res.status(404).json({
+        status: "fail",
+        message: "User is not an organizer of this event.",
+      });
+    }
     // Fetch participants registered for the event
     const registrations = await models.Registration.findAll({
       where: { event_id: eventId },
@@ -21,6 +43,18 @@ exports.createCertificates = async (req, res, next) => {
     const generatedCertificates = [];
     for (const registration of registrations) {
       const participantId = registration.ApplicationForm.user_id;
+      //Check user has been issued a certificate already
+      const existingCertificate = await models.Certificate.findOne({
+        where: {
+          event_id: eventId,
+          user_id: participantId,
+        },
+      });
+
+      if (existingCertificate) {
+        continue;
+      }
+
       const newCertificate = await models.Certificate.create({
         event_id: eventId,
         user_id: participantId,
@@ -28,8 +62,8 @@ exports.createCertificates = async (req, res, next) => {
         description: description,
         issued_date: new Date(),
         expiration_duration: expiration_duration,
-        verification_code: generateVerificationCode(),
-        file_link: "", // Placeholder, to be updated when the actual certificate file is generated
+        verification_code: generateVerificationCode(eventId, participantId),
+        file_link: "",
       });
       generatedCertificates.push(newCertificate);
     }

@@ -49,7 +49,7 @@ module.exports = (sequelize, DataTypes) => {
         onDelete: "CASCADE",
       },
       organizer_name: {
-        type: DataTypes.STRING(36),
+        type: DataTypes.STRING(40),
         allowNull: false,
       },
       description: {

@@ -30,7 +30,7 @@ module.exports = {
         onDelete: "CASCADE",
       },
       organizer_name: {
-        type: Sequelize.STRING(36),
+        type: Sequelize.STRING(40),
         allowNull: false,
       },
       description: {
