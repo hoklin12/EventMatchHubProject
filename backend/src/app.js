@@ -19,7 +19,9 @@ const e = require("express");
 // Add other routers later: eventRoutes, registrationRoutes, etc.
 
 const app = express();
-const port = process.env.PORT || 3000;
+const HOST = process.env.HOST || "localhost";
+const { API_VERSION } = require("./config/constants");
+const PORT = process.env.PORT || 3000;
 
 // --- Middleware Setup ---
 
@@ -40,9 +42,9 @@ if (process.env.NODE_ENV !== "production") {
 
 // --- API Routes ---
 // Mount your routers
-app.use("/api/auth", authRoutes);
-app.use("/api/users", userRoutes);
-app.use("/api/events", eventRoutes);
+app.use(`${API_VERSION}/auth`, authRoutes);
+app.use(`${API_VERSION}/users`, userRoutes);
+app.use(`${API_VERSION}/events`, eventRoutes);
 // Mount other routers as you build them
 // app.use('/api/events', eventRoutes);
 
@@ -78,8 +80,8 @@ db.authenticate()
     //   console.log('Database synchronized.');
     // });
 
-    app.listen(port, () => {
-      console.log(`Auth API server running on port ${port}`);
+    app.listen(PORT, HOST, () => {
+      console.log(`Auth API server running on http://${HOST}:${PORT}`);
     });
   })
   .catch((err) => {

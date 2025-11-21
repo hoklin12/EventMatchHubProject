@@ -5,8 +5,9 @@ const eventController = require("../controllers/eventController");
 const authMiddleware = require("../middleware/authMiddleware");
 const rbacMiddleware = require("../middleware/rbacMiddleware"); // For role checks
 const { validateUpdateUser } = require("../middleware/validationMiddleware"); // Assuming you'll create this validator
+const upload = require("../middleware/uploadMiddleware");
 
-// POST /api/events/:event_id/register - Register for an event (only for participants)
+// POST /api/v1/events/:event_id/register - Register for an event (only for participants)
 router.post(
   "/:event_id/register",
   authMiddleware,
@@ -14,10 +15,10 @@ router.post(
   eventController.userRegisterForEvent
 );
 
-// GET /api/events/ - List all events (accessible to all authenticated users)
+// GET /api/v1/events/ - List all events (accessible to all authenticated users)
 router.get("/", authMiddleware, eventController.listEvents);
 
-// POST /api/events/ - Create a new event (only for organizers)
+// POST /api/v1/events/ - Create a new event (only for organizers)
 router.post(
   "/",
   authMiddleware,
@@ -25,7 +26,7 @@ router.post(
   eventController.createEvent
 );
 
-//PUT /api/events/:event_id - Update event details (only for organizers)
+//PUT /api/v1/events/:event_id - Update event details (only for organizers)
 router.put(
   "/:event_id",
   authMiddleware,
@@ -33,7 +34,7 @@ router.put(
   eventController.updateEvent
 );
 
-// DELETE /api/events/:event_id - Delete an event (only for organizers)
+// DELETE /api/v1/events/:event_id - Delete an event (only for organizers)
 router.delete(
   "/:event_id",
   authMiddleware,
@@ -41,10 +42,10 @@ router.delete(
   eventController.deleteEvent
 );
 
-// GET /api/events/:event_id - Get event details (accessible to all authenticated users)
+// GET /api/v1/events/:event_id - Get event details (accessible to all authenticated users)
 router.get("/:event_id", authMiddleware, eventController.viewSpecificEvent);
 
-// GET /api/events/:event_id/partcipants - View participants of an event (only for organizers)
+// GET /api/v1/events/:event_id/participants - View participants of an event (only for organizers)
 router.get(
   "/:event_id/participants",
   authMiddleware,
@@ -52,22 +53,25 @@ router.get(
   eventController.viewEventParticipants
 );
 
-//POST /api/events/:event_id/certificates/generate - Generate certificates for event participants (only for organizers)
+//POST /api/v1/events/:event_id/certificates/generate - Generate certificates for event participants (only for organizers)
 router.post(
   "/:event_id/certificates/generate",
   authMiddleware,
   rbacMiddleware(["organizer"]),
+  upload.fields([{ name: "signature", maxCount: 1 }]),
+  // upload.single("signature"),
   certificateController.createCertificates
 );
 
-// GET /api/events/:event_id/certificates/:cert_id - View specific certificate details
+// GET /api/v1/events/:event_id/certificates/:cert_id - View specific certificate details
 router.get(
   "/:event_id/certificates/:cert_id",
   authMiddleware,
+  rbacMiddleware(["organizer", "participant"]),
   certificateController.viewSpecificCertificate
 );
 
-// GET /api/events/:event_id/certificates - View all certificates for an event (only for organizers)
+// GET /api/v1/events/:event_id/certificates - View all certificates for an event (only for organizers)
 router.get(
   "/:event_id/certificates",
   authMiddleware,
@@ -76,3 +80,11 @@ router.get(
 );
 
 module.exports = router;
+
+//GET /api/v1/events/certificates/template - Get certificate template (accessible only to organizers)
+router.get(
+  "/certificates/template",
+  authMiddleware,
+  rbacMiddleware(["organizer"]),
+  certificateController.getCertificateTemplate
+);
