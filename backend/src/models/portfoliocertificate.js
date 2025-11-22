@@ -6,11 +6,11 @@ module.exports = (sequelize, DataTypes) => {
     static associate(models) {
       PortfolioCertificates.belongsTo(models.Certificate, {
         foreignKey: "certificate_id",
-        as: "Certificate",
+        as: "Certificates",
       });
       PortfolioCertificates.belongsTo(models.Portfolio, {
         foreignKey: "portfolio_id",
-        as: "Portfolio",
+        as: "Portfolios",
       });
     }
   }

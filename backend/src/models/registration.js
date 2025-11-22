@@ -8,7 +8,7 @@ module.exports = (sequelize, DataTypes) => {
       if (models.ApplicationForm) {
         Registration.belongsTo(models.ApplicationForm, {
           foreignKey: "applicationform_id",
-          as: "ApplicationForm",
+          as: "ApplicationForms",
         });
       }
       if (models.Event) {

@@ -12,6 +12,8 @@ const {
   formatDateCertificate,
 } = require("../utils/dateTimeUtils");
 
+const { checkUserRoleOrganizer } = require("../utils/checkUserRole");
+
 exports.createCertificates = async (req, res, next) => {
   const userId = req.user.userId;
   const eventId = req.params.event_id;
@@ -34,6 +36,14 @@ exports.createCertificates = async (req, res, next) => {
   // );
 
   try {
+    // Check if user is participant
+    const checkOrganizer = await checkUserRoleOrganizer(userId);
+    if (checkOrganizer === false) {
+      return res.status(403).json({
+        status: "fail",
+        message: "Your role haven't permission to access api",
+      });
+    }
     // Check if the event exists and if the user is an organizer for that event
     const isOrganizer = await models.Event.findOne({
       where: { event_id: eventId, user_id: userId },
@@ -169,6 +179,14 @@ exports.viewAllCertificates = async (req, res, next) => {
   const userId = req.user.userId;
   const eventId = req.params.event_id;
   try {
+    // Check if user is participant
+    const checkOrganizer = await checkUserRoleOrganizer(userId);
+    if (checkOrganizer === false) {
+      return res.status(403).json({
+        status: "fail",
+        message: "Your role haven't permission to access api",
+      });
+    }
     // Check if the event exists and if the user is an organizer for that event
     const isOrganizer = await models.Event.findOne({
       where: { event_id: eventId, user_id: userId },
@@ -283,6 +301,14 @@ exports.getCertificateById = async (req, res, next) => {
 exports.getCertificateTemplate = async (req, res, next) => {
   const userId = req.user.userId;
   try {
+    // Check if user is participant
+    const checkOrganizer = await checkUserRoleOrganizer(userId);
+    if (checkOrganizer === false) {
+      return res.status(403).json({
+        status: "fail",
+        message: "Your role haven't permission to access api",
+      });
+    }
     // Return a predefined certificate template
     const template = await models.CertificateTemplate.findAll({
       order: [["created_at", "DESC"]],

@@ -8,13 +8,13 @@ module.exports = (sequelize, DataTypes) => {
       if (models.Portfolio) {
         ApplicationForm.belongsTo(models.Portfolio, {
           foreignKey: "portfolio_id",
-          as: "Portfolio",
+          as: "Portfolios",
         });
       }
       if (models.User) {
         ApplicationForm.belongsTo(models.User, {
           foreignKey: "user_id",
-          as: "User",
+          as: "Users",
         });
       }
     }
@@ -49,7 +49,7 @@ module.exports = (sequelize, DataTypes) => {
     {
       sequelize,
       modelName: "ApplicationForm",
-      tableName: "ApplicationForm",
+      tableName: "ApplicationForms",
       timestamps: true,
       paranoid: false,
     }

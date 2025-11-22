@@ -1,46 +1,53 @@
 "use strict";
 
+/** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable("ApplicationForms", {
-      applicationform_id: {
+    await queryInterface.createTable("FormResponseAnswers", {
+      answer_id: {
         allowNull: false,
         primaryKey: true,
         type: Sequelize.UUID,
         defaultValue: Sequelize.UUIDV4,
       },
-      portfolio_id: {
+      applicationform_id: {
         type: Sequelize.UUID,
         allowNull: false,
         references: {
-          model: "Portfolios",
-          key: "portfolio_id",
+          model: "ApplicationForms",
+          key: "applicationform_id",
         },
         onUpdate: "CASCADE",
         onDelete: "CASCADE",
       },
-      user_id: {
+      formfield_id: {
         type: Sequelize.UUID,
         allowNull: false,
         references: {
-          model: "Users",
-          key: "user_id",
+          model: "FormFields",
+          key: "formfield_id",
         },
         onUpdate: "CASCADE",
         onDelete: "CASCADE",
       },
-      title: {
-        type: Sequelize.STRING(255),
-        allowNull: false,
-      },
-      description: {
+      answer_text: {
         type: Sequelize.TEXT,
         allowNull: true,
       },
-      // application_data: {
-      //   type: Sequelize.JSON,
-      //   allowNull: true,
-      // },
+      selected_options_id: {
+        type: Sequelize.UUID,
+        allowNull: true,
+        references: {
+          model: "FormFieldOptions",
+          key: "option_id",
+        },
+        onUpdate: "CASCADE",
+        onDelete: "CASCADE",
+      },
+      selected_options_ids: {
+        type: Sequelize.JSON,
+        allowNull: true,
+      },
       created_at: {
         allowNull: false,
         type: Sequelize.DATE,
@@ -57,6 +64,6 @@ module.exports = {
   },
 
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable("ApplicationForms");
+    await queryInterface.dropTable("FormResponseAnswers");
   },
 };

@@ -3,7 +3,7 @@
 module.exports = {
   async up(queryInterface, Sequelize) {
     await queryInterface.bulkInsert(
-      "ApplicationForm",
+      "ApplicationForms",
       [
         {
           applicationform_id: "f11e4d76-1172-49cd-b8d2-5421a7c33048",
@@ -67,6 +67,6 @@ module.exports = {
   },
 
   async down(queryInterface, Sequelize) {
-    await queryInterface.bulkDelete("ApplicationForm", null, {});
+    await queryInterface.bulkDelete("ApplicationForms", null, {});
   },
 };

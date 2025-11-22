@@ -1,6 +1,7 @@
 // src/controllers/userController.js
 const models = require("../../models");
 const bcrypt = require("bcryptjs"); // For password comparison on update
+const { checkUserRoleParticipant } = require("../utils/checkUserRole");
 
 // Get current authenticated user's profile
 exports.getCurrentUser = async (req, res, next) => {
@@ -147,6 +148,14 @@ exports.createPortfolio = async (req, res, next) => {
   const userId = req.user.userId;
   const { title, description, certificates } = req.body;
   try {
+    // Check if user is participant
+    const checkParticipant = await checkUserRoleParticipant(userId);
+    if (checkParticipant === false) {
+      return res.status(403).json({
+        status: "fail",
+        message: "Your role haven't permission to access api",
+      });
+    }
     //Check certificate duplicates and belong to the user
     const hasDuplicate =
       new Set(certificates.map((c) => c.certificate_id)).size !==
@@ -237,6 +246,14 @@ exports.createPortfolio = async (req, res, next) => {
 exports.getAllPortfolios = async (req, res, next) => {
   const userId = req.user.userId;
   try {
+    // Check if user is participant
+    const checkParticipant = await checkUserRoleParticipant(userId);
+    if (checkParticipant === false) {
+      return res.status(403).json({
+        status: "fail",
+        message: "Your role haven't permission to access api",
+      });
+    }
     // Fetch all portfolios with associated certificates
     const portfolios = await models.Portfolio.findAll({
       where: { user_id: userId },
@@ -332,7 +349,7 @@ exports.getPortfolioById = async (req, res, next) => {
         include: [
           {
             model: models.ApplicationForm,
-            as: "ApplicationForm",
+            as: "ApplicationForms",
             where: { portfolio_id: portfolioId },
             attributes: ["applicationform_id"],
           },
@@ -449,6 +466,14 @@ exports.deletePortfolio = async (req, res, next) => {
   const userId = req.user.userId;
   const portfolioId = req.params.portf_id;
   try {
+    // Check if user is participant
+    const checkParticipant = await checkUserRoleParticipant(userId);
+    if (checkParticipant === false) {
+      return res.status(403).json({
+        status: "fail",
+        message: "Your role haven't permission to access api",
+      });
+    }
     const deletedCount = await models.Portfolio.destroy({
       where: { user_id: userId, portfolio_id: portfolioId },
       force: true,
@@ -476,6 +501,14 @@ exports.updatePortfolio = async (req, res, next) => {
   const { title, description, certificates } = req.body;
 
   try {
+    // Check if user is participant
+    const checkParticipant = await checkUserRoleParticipant(userId);
+    if (checkParticipant === false) {
+      return res.status(403).json({
+        status: "fail",
+        message: "Your role haven't permission to access api",
+      });
+    }
     // Find portfolio by user_id and portfolio_id
     const portfolio = await models.Portfolio.findOne({
       where: { user_id: userId, portfolio_id: portfolioId },

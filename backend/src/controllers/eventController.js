@@ -1,4 +1,8 @@
 const models = require("../../models");
+const {
+  checkUserRoleParticipant,
+  checkUserRoleOrganizer,
+} = require("../utils/checkUserRole");
 
 // Create a new event only for organizers
 exports.createEvent = async (req, res, next) => {
@@ -6,6 +10,14 @@ exports.createEvent = async (req, res, next) => {
   const { title, description, type, status, event_date, location, fee_amount } =
     req.body;
   try {
+    // Check if user is participant
+    const checkOrganizer = await checkUserRoleOrganizer(userId);
+    if (checkOrganizer === false) {
+      return res.status(403).json({
+        status: "fail",
+        message: "Your role haven't permission to access api",
+      });
+    }
     //Check Event Date Validity
     const eventDateObj = new Date(event_date);
     const currentDate = new Date();
@@ -47,6 +59,14 @@ exports.updateEvent = async (req, res, next) => {
   const { title, description, type, status, event_date, location, fee_amount } =
     req.body;
   try {
+    // Check if user is participant
+    const checkOrganizer = await checkUserRoleOrganizer(userId);
+    if (checkOrganizer === false) {
+      return res.status(403).json({
+        status: "fail",
+        message: "Your role haven't permission to access api",
+      });
+    }
     // Check if the event exists and if the user is an organizer for that event
     const event = await models.Event.findByPk(eventId);
     if (!event) {
@@ -88,6 +108,14 @@ exports.deleteEvent = async (req, res, next) => {
   const userId = req.user.userId;
   const eventId = req.params.event_id;
   try {
+    // Check if user is participant
+    const checkOrganizer = await checkUserRoleOrganizer(userId);
+    if (checkOrganizer === false) {
+      return res.status(403).json({
+        status: "fail",
+        message: "Your role haven't permission to access api",
+      });
+    }
     // Check if the event exists and if the user is an organizer for that event
     const event = await models.Event.findByPk(eventId);
     if (!event) {
@@ -119,6 +147,14 @@ exports.userRegisterForEvent = async (req, res, next) => {
   const eventId = req.params.event_id;
   const { portfolioId, title, description } = req.body;
   try {
+    // Check if user is participant
+    const checkParticipant = await checkUserRoleParticipant(userId);
+    if (checkParticipant === false) {
+      return res.status(403).json({
+        status: "fail",
+        message: "Your role haven't permission to access api",
+      });
+    }
     //checking event existence
     const event = await models.Event.findByPk(eventId);
     if (!event) {
@@ -241,6 +277,14 @@ exports.viewEventParticipants = async (req, res, next) => {
   const userId = req.user.userId;
   const eventId = req.params.event_id;
   try {
+    // Check if user is participant
+    const checkOrganizer = await checkUserRoleOrganizer(userId);
+    if (checkOrganizer === false) {
+      return res.status(403).json({
+        status: "fail",
+        message: "Your role haven't permission to access api",
+      });
+    }
     // Check if the event exists and if the user is an organizer for that event
     const event = await models.Event.findByPk(eventId);
     if (!event) {

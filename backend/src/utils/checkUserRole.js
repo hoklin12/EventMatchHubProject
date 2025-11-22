@@ -5,8 +5,7 @@ const models = require("../../models");
 // OR that we modify the controller call signature.
 // Since we can't access 'res' globally, we must pass it in.
 
-const checkUserRoleOrganizer = async function (user, res) {
-  // <-- Added 'res'
+const checkUserRoleOrganizer = async function (userID) {
   //Check User is Organizer
   const organizerId = await models.Role.findOne({
     where: { role_name: "organizer" },
@@ -14,23 +13,16 @@ const checkUserRoleOrganizer = async function (user, res) {
   });
   const isOrganizerRole = await models.UserRoles.findOne({
     where: {
-      user_id: user.userId,
+      user_id: userID,
       role_id: organizerId.role_id,
     },
   });
   if (!isOrganizerRole) {
-    // Return the response directly if the check fails
-    return res.status(403).json({
-      // Changed status to 403 (Forbidden)
-      status: "fail",
-      message: "User is not an organizer.",
-    });
+    return false;
   }
-  // Return nothing/null if successful, so controller knows to proceed
 };
 
-const checkUserRoleParticipant = async function (user, res) {
-  // <-- Added 'res'
+const checkUserRoleParticipant = async function (userID) {
   //Check User is Participant
   const participantRoleId = await models.Role.findOne({
     where: { role_name: "participant" },
@@ -38,17 +30,12 @@ const checkUserRoleParticipant = async function (user, res) {
   });
   const isParticipantRole = await models.UserRoles.findOne({
     where: {
-      user_id: user.userId,
+      user_id: userID,
       role_id: participantRoleId.role_id,
     },
   });
   if (!isParticipantRole) {
-    // Return the response directly if the check fails
-    return res.status(403).json({
-      // Changed status to 403 (Forbidden)
-      status: "fail",
-      message: "User is not a participant.", // Corrected message
-    });
+    return false;
   }
 };
 

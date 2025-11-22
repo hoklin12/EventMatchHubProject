@@ -1,46 +1,33 @@
 "use strict";
 
+/** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable("ApplicationForms", {
-      applicationform_id: {
+    await queryInterface.createTable("FormFieldOptions", {
+      option_id: {
         allowNull: false,
         primaryKey: true,
         type: Sequelize.UUID,
         defaultValue: Sequelize.UUIDV4,
       },
-      portfolio_id: {
+      formfield_id: {
         type: Sequelize.UUID,
         allowNull: false,
         references: {
-          model: "Portfolios",
-          key: "portfolio_id",
+          model: "FormFields",
+          key: "formfield_id",
         },
         onUpdate: "CASCADE",
         onDelete: "CASCADE",
       },
-      user_id: {
-        type: Sequelize.UUID,
-        allowNull: false,
-        references: {
-          model: "Users",
-          key: "user_id",
-        },
-        onUpdate: "CASCADE",
-        onDelete: "CASCADE",
-      },
-      title: {
+      option_text: {
         type: Sequelize.STRING(255),
         allowNull: false,
       },
-      description: {
-        type: Sequelize.TEXT,
-        allowNull: true,
+      order: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
       },
-      // application_data: {
-      //   type: Sequelize.JSON,
-      //   allowNull: true,
-      // },
       created_at: {
         allowNull: false,
         type: Sequelize.DATE,
@@ -57,6 +44,6 @@ module.exports = {
   },
 
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable("ApplicationForms");
+    await queryInterface.dropTable("FormFieldOptions");
   },
 };
