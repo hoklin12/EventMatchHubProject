@@ -34,11 +34,6 @@ module.exports = {
         type: Sequelize.STRING(255),
         allowNull: true, // Allow NULL
       },
-      skills: {
-        // Matches your SQL skills
-        type: Sequelize.TEXT, // Or Sequelize.JSON if you plan to store JSON here
-        allowNull: true,
-      },
       created_at: {
         allowNull: false,
         type: Sequelize.DATE,

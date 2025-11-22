@@ -1,24 +1,25 @@
 "use strict";
 
+/** @type {import('sequelize-cli').Migration} */
 module.exports = {
-  up: async (queryInterface, Sequelize) => {
-    await queryInterface.createTable("User_Roles", {
-      user_id: {
+  async up(queryInterface, Sequelize) {
+    await queryInterface.createTable("Type_Skills", {
+      type_id: {
         type: Sequelize.UUID,
         allowNull: false,
         references: {
-          model: "Users",
-          key: "user_id",
+          model: "Types",
+          key: "type_id",
         },
         onUpdate: "CASCADE",
         onDelete: "CASCADE",
       },
-      role_id: {
-        type: Sequelize.INTEGER,
+      skill_id: {
+        type: Sequelize.UUID,
         allowNull: false,
         references: {
-          model: "Roles",
-          key: "role_id",
+          model: "Skills",
+          key: "skill_id",
         },
         onUpdate: "CASCADE",
         onDelete: "CASCADE",
@@ -36,15 +37,14 @@ module.exports = {
         ),
       },
     });
-
-    await queryInterface.addConstraint("User_Roles", {
-      fields: ["user_id", "role_id"],
+    await queryInterface.addConstraint("Type_Skills", {
+      fields: ["type_id", "skill_id"],
       type: "unique",
-      name: "ux_user_role_user_id_role_id",
+      name: "ux_type_skills_type_id_skill_id",
     });
   },
 
-  down: async (queryInterface, Sequelize) => {
-    await queryInterface.dropTable("User_Roles");
+  async down(queryInterface, Sequelize) {
+    await queryInterface.dropTable("Type_Skills");
   },
 };

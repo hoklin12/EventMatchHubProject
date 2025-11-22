@@ -1,24 +1,25 @@
 "use strict";
 
+/** @type {import('sequelize-cli').Migration} */
 module.exports = {
-  up: async (queryInterface, Sequelize) => {
-    await queryInterface.createTable("User_Roles", {
-      user_id: {
+  async up(queryInterface, Sequelize) {
+    await queryInterface.createTable("Event_Types", {
+      event_id: {
         type: Sequelize.UUID,
         allowNull: false,
         references: {
-          model: "Users",
-          key: "user_id",
+          model: "Events",
+          key: "event_id",
         },
         onUpdate: "CASCADE",
         onDelete: "CASCADE",
       },
-      role_id: {
-        type: Sequelize.INTEGER,
+      type_id: {
+        type: Sequelize.UUID,
         allowNull: false,
         references: {
-          model: "Roles",
-          key: "role_id",
+          model: "Types",
+          key: "type_id",
         },
         onUpdate: "CASCADE",
         onDelete: "CASCADE",
@@ -36,15 +37,14 @@ module.exports = {
         ),
       },
     });
-
-    await queryInterface.addConstraint("User_Roles", {
-      fields: ["user_id", "role_id"],
+    await queryInterface.addConstraint("Event_Types", {
+      fields: ["event_id", "type_id"],
       type: "unique",
-      name: "ux_user_role_user_id_role_id",
+      name: "ux_event_types_event_id_type_id",
     });
   },
 
-  down: async (queryInterface, Sequelize) => {
-    await queryInterface.dropTable("User_Roles");
+  async down(queryInterface, Sequelize) {
+    await queryInterface.dropTable("Event_Types");
   },
 };
