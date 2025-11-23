@@ -1,5 +1,3 @@
-// app/types/index.ts
-
 export interface Event {
   id: number
   title: string
@@ -15,11 +13,4 @@ export interface Event {
   image: string
   featured?: boolean
   tags: string[]
-}
-
-export interface Category {
-  name: string;
-  icon: string;
-  count: number;
-  color: string;
 }

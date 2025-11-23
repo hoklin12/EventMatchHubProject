@@ -1,7 +1,7 @@
 "use client"
 
 import { Badge } from "@/app/components/ui/badge"
-import { Button } from "@/app/components/ui/button"
+import { Button } from "../ui/button"
 import { Input } from "@/app/components/ui/input"
 import { Search, Sparkles } from "lucide-react"
 

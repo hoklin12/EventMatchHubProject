@@ -3,7 +3,7 @@ import Link from "next/link"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/app/components/ui/card"
 import { Badge } from "@/app/components/ui/badge"
 import { Calendar, Users, TrendingUp } from "lucide-react"
-import { Button } from "@/app/components/ui/button"
+import { Button } from "../ui/button"
 import { Event } from "@/app/types"
 
 interface RecommendedEventCardProps {
