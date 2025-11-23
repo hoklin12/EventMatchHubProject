@@ -3,14 +3,14 @@
 module.exports = {
   async up(queryInterface, Sequelize) {
     // Helper to create a record cleanly
-    const createLink = (typeId, skillId) => ({
-      type_id: typeId,
+    const createLink = (categoryID, skillId) => ({
+      category_id: categoryID,
       skill_id: skillId,
       created_at: new Date(),
       updated_at: new Date(),
     });
 
-    await queryInterface.bulkInsert("Type_Skills", [
+    await queryInterface.bulkInsert("Category_Skills", [
       // ===============================================
       // 1. TYPE: Technology (General Tech)
       // ID: 88b86831-1b32-49aa-aa27-e6f3c7584bd9
@@ -39,10 +39,6 @@ module.exports = {
         "88b86831-1b32-49aa-aa27-e6f3c7584bd9",
         "130be34c-91ab-4a20-bd5c-a070e55dfcba"
       ), // Node.js
-      createLink(
-        "88b86831-1b32-49aa-aa27-e6f3c7584bd9",
-        "2a3e8d8e-9ac5-4e05-aa7a-1db2613e3fad"
-      ), // MySQL
 
       // ===============================================
       // 2. TYPE: AI & Machine Learning
@@ -64,10 +60,6 @@ module.exports = {
         "07da2bcc-f841-4cc8-ae8b-8dd9bdb53dfe",
         "3fd6f4c6-2e68-4fe7-9a73-44ebcbb7a0fc"
       ), // TensorFlow
-      createLink(
-        "07da2bcc-f841-4cc8-ae8b-8dd9bdb53dfe",
-        "2c9e3c55-6ca4-4fd7-a7db-df892d7b9cf5"
-      ), // PyTorch
 
       // ===============================================
       // 3. TYPE: Cloud & DevOps
@@ -85,10 +77,6 @@ module.exports = {
         "ea374522-fa9e-4aa9-a6d1-90268bff0c53",
         "b4aa87e8-8180-4fd7-a7f0-7b7fbfc4a146"
       ), // Google Cloud
-      createLink(
-        "ea374522-fa9e-4aa9-a6d1-90268bff0c53",
-        "1d169a2f-0e5a-486f-ac57-24a700af192b"
-      ), // Go
 
       // ===============================================
       // 4. TYPE: Art & Design
@@ -166,10 +154,6 @@ module.exports = {
         "ec45e1c8-1479-4ba3-8405-09776d19f7e6",
         "0859ec81-37cc-402b-a1e1-6dc84743a435"
       ), // Public Speaking
-      createLink(
-        "ec45e1c8-1479-4ba3-8405-09776d19f7e6",
-        "22fd6343-9d22-4d65-9f34-a4a1df59baf7"
-      ), // Time Management
 
       // ===============================================
       // 9. TYPE: Human Resources
@@ -181,8 +165,8 @@ module.exports = {
       ), // Communication
       createLink(
         "c6d7e8f9-0a12-4b3c-9d4e-5f6a7b8c9d0e",
-        "b34087b7-b167-442c-aa29-dfd8b8f55ddc"
-      ), // Teamwork
+        "674a48af-8cae-4502-82f4-a5d74dfa9a48"
+      ), // Recruitment (NEW UUID)
 
       // ===============================================
       // 10. TYPE: Entrepreneurship
@@ -196,14 +180,146 @@ module.exports = {
         "f1b3e8da-2b1d-4f6f-a6e7-dcae3e7f4d44",
         "fd139cf4-c70b-497c-bd3f-10f41740d6b2"
       ), // Project Management
+
+      // ===============================================
+      // 11. TYPE: Education & Training (Previously Empty)
+      // ID: fa1ad8eb-290c-4a68-a8a0-8711c93c82dc
+      // ===============================================
       createLink(
-        "f1b3e8da-2b1d-4f6f-a6e7-dcae3e7f4d44",
-        "22fd6343-9d22-4d65-9f34-a4a1df59baf7"
-      ), // Time Management
+        "fa1ad8eb-290c-4a68-a8a0-8711c93c82dc",
+        "21a15904-33e0-4c4d-af43-17da5c43d67b"
+      ), // Teaching & Mentoring (NEW UUID)
+      createLink(
+        "fa1ad8eb-290c-4a68-a8a0-8711c93c82dc",
+        "0859ec81-37cc-402b-a1e1-6dc84743a435"
+      ), // Public Speaking
+
+      // ===============================================
+      // 12. TYPE: Healthcare & Medicine (Previously Empty)
+      // ID: 60ff1c79-93fb-4586-9d3b-05cf8cad5b02
+      // ===============================================
+      createLink(
+        "60ff1c79-93fb-4586-9d3b-05cf8cad5b02",
+        "59ee3002-3da4-4536-8ac8-445bebd5a518"
+      ), // Patient Care (NEW UUID)
+      createLink(
+        "60ff1c79-93fb-4586-9d3b-05cf8cad5b02",
+        "748a7f49-55ab-4bd3-9745-39000a15c1cd"
+      ), // Medical Research (NEW UUID)
+
+      // ===============================================
+      // 13. TYPE: Finance & Banking (Previously Empty)
+      // ID: 83a18ef8-1f4a-4410-ab30-483cab0b42d3
+      // ===============================================
+      createLink(
+        "83a18ef8-1f4a-4410-ab30-483cab0b42d3",
+        "35e1ca92-64a9-48a1-ba3c-1593e2b3f024"
+      ), // Financial Analysis (NEW UUID)
+      createLink(
+        "83a18ef8-1f4a-4410-ab30-483cab0b42d3",
+        "423b850e-9a32-4db5-ac50-250e0c4c6122"
+      ), // Accounting (NEW UUID)
+
+      // ===============================================
+      // 14. TYPE: Sales & Customer Service (Previously Empty)
+      // ID: 2fc64caf-e3f6-4ad9-a0ad-57a222f5a13c
+      // ===============================================
+      createLink(
+        "2fc64caf-e3f6-4ad9-a0ad-57a222f5a13c",
+        "4f2df213-2cf4-4419-9552-3b9a5daa090e"
+      ), // Negotiation (NEW UUID)
+      createLink(
+        "2fc64caf-e3f6-4ad9-a0ad-57a222f5a13c",
+        "6ccc6a91-dd32-44a6-94e0-03a5c2ac6eef"
+      ), // CRM Software (NEW UUID)
+
+      // ===============================================
+      // 15. TYPE: Cybersecurity (Previously Empty)
+      // ID: 21e07961-fa61-4a6d-9ee6-724a45bd53ef
+      // ===============================================
+      createLink(
+        "21e07961-fa61-4a6d-9ee6-724a45bd53ef",
+        "9b987a44-ec6e-4dad-b0af-81960ecfe33b"
+      ), // Network Security (NEW UUID)
+      createLink(
+        "21e07961-fa61-4a6d-9ee6-724a45bd53ef",
+        "3f25d7ad-a610-46ac-9a7a-f8023e855a26"
+      ), // Ethical Hacking (NEW UUID)
+
+      // ===============================================
+      // 16. TYPE: Photography & Media (Previously Empty)
+      // ID: c65af3cd-fe43-4fe8-a5d2-d1b8d2bb8a9a
+      // ===============================================
+      createLink(
+        "c65af3cd-fe43-4fe8-a5d2-d1b8d2bb8a9a",
+        "70f47542-7c28-4da9-ade4-de1f99c42bb1"
+      ), // Photography (NEW UUID)
+      createLink(
+        "c65af3cd-fe43-4fe8-a5d2-d1b8d2bb8a9a",
+        "5c73f096-d814-4f86-badf-8bbd4132226f"
+      ), // Video Editing (NEW UUID)
+
+      // ===============================================
+      // 17. TYPE: Community & Volunteering (Previously Empty)
+      // ID: ba7e8a83-bbc8-4aba-bc21-a6ff02424d34
+      // ===============================================
+      createLink(
+        "ba7e8a83-bbc8-4aba-bc21-a6ff02424d34",
+        "42380dc6-9b2a-4b76-b2ea-26b5f9b5c4a5"
+      ), // Event Planning (NEW UUID)
+      createLink(
+        "ba7e8a83-bbc8-4aba-bc21-a6ff02424d34",
+        "45d734b1-4819-4d24-a3e0-609afafb6be5"
+      ), // Fundraising (NEW UUID)
+      createLink(
+        "ba7e8a83-bbc8-4aba-bc21-a6ff02424d34",
+        "b34087b7-b167-442c-aa29-dfd8b8f55ddc"
+      ), // Teamwork
+
+      // ===============================================
+      // 18. TYPE: Sports & Fitness (Previously Empty)
+      // ID: d487add8-4a63-4ca6-b595-83d71ed96b95
+      // ===============================================
+      createLink(
+        "d487add8-4a63-4ca6-b595-83d71ed96b95",
+        "b34087b7-b167-442c-aa29-dfd8b8f55ddc"
+      ), // Teamwork
+      createLink(
+        "d487add8-4a63-4ca6-b595-83d71ed96b95",
+        "af2e10bd-8eed-40b6-af28-071bb7c919e9"
+      ), // Leadership
+
+      // ===============================================
+      // 19. TYPE: Environment & Sustainability (Previously Empty)
+      // ID: a4b2c3d4-1e5f-4b6d-8a9b-2c3d4e5f6a7b
+      // ===============================================
+      createLink(
+        "a4b2c3d4-1e5f-4b6d-8a9b-2c3d4e5f6a7b",
+        "104245bc-b199-4442-a904-b24f2613c35f"
+      ), // Environmental Science (NEW UUID)
+      createLink(
+        "a4b2c3d4-1e5f-4b6d-8a9b-2c3d4e5f6a7b",
+        "fd139cf4-c70b-497c-bd3f-10f41740d6b2"
+      ), // Project Management
+
+      // ===============================================
+      // 20. TYPE: Legal & Compliance (Previously Empty)
+      // ID: b5c6d7e8-9f01-4a2b-8c3d-4e5f6a7b8c9d
+      // ===============================================
+      createLink(
+        "b5c6d7e8-9f01-4a2b-8c3d-4e5f6a7b8c9d",
+        "f5a1557f-5e7f-4940-9418-896f1482f50e"
+      ), // Legal Compliance (NEW UUID)
+      createLink(
+        "b5c6d7e8-9f01-4a2b-8c3d-4e5f6a7b8c9d",
+        "dd244a9b-6d33-430e-86a0-8db679d4f265"
+      ), // Communication
     ]);
   },
 
   async down(queryInterface, Sequelize) {
-    await queryInterface.bulkDelete("Type_Skills", null, {});
+    await queryInterface.sequelize.query("SET FOREIGN_KEY_CHECKS = 0");
+    await queryInterface.bulkDelete("Category_Skills", null, {});
+    await queryInterface.sequelize.query("SET FOREIGN_KEY_CHECKS = 1");
   },
 };

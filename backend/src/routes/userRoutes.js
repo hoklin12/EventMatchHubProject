@@ -8,12 +8,18 @@ const rbacMiddleware = require("../middleware/rbacMiddleware"); // For role chec
 const { validateUpdateUser } = require("../middleware/validationMiddleware"); // Assuming you'll create this validator
 
 // GET /api/v1/users/me - Get current authenticated user's profile
-router.get("/me", authMiddleware, userController.getCurrentUser);
+router.get(
+  "/me",
+  authMiddleware,
+  rbacMiddleware(["participant", "organizer"]),
+  userController.getCurrentUser
+);
 
 // PUT /api/v1/users/me - Update current authenticated user's profile
 router.put(
   "/me",
   authMiddleware,
+  rbacMiddleware(["participant", "organizer"]),
   validateUpdateUser,
   userController.updateCurrentUser
 );

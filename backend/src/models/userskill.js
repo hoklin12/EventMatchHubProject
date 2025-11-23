@@ -2,13 +2,16 @@
 const { Model } = require("sequelize");
 
 module.exports = (sequelize, DataTypes) => {
-  class UserRoles extends Model {
+  class UserSkills extends Model {
     static associate(models) {
-      UserRoles.belongsTo(models.User, { foreignKey: "user_id", as: "Users" });
-      UserRoles.belongsTo(models.Role, { foreignKey: "role_id", as: "Roles" });
+      UserSkills.belongsTo(models.User, { foreignKey: "user_id", as: "Users" });
+      UserSkills.belongsTo(models.Skill, {
+        foreignKey: "skill_id",
+        as: "Skills",
+      });
     }
   }
-  UserRoles.init(
+  UserSkills.init(
     {
       user_id: {
         type: DataTypes.UUID,
@@ -18,11 +21,11 @@ module.exports = (sequelize, DataTypes) => {
         onUpdate: "CASCADE",
         onDelete: "CASCADE",
       },
-      role_id: {
+      skill_id: {
         type: DataTypes.INTEGER,
         allowNull: false,
         primaryKey: true, // Part of composite PK
-        references: { model: "Roles", key: "role_id" },
+        references: { model: "Skills", key: "skill_id" },
         onUpdate: "CASCADE",
         onDelete: "CASCADE",
       },
@@ -31,11 +34,11 @@ module.exports = (sequelize, DataTypes) => {
     },
     {
       sequelize,
-      modelName: "UserRoles",
-      tableName: "User_Roles", // Matches SQL table name
+      modelName: "UserSkills",
+      tableName: "User_Skills",
       timestamps: false,
       paranoid: false,
     }
   );
-  return UserRoles;
+  return UserSkills;
 };

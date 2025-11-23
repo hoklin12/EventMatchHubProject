@@ -1,7 +1,5 @@
 "use strict";
 
-const user = require("../src/models/user");
-
 module.exports = {
   async up(queryInterface, Sequelize) {
     await queryInterface.bulkInsert("Events", [

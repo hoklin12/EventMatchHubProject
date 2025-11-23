@@ -1,4 +1,4 @@
-const models = require("../../models");
+const models = require("../models");
 const certificateService = require("../services/certificateService");
 const { hashJsonObject } = require("../utils/encryptUtils");
 

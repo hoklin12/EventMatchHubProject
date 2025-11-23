@@ -1,5 +1,5 @@
 "use strict";
-const models = require("../../models");
+const models = require("../models");
 
 // NOTE: We assume 'res' is available in the context where the controller calls this,
 // OR that we modify the controller call signature.

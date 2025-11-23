@@ -3,7 +3,7 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable("Event_Types", {
+    await queryInterface.createTable("Event_Categories", {
       event_id: {
         type: Sequelize.UUID,
         allowNull: false,
@@ -14,12 +14,12 @@ module.exports = {
         onUpdate: "CASCADE",
         onDelete: "CASCADE",
       },
-      type_id: {
+      category_id: {
         type: Sequelize.UUID,
         allowNull: false,
         references: {
-          model: "Types",
-          key: "type_id",
+          model: "Categories",
+          key: "category_id",
         },
         onUpdate: "CASCADE",
         onDelete: "CASCADE",
@@ -37,14 +37,14 @@ module.exports = {
         ),
       },
     });
-    await queryInterface.addConstraint("Event_Types", {
-      fields: ["event_id", "type_id"],
+    await queryInterface.addConstraint("Event_Categories", {
+      fields: ["event_id", "category_id"],
       type: "unique",
-      name: "ux_event_types_event_id_type_id",
+      name: "ux_event_categories_event_id_category_id",
     });
   },
 
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable("Event_Types");
+    await queryInterface.dropTable("Event_Categories");
   },
 };

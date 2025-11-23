@@ -1,11 +1,11 @@
-// Password 'password123'
+// Password 'fV£Rx7f(!45;'
 
 "use strict";
 const bcrypt = require("bcrypt");
 
 module.exports = {
   async up(queryInterface, Sequelize) {
-    const hashedPassword = await bcrypt.hash("password123", 10);
+    const hashedPassword = await bcrypt.hash("fV£Rx7f(!45;", 10);
     await queryInterface.bulkInsert(
       "Users",
       [

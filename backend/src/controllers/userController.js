@@ -1,5 +1,5 @@
 // src/controllers/userController.js
-const models = require("../../models");
+const models = require("../models");
 const bcrypt = require("bcryptjs"); // For password comparison on update
 const { checkUserRoleParticipant } = require("../utils/checkUserRole");
 
@@ -26,7 +26,6 @@ exports.getCurrentUser = async (req, res, next) => {
         email: user.email,
         full_name: user.full_name,
         organization_name: user.organization_name,
-        skills: user.skills,
         roles: user.Roles.map((r) => r.role_name),
       },
     });
@@ -39,7 +38,7 @@ exports.getCurrentUser = async (req, res, next) => {
 // Update current authenticated user's profile
 exports.updateCurrentUser = async (req, res, next) => {
   const userId = req.user.userId; // Get ID from authenticated user
-  const { full_name, contact_info, skills, organization_name, password_hash } =
+  const { full_name, contact_info, organization_name, password_hash } =
     req.body;
 
   try {

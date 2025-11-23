@@ -3,14 +3,14 @@
 module.exports = {
   async up(queryInterface, Sequelize) {
     // Helper function to keep the code clean
-    const createLink = (eventId, typeId) => ({
+    const createLink = (eventId, categoryId) => ({
       event_id: eventId,
-      type_id: typeId,
+      category_id: categoryId,
       created_at: new Date(),
       updated_at: new Date(),
     });
 
-    await queryInterface.bulkInsert("Event_Types", [
+    await queryInterface.bulkInsert("Event_Categories", [
       // ==========================================================
       // 1. Annual Tech Conference 2025
       // ID: 7399c126-69d2-4f14-804a-22c663d5d407
@@ -82,6 +82,6 @@ module.exports = {
   },
 
   async down(queryInterface, Sequelize) {
-    await queryInterface.bulkDelete("Event_Types", null, {});
+    await queryInterface.bulkDelete("Event_Categories", null, {});
   },
 };

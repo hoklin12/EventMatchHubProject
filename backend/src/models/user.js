@@ -14,6 +14,14 @@ module.exports = (sequelize, DataTypes) => {
           as: "Roles",
         });
       }
+      if (models.Skill) {
+        User.belongsToMany(models.Skill, {
+          through: "UserSkills",
+          foreignKey: "user_id",
+          otherKey: "skill_id",
+          as: "Skills",
+        });
+      }
 
       if (models.Portfolio) {
         User.hasMany(models.Portfolio, {
@@ -69,7 +77,6 @@ module.exports = (sequelize, DataTypes) => {
       },
       password_hash: { type: DataTypes.STRING(255), allowNull: false },
       organization_name: { type: DataTypes.STRING(255) },
-      skills: { type: DataTypes.TEXT }, // Or DataTypes.JSON
       // created_at: DataTypes.DATE,
       // updated_at: DataTypes.DATE,
     },

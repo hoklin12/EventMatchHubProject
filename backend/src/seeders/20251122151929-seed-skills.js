@@ -315,6 +315,140 @@ module.exports = {
         created_at: new Date(),
         updated_at: new Date(),
       },
+      // =======================================================
+      // 🎯 NEW SKILLS (Using your custom UUIDs)
+      // =======================================================
+      // Education
+      {
+        skill_id: "21a15904-33e0-4c4d-af43-17da5c43d67b",
+        skill_name: "Teaching & Mentoring",
+        category: "Education",
+        created_at: new Date(),
+        updated_at: new Date(),
+      },
+
+      // Healthcare
+      {
+        skill_id: "59ee3002-3da4-4536-8ac8-445bebd5a518",
+        skill_name: "Patient Care",
+        category: "Healthcare",
+        created_at: new Date(),
+        updated_at: new Date(),
+      },
+      {
+        skill_id: "748a7f49-55ab-4bd3-9745-39000a15c1cd",
+        skill_name: "Medical Research",
+        category: "Healthcare",
+        created_at: new Date(),
+        updated_at: new Date(),
+      },
+
+      // Finance
+      {
+        skill_id: "35e1ca92-64a9-48a1-ba3c-1593e2b3f024",
+        skill_name: "Financial Analysis",
+        category: "Finance",
+        created_at: new Date(),
+        updated_at: new Date(),
+      },
+      {
+        skill_id: "423b850e-9a32-4db5-ac50-250e0c4c6122",
+        skill_name: "Accounting",
+        category: "Finance",
+        created_at: new Date(),
+        updated_at: new Date(),
+      },
+
+      // Sales
+      {
+        skill_id: "4f2df213-2cf4-4419-9552-3b9a5daa090e",
+        skill_name: "Negotiation",
+        category: "Sales",
+        created_at: new Date(),
+        updated_at: new Date(),
+      },
+      {
+        skill_id: "6ccc6a91-dd32-44a6-94e0-03a5c2ac6eef",
+        skill_name: "CRM Software",
+        category: "Sales",
+        created_at: new Date(),
+        updated_at: new Date(),
+      },
+
+      // Cybersecurity
+      {
+        skill_id: "9b987a44-ec6e-4dad-b0af-81960ecfe33b",
+        skill_name: "Network Security",
+        category: "Technology",
+        created_at: new Date(),
+        updated_at: new Date(),
+      },
+      {
+        skill_id: "3f25d7ad-a610-46ac-9a7a-f8023e855a26",
+        skill_name: "Ethical Hacking",
+        category: "Technology",
+        created_at: new Date(),
+        updated_at: new Date(),
+      },
+
+      // Photography & Media
+      {
+        skill_id: "70f47542-7c28-4da9-ade4-de1f99c42bb1",
+        skill_name: "Photography",
+        category: "Media",
+        created_at: new Date(),
+        updated_at: new Date(),
+      },
+      {
+        skill_id: "5c73f096-d814-4f86-badf-8bbd4132226f",
+        skill_name: "Video Editing",
+        category: "Media",
+        created_at: new Date(),
+        updated_at: new Date(),
+      },
+
+      // Community
+      {
+        skill_id: "42380dc6-9b2a-4b76-b2ea-26b5f9b5c4a5",
+        skill_name: "Event Planning",
+        category: "Management",
+        created_at: new Date(),
+        updated_at: new Date(),
+      },
+      {
+        skill_id: "45d734b1-4819-4d24-a3e0-609afafb6be5",
+        skill_name: "Fundraising",
+        category: "Management",
+        created_at: new Date(),
+        updated_at: new Date(),
+      },
+
+      // Environment
+      {
+        skill_id: "104245bc-b199-4442-a904-b24f2613c35f",
+        skill_name: "Environmental Science",
+        category: "Science",
+        created_at: new Date(),
+        updated_at: new Date(),
+      },
+
+      // Legal
+      {
+        skill_id: "f5a1557f-5e7f-4940-9418-896f1482f50e",
+        skill_name: "Legal Compliance",
+        category: "Legal",
+        created_at: new Date(),
+        updated_at: new Date(),
+      },
+
+      // HR
+      {
+        skill_id: "674a48af-8cae-4502-82f4-a5d74dfa9a48",
+        skill_name: "Recruitment",
+        category: "HR",
+        created_at: new Date(),
+        updated_at: new Date(),
+      },
     ]);
   },
 

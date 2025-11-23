@@ -3,13 +3,13 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable("Type_Skills", {
-      type_id: {
+    await queryInterface.createTable("Category_Skills", {
+      category_id: {
         type: Sequelize.UUID,
         allowNull: false,
         references: {
-          model: "Types",
-          key: "type_id",
+          model: "Categories",
+          key: "category_id",
         },
         onUpdate: "CASCADE",
         onDelete: "CASCADE",
@@ -37,14 +37,14 @@ module.exports = {
         ),
       },
     });
-    await queryInterface.addConstraint("Type_Skills", {
-      fields: ["type_id", "skill_id"],
+    await queryInterface.addConstraint("Category_Skills", {
+      fields: ["category_id", "skill_id"],
       type: "unique",
-      name: "ux_type_skills_type_id_skill_id",
+      name: "ux_category_skills_category_id_skill_id",
     });
   },
 
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable("Type_Skills");
+    await queryInterface.dropTable("Category_Skills");
   },
 };

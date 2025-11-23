@@ -2,27 +2,33 @@
 const { Model } = require("sequelize");
 
 module.exports = (sequelize, DataTypes) => {
-  class UserRoles extends Model {
+  class CategorySkill extends Model {
     static associate(models) {
-      UserRoles.belongsTo(models.User, { foreignKey: "user_id", as: "Users" });
-      UserRoles.belongsTo(models.Role, { foreignKey: "role_id", as: "Roles" });
+      CategorySkill.belongsTo(models.Category, {
+        foreignKey: "category_id",
+        as: "Categories",
+      });
+      CategorySkill.belongsTo(models.Skill, {
+        foreignKey: "skill_id",
+        as: "Skills",
+      });
     }
   }
-  UserRoles.init(
+  CategorySkill.init(
     {
-      user_id: {
+      category_id: {
         type: DataTypes.UUID,
         allowNull: false,
         primaryKey: true, // Part of composite PK
-        references: { model: "Users", key: "user_id" },
+        references: { model: "Categories", key: "category_id" },
         onUpdate: "CASCADE",
         onDelete: "CASCADE",
       },
-      role_id: {
+      skill_id: {
         type: DataTypes.INTEGER,
         allowNull: false,
         primaryKey: true, // Part of composite PK
-        references: { model: "Roles", key: "role_id" },
+        references: { model: "Skills", key: "skill_id" },
         onUpdate: "CASCADE",
         onDelete: "CASCADE",
       },
@@ -31,11 +37,11 @@ module.exports = (sequelize, DataTypes) => {
     },
     {
       sequelize,
-      modelName: "UserRoles",
-      tableName: "User_Roles", // Matches SQL table name
+      modelName: "CategorySkill",
+      tableName: "Category_Skills", // Matches SQL table name
       timestamps: false,
       paranoid: false,
     }
   );
-  return UserRoles;
+  return CategorySkill;
 };

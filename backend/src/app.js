@@ -9,12 +9,12 @@ const createError = require("http-errors");
 
 // Import your database configuration and models
 const db = require("./config/database");
-const models = require("../models"); // Assumes models/index.js exports an object of models
 
 // Import your routers
 const authRoutes = require("./routes/authRoutes");
 const userRoutes = require("./routes/userRoutes");
 const eventRoutes = require("./routes/eventRoutes");
+const referenceRoutes = require("./routes/referenceRoutes");
 const e = require("express");
 // Add other routers later: eventRoutes, registrationRoutes, etc.
 
@@ -45,6 +45,7 @@ if (process.env.NODE_ENV !== "production") {
 app.use(`${API_VERSION}/auth`, authRoutes);
 app.use(`${API_VERSION}/users`, userRoutes);
 app.use(`${API_VERSION}/events`, eventRoutes);
+app.use(`${API_VERSION}/references`, referenceRoutes);
 // Mount other routers as you build them
 // app.use('/api/events', eventRoutes);
 

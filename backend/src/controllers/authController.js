@@ -1,5 +1,5 @@
 // src/controllers/authController.js
-const models = require("../../models");
+const models = require("../models");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs"); // For password comparison
 
@@ -7,8 +7,14 @@ const bcrypt = require("bcryptjs"); // For password comparison
 const generateToken = (user) => {
   // Get role names for the token payload
   const roleNames = user.Roles.map((role) => role.role_name); // Assuming Role model has 'role_name'
+  const skillNames = user.Skills.map((skill) => skill.skill_name); // Assuming Skill model has 'skill_name'
   return jwt.sign(
-    { userId: user.user_id, email: user.email, roles: roleNames },
+    {
+      userId: user.user_id,
+      email: user.email,
+      roles: roleNames,
+      skills: skillNames,
+    },
     process.env.JWT_SECRET,
     { expiresIn: "1h" } // Token expiration
   );
@@ -34,7 +40,6 @@ exports.register = async (req, res, next) => {
       password_hash, // Raw password - will be hashed before saving
       full_name,
       organization_name,
-      skills,
     });
 
     // 3. Assign Default Role: 'participant'
@@ -50,13 +55,28 @@ exports.register = async (req, res, next) => {
     }
     await newUser.addRole(participantRole); // Use Sequelize's association method
 
+    if (skills && Array.isArray(skills)) {
+      // Associate skills if provided
+      const skillRecords = await models.Skill.findAll({
+        where: { skill_id: skills },
+      });
+      await newUser.addSkills(skillRecords);
+    }
+
     // 4. Fetch user with roles to generate token
-    const userWithRoles = await models.User.findByPk(newUser.user_id, {
-      include: [{ model: models.Role, as: "Roles", attributes: ["role_name"] }], // Include roles in payload
+    const userWithRolesAndSkills = await models.User.findByPk(newUser.user_id, {
+      include: [
+        { model: models.Role, as: "Roles", attributes: ["role_name"] },
+        { model: models.Skill, as: "Skills", attributes: ["skill_name"] },
+      ],
     });
 
+    // const userWithRoles = await models.User.findByPk(newUser.user_id, {
+    //   include: [{ model: models.Role, as: "Roles", attributes: ["role_name"] }], // Include roles in payload
+    // });
+
     // 5. Generate JWT
-    const token = generateToken(userWithRoles);
+    const token = generateToken(userWithRolesAndSkills);
 
     // 6. Send response
     return res.status(201).json({
@@ -65,9 +85,10 @@ exports.register = async (req, res, next) => {
       token,
       user: {
         // user_id: userWithRoles.user_id,
-        email: userWithRoles.email,
-        full_name: userWithRoles.full_name,
-        roles: userWithRoles.Roles.map((r) => r.role_name),
+        email: userWithRolesAndSkills.email,
+        full_name: userWithRolesAndSkills.full_name,
+        roles: userWithRolesAndSkills.Roles.map((r) => r.role_name),
+        skills: userWithRolesAndSkills.Skills.map((s) => s.skill_name),
       },
     });
   } catch (error) {
@@ -84,7 +105,10 @@ exports.login = async (req, res, next) => {
     // 1. Find user by email, including their roles
     const user = await models.User.findOne({
       where: { email },
-      include: [{ model: models.Role, as: "Roles", attributes: ["role_name"] }],
+      include: [
+        { model: models.Role, as: "Roles", attributes: ["role_name"] },
+        { model: models.Skill, as: "Skills", attributes: ["skill_name"] },
+      ],
     });
 
     if (!user) {
