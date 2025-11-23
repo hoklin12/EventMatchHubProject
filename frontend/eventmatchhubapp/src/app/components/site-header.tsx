@@ -2,7 +2,7 @@
 "use client"
 
 import Link from "next/link"
-import { Button } from "@/app/components/ui/button"
+import { Button } from "./ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/app/components/ui/avatar"
 import {
   DropdownMenu,
@@ -79,7 +79,7 @@ export function SiteHeader({ variant = "default", userName, userAvatar }: SiteHe
           {/* Logo */}
           <Link href="/" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
             <img src="/emh_logo.png" alt="Event Match Hub" className="w-15 h-15 object-contain" />
-            <span className="font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-700 to-purple-900">EVENT MATCH HUB</span>
+            <span className="font-bold text-sm text-transparent bg-clip-text bg-gradient-to-r from-purple-700 to-purple-900">EVENT MATCH HUB</span>
           </Link>
 
           {/* Desktop Navigation */}
@@ -88,7 +88,7 @@ export function SiteHeader({ variant = "default", userName, userAvatar }: SiteHe
               <Link
                 key={link.href}
                 href={link.href}
-                className={`px-4 py-2 text-sm font-medium rounded-md transition-colors ${
+                className={`px-4 py-2 text-xs font-medium rounded-md transition-colors ${
                   index === 0
                     ? "text-foreground bg-muted/50"
                     : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
@@ -105,10 +105,10 @@ export function SiteHeader({ variant = "default", userName, userAvatar }: SiteHe
               // Public header actions
               <>
                 <Button variant="ghost" size="sm" className="hidden sm:inline-flex" asChild>
-                  <Link href="/login">Sign In</Link>
+                  <Link href="/login" className="text-xs">Sign In</Link>
                 </Button>
                 <Button size="sm" className="bg-gradient-to-r from-blue-600 to-purple-600 hover:opacity-90" asChild>
-                  <Link href="/signup">Get Started</Link>
+                  <Link href="/signup" className="text-xs">Get Started</Link>
                 </Button>
               </>
             ) : (

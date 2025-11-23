@@ -1,6 +1,6 @@
 /* eslint-disable @next/next/no-img-element */
 import Link from "next/link"
-import { Button } from "@/app/components/ui/button"
+import { Button } from "./ui/button"
 import { Input } from "@/app/components/ui/input"
 import { Facebook, Instagram, Linkedin, Mail } from "lucide-react"
 
