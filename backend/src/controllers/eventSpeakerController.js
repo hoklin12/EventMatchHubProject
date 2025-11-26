@@ -164,118 +164,160 @@ exports.updateEventSpeaker = async (req, res, next) => {
   const userId = req.user.userId;
   const eventId = req.params.event_id;
   const speakersData = JSON.parse(req.body.data);
-  const photoFiles = req.files ? req.files.photo : [];
+  const photoFiles = req.files?.photo || [];
 
   try {
-    // --- Permission checks ---
-    const checkOrganizer = await checkUserRoleOrganizer(userId);
-    if (checkOrganizer) {
+    // Permission checks
+    const isRoleOrganizer = await checkUserRoleOrganizer(userId);
+    if (isRoleOrganizer === false) {
       return res.status(403).json({
         status: "fail",
-        message: "Your role haven't permission to access api",
+        message: "Your role doesn't have permission to access this API",
       });
     }
 
     const isOrganizer = await checkEventOrganizer(userId, eventId);
-    if (isOrganizer) {
+    if (isOrganizer === false) {
       return res.status(403).json({
         status: "fail",
-        message: `Access denied. You're Not organizer in this event.`,
+        message: "Access denied. You're not organizer of this event.",
       });
     }
 
-    // --- Process Update ---
-    const updatedSpeakers = await Promise.all(
-      speakersData.map(async (speaker) => {
-        const existingSpeaker = await models.Speaker.findOne({
-          where: { speaker_id: speaker.speaker_id, event_id: eventId },
+    // Load DB speakers
+    const dbSpeakers = await models.Speaker.findAll({
+      where: { event_id: eventId },
+    });
+
+    // Prepare helper function
+    const findFile = (name) =>
+      photoFiles.find(
+        (f) => f.originalname.toLowerCase() === name.toLowerCase()
+      );
+
+    const results = [];
+
+    // Step 1: Update or Add speakers
+    for (let i = 0; i < speakersData.length; i++) {
+      const sp = speakersData[i];
+
+      //-------------------------------------------------------
+      // A. ADD NEW SPEAKER
+      //-------------------------------------------------------
+      if (!sp.speaker_id || sp.speaker_id === null) {
+        const newSpeaker = await models.Speaker.create({
+          event_id: eventId,
+          order: i + 1,
+          speaker_name: sp.speaker_name,
+          title: sp.title,
+          description: sp.description,
         });
 
-        if (!existingSpeaker) {
-          throw new Error(
-            `Speaker ID ${speaker.speaker_id} not found in this event.`
-          );
-        }
+        // upload image if exists
+        if (sp.fileName) {
+          const fileObj = findFile(sp.fileName);
+          if (!fileObj)
+            throw new Error(`Missing file for new speaker: ${sp.fileName}`);
 
-        // update text fields
-        existingSpeaker.speaker_name = speaker.speaker_name;
-        existingSpeaker.title = speaker.title;
-        existingSpeaker.description = speaker.description;
+          const hash = hashString(fileObj.buffer);
+          const mimeType =
+            mime.lookup(fileObj.originalname) || "application/octet-stream";
 
-        let fileObj = null;
-
-        // --- Check if updating photo ---
-        if (speaker.fileName) {
-          fileObj = photoFiles.find(
-            (f) =>
-              f.originalname.toLowerCase() === speaker.fileName.toLowerCase()
-          );
-
-          if (!fileObj) {
-            throw new Error(
-              `Photo file for speaker ${speaker.speaker_name} is missing.`
-            );
-          }
-
-          const newHash = hashString(fileObj.buffer);
-
-          // ⛔ Skip upload if hash matches (same photo)
-          if (existingSpeaker.photo_hash === newHash) {
-            return existingSpeaker;
-          }
-
-          // Replace existing photo
-          if (existingSpeaker.photo_url) {
-            const mimeType =
-              mime.lookup(fileObj.originalname) || "application/octet-stream";
-            const fileURL = await replaceFile(
-              BUCKET_NAME.EVENT,
-              fileObj.buffer,
-              `${FOLDERS.SPEAKER}/${eventId}/${existingSpeaker.speaker_id}`,
-              mimeType
-            );
-          }
-
-          // Upload new photo if none exists
-          if (existingSpeaker.photo_url == null) {
-            const mimeType =
-              mime.lookup(fileObj.originalname) || "application/octet-stream";
-
-            // upload new photo
-            const fileURL = await uploadFile(
-              BUCKET_NAME.EVENT,
-              fileObj.buffer,
-              `${FOLDERS.SPEAKER}/${eventId}/${existingSpeaker.speaker_id}`,
-              mimeType
-            );
-
-            existingSpeaker.photo_hash = newHash;
-            existingSpeaker.photo_url = fileURL;
-          }
-        }
-
-        // Remove photo if UI tells to remove
-        if (speaker.removePhoto === true) {
-          await deleteFile(
+          const url = await uploadFile(
             BUCKET_NAME.EVENT,
-            `${FOLDERS.SPEAKER}/${eventId}/${existingSpeaker.speaker_id}`
+            fileObj.buffer,
+            `${FOLDERS.SPEAKER}/${eventId}/${newSpeaker.speaker_id}`,
+            mimeType
           );
-          existingSpeaker.photo_hash = null;
-          existingSpeaker.photo_url = null;
+
+          newSpeaker.photo_hash = hash;
+          newSpeaker.photo_url = url;
+          await newSpeaker.save();
         }
 
-        await existingSpeaker.save();
-        return existingSpeaker;
-      })
-    );
+        results.push(newSpeaker);
+        continue;
+      }
 
-    // sort by "order"
-    updatedSpeakers.sort((a, b) => a.order - b.order);
+      //-------------------------------------------------------
+      // B. UPDATE EXISTING SPEAKER
+      //-------------------------------------------------------
+      const existingSpeaker = dbSpeakers.find(
+        (d) => d.speaker_id === sp.speaker_id
+      );
+
+      if (!existingSpeaker) {
+        throw new Error(`Speaker ID ${sp.speaker_id} not found.`);
+      }
+
+      existingSpeaker.speaker_name = sp.speaker_name;
+      existingSpeaker.title = sp.title;
+      existingSpeaker.description = sp.description;
+      existingSpeaker.order = i + 1;
+
+      // Update photo
+      if (sp.fileName) {
+        const fileObj = findFile(sp.fileName);
+        if (!fileObj)
+          throw new Error(`Missing file for speaker: ${sp.fileName}`);
+
+        const newHash = hashString(fileObj.buffer);
+        if (existingSpeaker.photo_hash !== newHash) {
+          const mimeType =
+            mime.lookup(fileObj.originalname) || "application/octet-stream";
+
+          const url = await uploadFile(
+            BUCKET_NAME.EVENT,
+            fileObj.buffer,
+            `${FOLDERS.SPEAKER}/${eventId}/${existingSpeaker.speaker_id}`,
+            mimeType
+          );
+
+          existingSpeaker.photo_hash = newHash;
+          existingSpeaker.photo_url = url;
+        }
+      }
+
+      // Remove photo
+      if (sp.removePhoto === true) {
+        await deleteFile(
+          BUCKET_NAME.EVENT,
+          `${FOLDERS.SPEAKER}/${eventId}/${existingSpeaker.speaker_id}`
+        );
+        existingSpeaker.photo_hash = null;
+        existingSpeaker.photo_url = null;
+      }
+
+      await existingSpeaker.save();
+      results.push(existingSpeaker);
+    }
+
+    //-------------------------------------------------------
+    // Step 2: DELETE speakers removed by the user
+    //-------------------------------------------------------
+    for (const dbSp of dbSpeakers) {
+      const stillExists = speakersData.some(
+        (s) => s.speaker_id === dbSp.speaker_id
+      );
+
+      if (!stillExists) {
+        await deleteFile(
+          BUCKET_NAME.EVENT,
+          `${FOLDERS.SPEAKER}/${eventId}/${dbSp.speaker_id}`
+        );
+        await dbSp.destroy();
+      }
+    }
+
+    //-------------------------------------------------------
+    // Sort results by order
+    //-------------------------------------------------------
+    results.sort((a, b) => a.order - b.order);
 
     return res.status(200).json({
       status: "success",
-      message: "Event speaker updated successfully.",
-      data: updatedSpeakers,
+      message: "Event speakers updated successfully.",
+      data: results,
     });
   } catch (error) {
     console.error("Update Event Speaker Error:", error);
