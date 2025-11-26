@@ -31,7 +31,7 @@ module.exports = {
       },
       organization_name: {
         // Matches your SQL organization_name
-        type: Sequelize.STRING(255),
+        type: Sequelize.STRING(40),
         allowNull: true, // Allow NULL
       },
       created_at: {

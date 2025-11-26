@@ -13,12 +13,24 @@ const db = {};
 
 let sequelize;
 
-// 2. Define Global Settings (The Fix for 'createdAt' error)
+// 2. Define Global Settings (Fixed for Cambodia Timezone)
 const sequelizeOptions = {
   ...config, // Spread existing config (host, dialect, port)
+
+  // START CHANGE: Cambodia is UTC+7
+  timezone: "+07:00",
+  // END CHANGE
+
   define: {
     underscored: true,
     timestamps: true,
+  },
+
+  // Optional: If using MySQL, this helps ensure dates return correctly
+  dialectOptions: {
+    dateStrings: true,
+    typeCast: true,
+    timezone: "+07:00",
   },
 };
 
@@ -32,7 +44,7 @@ if (config.use_env_variable) {
     config.database,
     config.username,
     config.password,
-    sequelizeOptions // <--- We pass the options containing 'underscored: true'
+    sequelizeOptions // <--- Passing the updated options
   );
 }
 

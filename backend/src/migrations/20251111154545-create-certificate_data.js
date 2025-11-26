@@ -2,43 +2,60 @@
 
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable("Certificates", {
-      certificate_id: {
+    await queryInterface.createTable("CertificateDatas", {
+      certificatedata_id: {
         allowNull: false,
         primaryKey: true,
         type: Sequelize.UUID,
         defaultValue: Sequelize.UUIDV4,
       },
-      certificatedata_id: {
+      event_id: {
         type: Sequelize.UUID,
         allowNull: false,
         references: {
-          model: "CertificateDatas",
-          key: "certificatedata_id",
+          model: "Events",
+          key: "event_id",
         },
         onUpdate: "CASCADE",
         onDelete: "CASCADE",
       },
-      user_id: {
+      template_id: {
         type: Sequelize.UUID,
         allowNull: false,
+        defaultValue: "ad0a3158-ad37-43b3-92a6-fb301b15bd36",
         references: {
-          model: "Users",
-          key: "user_id",
+          model: "CertificateTemplates",
+          key: "template_id",
         },
         onUpdate: "CASCADE",
         onDelete: "CASCADE",
       },
-      verification_code: {
-        type: Sequelize.STRING(100),
+      organizer_name: {
+        type: Sequelize.STRING(40),
+        allowNull: false,
+      },
+      description: {
+        type: Sequelize.STRING(123),
+        allowNull: false,
+      },
+      issued_date: {
+        type: Sequelize.DATE,
+        allowNull: false,
+      },
+      expiration_duration: {
+        type: Sequelize.INTEGER,
         allowNull: true,
       },
-      verification_hash: {
-        type: Sequelize.STRING(512),
-        allowNull: true,
+      organizer_director_name: {
+        type: Sequelize.STRING(255),
+        allowNull: false,
       },
-      file_link: {
-        type: Sequelize.STRING(512),
+      organizer_role: {
+        type: Sequelize.STRING(255),
+        allowNull: false,
+      },
+      signature_url: {
+        type: Sequelize.TEXT,
         allowNull: true,
       },
       created_at: {
@@ -57,6 +74,6 @@ module.exports = {
   },
 
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable("Certificates");
+    await queryInterface.dropTable("CertificateDatas");
   },
 };

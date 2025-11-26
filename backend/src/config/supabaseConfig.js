@@ -1,10 +1,19 @@
-const BUCKET_NAME = "certificate";
+const BUCKET_NAME = {
+  CERTIFICATE: "certificate",
+  EVENT: "event",
+};
 
 const FOLDERS = {
-  TEMPORARY: "temporary",
+  //Certificate
   TEMPLATES_APPRECIATION: "template/appreciation",
   TEMPLATES_COMPLETION: "template/completion",
   GENERATED: "generated",
+
+  //Event
+  THEME: "theme",
+  AGENDA: "agenda",
+  SPEAKER: "speaker",
+  ATTENDANCE: "attendance",
 };
 
 module.exports = Object.freeze({

@@ -19,6 +19,10 @@ module.exports = {
         onUpdate: "CASCADE",
         onDelete: "CASCADE",
       },
+      theme: {
+        type: Sequelize.TEXT,
+        allowNull: true,
+      },
       title: {
         type: Sequelize.STRING(64),
         allowNull: false,
@@ -27,36 +31,77 @@ module.exports = {
         type: Sequelize.TEXT,
         allowNull: true,
       },
+      category_id: {
+        type: Sequelize.UUID,
+        allowNull: false,
+        references: {
+          model: "Categories",
+          key: "category_id",
+        },
+        onUpdate: "CASCADE",
+        onDelete: "CASCADE",
+      },
       type: {
         type: Sequelize.ENUM(
           "conference",
           "workshop",
           "webinar",
           "meetup",
+          "competition",
           "other"
         ),
         defaultValue: "conference",
         allowNull: true,
       },
       status: {
-        type: Sequelize.ENUM("upcoming", "ongoing", "completed", "cancelled"),
-        defaultValue: "upcoming",
+        type: Sequelize.ENUM(
+          "draft",
+          "public",
+          "private",
+          "schedule",
+          "completed"
+        ),
+        defaultValue: "draft",
         allowNull: false,
       },
       event_date: {
         type: Sequelize.DATE,
         allowNull: false,
       },
-      location: {
+      start_time: {
+        type: Sequelize.TIME,
+        allowNull: false,
+      },
+      end_time: {
+        type: Sequelize.TIME,
+        allowNull: false,
+      },
+      location_name: {
         type: Sequelize.STRING(255),
         allowNull: false,
       },
-      fee_amount: {
-        type: Sequelize.DECIMAL(10, 2),
+      location: {
+        type: Sequelize.TEXT,
+        allowNull: false,
+      },
+      // fee_amount: {
+      //   type: Sequelize.DECIMAL(10, 2),
+      //   allowNull: true,
+      // },
+      // capacity: {
+      //   type: Sequelize.INTEGER,
+      //   allowNull: true,
+      // },
+      agenda: {
+        type: Sequelize.TEXT,
+        allowNull: true,
+      },
+      schedule_date: {
+        type: Sequelize.DATE,
         allowNull: true,
       },
       created_at: {
-        allowNull: false,
+        allowNull: true,
         type: Sequelize.DATE,
         defaultValue: Sequelize.literal("CURRENT_TIMESTAMP"),
       },

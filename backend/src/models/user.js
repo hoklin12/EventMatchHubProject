@@ -76,7 +76,7 @@ module.exports = (sequelize, DataTypes) => {
         validate: { isEmail: true },
       },
       password_hash: { type: DataTypes.STRING(255), allowNull: false },
-      organization_name: { type: DataTypes.STRING(255) },
+      organization_name: { type: DataTypes.STRING(40) },
       // created_at: DataTypes.DATE,
       // updated_at: DataTypes.DATE,
     },

@@ -1,7 +1,8 @@
 const path = require("path");
 const { spawn } = require("child_process");
-const { generatedUploadFile } = require("../services/storageService");
-const { FOLDERS } = require("../config/supabaseConfig");
+const { uploadFile } = require("../services/storageService");
+const { FOLDERS, BUCKET_NAME } = require("../config/supabaseConfig");
+const fileTypeFromBuffer = require("file-type");
 
 exports.generateCertificate = async (data) => {
   return new Promise((resolve, reject) => {
@@ -29,11 +30,14 @@ exports.generateCertificate = async (data) => {
         // Convert to clean buffer
         const base64Data = image.replace(/^data:image\/png;base64,/, "");
         const imageBuffer = Buffer.from(base64Data, "base64");
+        const type = await fileTypeFromBuffer(imageBuffer);
 
         // Upload file
-        const exists = await generatedUploadFile(
+        const exists = await uploadFile(
+          BUCKET_NAME.CERTIFICATE,
           imageBuffer,
-          `${FOLDERS.GENERATED}/${data.metadata.event_id}/${data.userData.user_id}.png`
+          `${FOLDERS.GENERATED}/${data.metadata.event_id}/${data.userData.user_id}`,
+          type
         );
 
         // 👇 Return the upload result to controller

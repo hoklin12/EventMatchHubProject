@@ -17,17 +17,24 @@ module.exports = (sequelize, DataTypes) => {
   Event.init(
     {
       event_id: {
+        allowNull: false,
+        primaryKey: true,
         type: DataTypes.UUID,
         defaultValue: DataTypes.UUIDV4,
-        primaryKey: true,
       },
       user_id: {
         type: DataTypes.UUID,
         allowNull: false,
-        primaryKey: true, // Part of composite PK
-        references: { model: "Users", key: "user_id" },
+        references: {
+          model: "Users",
+          key: "user_id",
+        },
         onUpdate: "CASCADE",
         onDelete: "CASCADE",
+      },
+      theme: {
+        type: DataTypes.TEXT,
+        allowNull: true,
       },
       title: {
         type: DataTypes.STRING(64),
@@ -37,32 +44,65 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.TEXT,
         allowNull: true,
       },
+      category_id: {
+        type: DataTypes.UUID,
+        allowNull: false,
+        references: {
+          model: "Categories",
+          key: "category_id",
+        },
+        onUpdate: "CASCADE",
+        onDelete: "CASCADE",
+      },
       type: {
         type: DataTypes.ENUM(
           "conference",
           "workshop",
           "webinar",
           "meetup",
+          "competition",
           "other"
         ),
         defaultValue: "conference",
         allowNull: true,
       },
       status: {
-        type: DataTypes.ENUM("upcoming", "ongoing", "completed", "cancelled"),
-        defaultValue: "upcoming",
+        type: DataTypes.ENUM(
+          "draft",
+          "public",
+          "private",
+          "schedule",
+          "completed"
+        ),
+        defaultValue: "draft",
         allowNull: false,
       },
       event_date: {
         type: DataTypes.DATE,
         allowNull: false,
       },
-      location: {
+      start_time: {
+        type: DataTypes.TIME,
+        allowNull: false,
+      },
+      end_time: {
+        type: DataTypes.TIME,
+        allowNull: false,
+      },
+      location_name: {
         type: DataTypes.STRING(255),
         allowNull: false,
       },
-      fee_amount: {
-        type: DataTypes.DECIMAL(10, 2),
+      location: {
+        type: DataTypes.TEXT,
+        allowNull: false,
+      },
+      agenda: {
+        type: DataTypes.TEXT,
+        allowNull: true,
+      },
+      schedule_date: {
+        type: DataTypes.DATE,
         allowNull: true,
       },
       // created_at: DataTypes.DATE,

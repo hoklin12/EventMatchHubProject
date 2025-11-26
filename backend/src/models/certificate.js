@@ -28,16 +28,6 @@ module.exports = (sequelize, DataTypes) => {
         defaultValue: DataTypes.UUIDV4,
         primaryKey: true,
       },
-      event_id: {
-        type: DataTypes.UUID,
-        allowNull: false,
-        references: {
-          model: "Events",
-          key: "event_id",
-        },
-        onUpdate: "CASCADE",
-        onDelete: "CASCADE",
-      },
       user_id: {
         type: DataTypes.UUID,
         allowNull: false,
@@ -48,21 +38,15 @@ module.exports = (sequelize, DataTypes) => {
         onUpdate: "CASCADE",
         onDelete: "CASCADE",
       },
-      organizer_name: {
-        type: DataTypes.STRING(40),
+      certificatedata_id: {
+        type: DataTypes.UUID,
         allowNull: false,
-      },
-      description: {
-        type: DataTypes.STRING(123),
-        allowNull: false,
-      },
-      issued_date: {
-        type: DataTypes.DATE,
-        allowNull: false,
-      },
-      expiration_duration: {
-        type: DataTypes.INTEGER,
-        allowNull: true,
+        references: {
+          model: "CertificateDatas",
+          key: "certificatedata_id",
+        },
+        onUpdate: "CASCADE",
+        onDelete: "CASCADE",
       },
       verification_code: {
         type: DataTypes.STRING(100),

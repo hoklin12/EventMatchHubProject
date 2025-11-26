@@ -69,8 +69,8 @@ module.exports = (sequelize, DataTypes) => {
     },
     {
       sequelize,
-      modelName: "FormField",
-      tableName: "FormFields",
+      modelName: "FormResponseAnswer",
+      tableName: "FormResponseAnswers",
       timestamps: true,
       paranoid: false,
     }

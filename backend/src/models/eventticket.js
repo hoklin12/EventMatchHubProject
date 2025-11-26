@@ -3,19 +3,19 @@ const { Model } = require("sequelize");
 const bcrypt = require("bcryptjs");
 
 module.exports = (sequelize, DataTypes) => {
-  class FormField extends Model {
+  class EventTicket extends Model {
     static associate(models) {
       if (models.Event) {
-        FormField.belongsTo(models.Event, {
+        EventTicket.belongsTo(models.Event, {
           foreignKey: "event_id",
           as: "Events",
         });
       }
     }
   }
-  FormField.init(
+  EventTicket.init(
     {
-      formfield_id: {
+      eventticket_id: {
         allowNull: false,
         primaryKey: true,
         type: DataTypes.UUID,
@@ -31,27 +31,31 @@ module.exports = (sequelize, DataTypes) => {
         onUpdate: "CASCADE",
         onDelete: "CASCADE",
       },
-      question: {
-        type: DataTypes.STRING(255),
-        allowNull: false,
-      },
-      field_type: {
+      ticket_type: {
         type: DataTypes.ENUM(
-          "short",
-          "paragraph",
-          "radio",
-          "checkbox",
-          "dropdown"
+          "general",
+          "vip",
+          "early_bird",
+          "student",
+          "other"
         ),
+        defaultValue: "general",
         allowNull: false,
       },
-      is_required: {
-        type: DataTypes.BOOLEAN,
+      price: {
+        type: DataTypes.DECIMAL(10, 2),
         allowNull: false,
-        defaultValue: false,
       },
-      question_order: {
+      quantity: {
         type: DataTypes.INTEGER,
+        allowNull: false,
+      },
+      start_sale_date: {
+        type: DataTypes.DATE,
+        allowNull: false,
+      },
+      end_sale_date: {
+        type: DataTypes.DATE,
         allowNull: false,
       },
       // created_at: DataTypes.DATE,
@@ -59,11 +63,11 @@ module.exports = (sequelize, DataTypes) => {
     },
     {
       sequelize,
-      modelName: "FormField",
-      tableName: "FormFields",
+      modelName: "EventTicket",
+      tableName: "EventTickets",
       timestamps: true,
       paranoid: false,
     }
   );
-  return FormField;
+  return EventTicket;
 };
