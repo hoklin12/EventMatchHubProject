@@ -114,6 +114,31 @@ router.put(
   eventFormFieldController.updateEventFormFields
 );
 
+// ================== Manage Event POST ==================
+// PUT /api/v1/events/:event_id/publish - Publish an event (only for organizers)
+router.put(
+  "/:event_id/publish",
+  authMiddleware,
+  rbacMiddleware(["organizer"]),
+  eventController.publishEvent
+);
+
+// PUT /api/v1/events/:event_id/schedule - Schedule an event (only for organizers)
+router.put(
+  "/:event_id/schedule",
+  authMiddleware,
+  rbacMiddleware(["organizer"]),
+  eventController.scheduleEvent
+);
+
+// PUT /api/v1/events/:event_id/delete - Delete an event (only for organizers)
+router.put(
+  "/:event_id/delete",
+  authMiddleware,
+  rbacMiddleware(["organizer"]),
+  eventController.deleteEvent
+);
+
 // ================== Manage Event Participants ==================
 // GET /api/v1/events/:event_id/participants - View participants of an event (only for organizers)
 router.get(

@@ -278,7 +278,7 @@ exports.deleteEvent = async (req, res, next) => {
   const userId = req.user.userId;
   const eventId = req.params.event_id;
   try {
-    // Check if user is participant
+    // Check if user is organizer
     const checkOrganizer = await checkUserRoleOrganizer(userId);
     if (checkOrganizer) {
       return res.status(403).json({
@@ -296,6 +296,142 @@ exports.deleteEvent = async (req, res, next) => {
     }
     // Delete the event
     await models.Event.destroy({ where: { event_id: eventId } });
+    return res.status(200).json({
+      status: "success",
+      message: "Event deleted successfully.",
+    });
+  } catch (error) {
+    console.error("Delete Event Error:", error);
+    next(error);
+  }
+};
+
+// ================== Manage Event POST ==================
+// Publish or unpublish an event (only for organizers)
+exports.publishEvent = async (req, res, next) => {
+  const userId = req.user.userId;
+  const eventId = req.params.event_id;
+  try {
+    // Check if user is orginizer
+    const checkOrganizer = await checkUserRoleOrganizer(userId);
+    if (checkOrganizer) {
+      return res.status(403).json({
+        status: "fail",
+        message: "Your role haven't permission to access api",
+      });
+    }
+    // Check if user is organizer of the event
+    const isOrganizer = await checkEventOrganizer(userId, eventId);
+    if (isOrganizer) {
+      return res.status(403).json({
+        status: "fail",
+        message: `Access denied. You're Not organizer in event ID ${eventId}.`,
+      });
+    }
+    // Find the event
+    const event = await models.Event.findByPk(eventId);
+    if (!event) {
+      return res
+        .status(404)
+        .json({ status: "fail", message: "Event not found." });
+    }
+    // Toggle publish status
+    event.status = event.status === "public" ? "private" : "public";
+    await event.save();
+
+    return res.status(200).json({
+      status: "success",
+      message: `Event has been ${event.status}.`,
+      data: {
+        event: event,
+      },
+    });
+  } catch (error) {
+    console.error("Publish Event Error:", error);
+    next(error);
+  }
+};
+
+// Schedule an event only for organizers that created the event
+exports.scheduleEvent = async (req, res, next) => {
+  const userId = req.user.userId;
+  const eventId = req.params.event_id;
+  const { schedule_date, schedule_time } = req.body;
+  try {
+    // Check if user is organizer
+    const checkOrganizer = await checkUserRoleOrganizer(userId);
+    if (checkOrganizer) {
+      return res.status(403).json({
+        status: "fail",
+        message: "Your role haven't permission to access api",
+      });
+    }
+    // Check if user is organizer of the event
+    const isOrganizer = await checkEventOrganizer(userId, eventId);
+    if (isOrganizer) {
+      return res.status(403).json({
+        status: "fail",
+        message: `Access denied. You're Not organizer in event ID ${eventId}.`,
+      });
+    }
+    // Check if the event exists and if the user is an organizer for that event
+    const event = await models.Event.findByPk(eventId);
+    if (!event) {
+      return res
+        .status(404)
+        .json({ status: "fail", message: "Event not found." });
+    }
+
+    // Update event schedule
+    await event.update({
+      schedule_date: `${schedule_date} ${schedule_time}` || event.schedule_date,
+      status: "schedule",
+    });
+
+    return res.status(200).json({
+      status: "success",
+      message: "Event schedule updated successfully.",
+      data: {
+        event: event,
+      },
+    });
+  } catch (error) {
+    console.error("Schedule Event Error:", error);
+    next(error);
+  }
+};
+
+// Delete an event (only for organizers)
+exports.deleteEvent = async (req, res, next) => {
+  const userId = req.user.userId;
+  const eventId = req.params.event_id;
+  try {
+    // Check if user is organizer
+    const checkOrganizer = await checkUserRoleOrganizer(userId);
+    if (checkOrganizer) {
+      return res.status(403).json({
+        status: "fail",
+        message: "Your role haven't permission to access api",
+      });
+    }
+    // Check if user is organizer of the event
+    const isOrganizer = await checkEventOrganizer(userId, eventId);
+    if (isOrganizer) {
+      return res.status(403).json({
+        status: "fail",
+        message: `Access denied. You're Not organizer in event ID ${eventId}.`,
+      });
+    }
+    // Find the event
+    const event = await models.Event.findByPk(eventId);
+    if (!event) {
+      return res
+        .status(404)
+        .json({ status: "fail", message: "Event not found." });
+    }
+    // Soft delete the event
+
+    await event.destroy();
     return res.status(200).json({
       status: "success",
       message: "Event deleted successfully.",
