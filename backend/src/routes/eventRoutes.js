@@ -6,6 +6,7 @@ const registerController = require("../controllers/registerController");
 const participantController = require("../controllers/partcipantController");
 const eventticketController = require("../controllers/eventTicketController");
 const eventSpeakerController = require("../controllers/eventSpeakerController");
+const eventFormFieldController = require("../controllers/eventFormFieldController");
 const authMiddleware = require("../middleware/authMiddleware");
 const rbacMiddleware = require("../middleware/rbacMiddleware"); // For role checks
 const upload = require("../middleware/uploadMiddleware");
@@ -94,6 +95,23 @@ router.put(
   rbacMiddleware(["organizer"]),
   upload.fields([{ name: "photo" }]),
   eventSpeakerController.updateEventSpeaker
+);
+
+// =================== Manage Event Form Fields ==================
+// GET /api/v1/events/:event_id/form-fields - View form fields for an event (only for organizers)
+router.get(
+  "/:event_id/form-fields",
+  authMiddleware,
+  rbacMiddleware(["organizer"]),
+  eventFormFieldController.viewEventFormFields
+);
+
+//PUT /api/v1/events/:event_id/form-fields - Update form fields for an event (only for organizers)
+router.put(
+  "/:event_id/form-fields",
+  authMiddleware,
+  rbacMiddleware(["organizer"]),
+  eventFormFieldController.updateEventFormFields
 );
 
 // ================== Manage Event Participants ==================

@@ -24,7 +24,7 @@ module.exports = {
         type: Sequelize.STRING(255),
         allowNull: false,
       },
-      order: {
+      option_order: {
         type: Sequelize.INTEGER,
         allowNull: false,
       },

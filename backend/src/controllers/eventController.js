@@ -7,7 +7,6 @@ const { checkEventOrganizer } = require("../utils/checkEventOrganizer");
 const mime = require("mime-types");
 const { uploadFile } = require("../services/storageService");
 const { FOLDERS, BUCKET_NAME } = require("../config/supabaseConfig");
-const { json } = require("sequelize");
 
 /* //////////////////////////////////////////////////////////////////////////////////
                               Create Event
@@ -35,7 +34,7 @@ exports.createEvent = async (req, res, next) => {
   try {
     // Check if user is participant
     const checkOrganizer = await checkUserRoleOrganizer(userId);
-    if (checkOrganizer === false) {
+    if (checkOrganizer) {
       return res.status(403).json({
         status: "fail",
         message: "Your role haven't permission to access api",
@@ -222,7 +221,7 @@ exports.updateEvent = async (req, res, next) => {
   try {
     // Check if user is organizer
     const checkOrganizer = await checkUserRoleOrganizer(userId);
-    if (checkOrganizer === false) {
+    if (checkOrganizer) {
       return res.status(403).json({
         status: "fail",
         message: "Your role haven't permission to access api",
@@ -231,7 +230,7 @@ exports.updateEvent = async (req, res, next) => {
 
     // Check if user is organizer of the event
     const isOrganizer = await checkEventOrganizer(userId, eventId);
-    if (isOrganizer === false) {
+    if (isOrganizer) {
       return res.status(403).json({
         status: "fail",
         message: `Access denied. You're Not organizer in event ID ${eventId}.`,
@@ -281,7 +280,7 @@ exports.deleteEvent = async (req, res, next) => {
   try {
     // Check if user is participant
     const checkOrganizer = await checkUserRoleOrganizer(userId);
-    if (checkOrganizer === false) {
+    if (checkOrganizer) {
       return res.status(403).json({
         status: "fail",
         message: "Your role haven't permission to access api",
@@ -289,7 +288,7 @@ exports.deleteEvent = async (req, res, next) => {
     }
     // Check if user is organizer of the event
     const isOrganizer = await checkEventOrganizer(userId, eventId);
-    if (isOrganizer === false) {
+    if (isOrganizer) {
       return res.status(403).json({
         status: "fail",
         message: `Access denied. You're Not organizer in event ID ${eventId}.`,

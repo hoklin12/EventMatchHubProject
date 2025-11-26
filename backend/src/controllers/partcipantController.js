@@ -12,7 +12,7 @@ exports.viewEventParticipants = async (req, res, next) => {
   try {
     // Check if user is participant
     const checkOrganizer = await checkUserRoleOrganizer(userId);
-    if (checkOrganizer === false) {
+    if (checkOrganizer) {
       return res.status(403).json({
         status: "fail",
         message: "Your role haven't permission to access api",
@@ -21,7 +21,7 @@ exports.viewEventParticipants = async (req, res, next) => {
 
     //check event organizer
     const isOrganizer = await checkEventOrganizer(userId, eventId);
-    if (isOrganizer === false) {
+    if (isOrganizer) {
       return res.status(403).json({
         status: "fail",
         message: `Access denied. You're Not organizer in event ID ${eventId}.`,

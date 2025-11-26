@@ -25,7 +25,7 @@ exports.addEventSpeaker = async (req, res, next) => {
   try {
     // Check if user is organizer
     const checkOrganizer = await checkUserRoleOrganizer(userId);
-    if (checkOrganizer === false) {
+    if (checkOrganizer) {
       return res.status(403).json({
         status: "fail",
         message: "Your role haven't permission to access api",
@@ -33,7 +33,7 @@ exports.addEventSpeaker = async (req, res, next) => {
     }
     // Check if user is organizer of the event
     const isOrganizer = await checkEventOrganizer(userId, eventId);
-    if (isOrganizer === false) {
+    if (isOrganizer) {
       return res.status(403).json({
         status: "fail",
         message: `Access denied. You're Not organizer in this event.`,
@@ -113,7 +113,7 @@ exports.viewEventSpeakers = async (req, res, next) => {
   try {
     // Check if user is organizer
     const checkOrganizer = await checkUserRoleOrganizer(userId);
-    if (checkOrganizer === false) {
+    if (checkOrganizer) {
       return res.status(403).json({
         status: "fail",
         message: "Your role haven't permission to access api",
@@ -122,7 +122,7 @@ exports.viewEventSpeakers = async (req, res, next) => {
 
     // Check if user is organizer of the event
     const isOrganizer = await checkEventOrganizer(userId, eventId);
-    if (isOrganizer === false) {
+    if (isOrganizer) {
       return res.status(403).json({
         status: "fail",
         message: `Access denied. You're Not organizer in this event.`,
@@ -177,7 +177,7 @@ exports.updateEventSpeaker = async (req, res, next) => {
     }
 
     const isOrganizer = await checkEventOrganizer(userId, eventId);
-    if (isOrganizer === false) {
+    if (isOrganizer) {
       return res.status(403).json({
         status: "fail",
         message: "Access denied. You're not organizer of this event.",

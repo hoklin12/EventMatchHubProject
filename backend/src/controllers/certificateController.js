@@ -38,7 +38,7 @@ exports.createCertificates = async (req, res, next) => {
   try {
     // Check if user is participant
     const checkOrganizer = await checkUserRoleOrganizer(userId);
-    if (checkOrganizer === false) {
+    if (checkOrganizer) {
       return res.status(403).json({
         status: "fail",
         message: "Your role haven't permission to access api",
@@ -181,7 +181,7 @@ exports.viewAllCertificates = async (req, res, next) => {
   try {
     // Check if user is participant
     const checkOrganizer = await checkUserRoleOrganizer(userId);
-    if (checkOrganizer === false) {
+    if (checkOrganizer) {
       return res.status(403).json({
         status: "fail",
         message: "Your role haven't permission to access api",
@@ -303,7 +303,7 @@ exports.getCertificateTemplate = async (req, res, next) => {
   try {
     // Check if user is participant
     const checkOrganizer = await checkUserRoleOrganizer(userId);
-    if (checkOrganizer === false) {
+    if (checkOrganizer) {
       return res.status(403).json({
         status: "fail",
         message: "Your role haven't permission to access api",
