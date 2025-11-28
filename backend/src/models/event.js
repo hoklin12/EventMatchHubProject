@@ -6,10 +6,44 @@ module.exports = (sequelize, DataTypes) => {
   class Event extends Model {
     static associate(models) {
       // Define associations here if needed
-      if (models.Certificate) {
-        Event.hasMany(models.Certificate, {
+      if (models.User) {
+        Event.belongsTo(models.User, {
+          foreignKey: "user_id",
+          as: "Users",
+        });
+      }
+      if (models.Category) {
+        Event.belongsTo(models.Category, {
+          foreignKey: "category_id",
+          as: "Categories",
+        });
+      }
+
+      if (models.Ticket) {
+        Event.hasMany(models.EventTicket, {
           foreignKey: "event_id",
-          as: "Certificates",
+          as: "Tickets",
+        });
+      }
+
+      if (models.CertificateData) {
+        Event.hasMany(models.CertificateData, {
+          foreignKey: "event_id",
+          as: "CertificateDatas",
+        });
+      }
+
+      if (models.FormField) {
+        Event.hasMany(models.FormField, {
+          foreignKey: "event_id",
+          as: "FormFields",
+        });
+      }
+
+      if (models.Registration) {
+        Event.hasMany(models.Registration, {
+          foreignKey: "event_id",
+          as: "Registrations",
         });
       }
     }

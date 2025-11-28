@@ -5,18 +5,23 @@ const bcrypt = require("bcryptjs");
 module.exports = (sequelize, DataTypes) => {
   class Certificate extends Model {
     static associate(models) {
-      if (models.Role) {
-        Certificate.belongsToMany(models.Portfolio, {
-          through: "PortfolioCertificates",
-          foreignKey: "certificate_id",
-          otherKey: "portfolio_id",
-          as: "Portfolios",
-        });
-      }
+      Certificate.belongsToMany(models.Portfolio, {
+        through: "PortfolioCertificates",
+        foreignKey: "certificate_id",
+        otherKey: "portfolio_id",
+        as: "Portfolios",
+      });
       if (models.User) {
         Certificate.belongsTo(models.User, {
           foreignKey: "user_id",
           as: "Users",
+        });
+      }
+
+      if (models.CertificateData) {
+        Certificate.belongsTo(models.CertificateData, {
+          foreignKey: "certificatedata_id",
+          as: "CertificateDatas",
         });
       }
     }

@@ -29,10 +29,22 @@ module.exports = (sequelize, DataTypes) => {
       applicationform_id: {
         type: DataTypes.UUID,
         allowNull: false,
+        references: {
+          model: "ApplicationForms",
+          key: "applicationform_id",
+        },
+        onUpdate: "CASCADE",
+        onDelete: "CASCADE",
       },
       event_id: {
         type: DataTypes.UUID,
         allowNull: false,
+        references: {
+          model: "Events",
+          key: "event_id",
+        },
+        onUpdate: "CASCADE",
+        onDelete: "CASCADE",
       },
       registration_date: {
         type: DataTypes.DATE,

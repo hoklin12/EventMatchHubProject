@@ -11,6 +11,18 @@ module.exports = (sequelize, DataTypes) => {
           as: "Events",
         });
       }
+      if (models.FormFieldOption) {
+        FormField.hasMany(models.FormFieldOption, {
+          foreignKey: "formfield_id",
+          as: "FormFieldOptions",
+        });
+      }
+      if (models.FormResponseAnswer) {
+        FormField.hasMany(models.FormResponseAnswer, {
+          foreignKey: "formfield_id",
+          as: "FormResponseAnswers",
+        });
+      }
     }
   }
   FormField.init(

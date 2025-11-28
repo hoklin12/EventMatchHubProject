@@ -24,6 +24,15 @@ module.exports = {
           isEmail: true, // Sequelize validation
         },
       },
+      phone_number: {
+        // Matches your SQL email
+        type: Sequelize.STRING(191),
+        allowNull: false,
+        unique: true,
+        validate: {
+          is: /^[0-9+\-() ]+$/i, // Basic phone number validation
+        },
+      },
       password_hash: {
         // Matches your SQL password_hash
         type: Sequelize.STRING(255),

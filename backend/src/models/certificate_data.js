@@ -11,6 +11,12 @@ module.exports = (sequelize, DataTypes) => {
           as: "Events",
         });
       }
+      if (models.CertificateTemplate) {
+        CertificateData.belongsTo(models.CertificateTemplate, {
+          foreignKey: "template_id",
+          as: "CertificateTemplates",
+        });
+      }
     }
   }
   CertificateData.init(

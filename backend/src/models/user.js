@@ -30,31 +30,18 @@ module.exports = (sequelize, DataTypes) => {
         });
       }
 
-      if (models.Notification) {
-        User.hasMany(models.Notification, {
-          foreignKey: "user_id",
-          as: "Notifications",
-        });
-      }
-
-      if (models.ChatMessage) {
-        User.hasMany(models.ChatMessage, {
-          foreignKey: "user_id",
-          as: "SentMessages",
-        });
-        User.hasMany(models.ChatMessage, {
-          foreignKey: "receiver_id",
-          as: "ReceivedMessages",
-        });
-      }
-
       if (models.Application_Form) {
         User.hasMany(models.Application_Form, {
           foreignKey: "user_id",
           as: "CreatedForms",
         });
       }
-      // User.hasMany(models.Events, { foreignKey: 'user_id', as: 'OrganizedEvents' }); // Optional
+      if (models.Events) {
+        User.hasMany(models.Events, {
+          foreignKey: "user_id",
+          as: "OrganizedEvents",
+        });
+      }
     }
 
     async comparePassword(password) {
@@ -74,6 +61,15 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: false,
         unique: true,
         validate: { isEmail: true },
+      },
+      phone_number: {
+        // Matches your SQL email
+        type: DataTypes.STRING(191),
+        allowNull: false,
+        unique: true,
+        validate: {
+          is: /^[0-9+\-() ]+$/i, // Basic phone number validation
+        },
       },
       password_hash: { type: DataTypes.STRING(255), allowNull: false },
       organization_name: { type: DataTypes.STRING(40) },

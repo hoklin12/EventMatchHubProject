@@ -4,7 +4,6 @@ const {
   checkUserRoleOrganizer,
 } = require("../utils/checkUserRole");
 const { checkEventOrganizer } = require("../utils/checkEventOrganizer");
-const { Op } = require("sequelize");
 
 /* //////////////////////////////////////////////////////////////////////////////////
                               Manage Event Form Fields

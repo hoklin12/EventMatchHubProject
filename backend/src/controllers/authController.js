@@ -21,8 +21,14 @@ const generateToken = (user) => {
 };
 
 exports.register = async (req, res, next) => {
-  const { email, password_hash, full_name, organization_name, skills } =
-    req.body;
+  const {
+    email,
+    password_hash,
+    full_name,
+    organization_name,
+    skills,
+    phone_number,
+  } = req.body;
 
   try {
     // 1. Check if user already exists
@@ -38,6 +44,7 @@ exports.register = async (req, res, next) => {
     const newUser = await models.User.create({
       email,
       password_hash, // Raw password - will be hashed before saving
+      phone_number,
       full_name,
       organization_name,
     });
@@ -87,6 +94,7 @@ exports.register = async (req, res, next) => {
         // user_id: userWithRoles.user_id,
         email: userWithRolesAndSkills.email,
         full_name: userWithRolesAndSkills.full_name,
+        phone_number: userWithRolesAndSkills.phone_number,
         roles: userWithRolesAndSkills.Roles.map((r) => r.role_name),
         skills: userWithRolesAndSkills.Skills.map((s) => s.skill_name),
       },
@@ -130,6 +138,18 @@ exports.login = async (req, res, next) => {
 
     // 3. Generate JWT
     const token = generateToken(user);
+    const skill = await models.UserSkills.findAll({
+      where: { user_id: user.user_id },
+      attributes: ["skill_id"],
+    });
+    const skills = skill.map((s) => s.skill_id);
+    const skillNames = [];
+    for (const skillItem of skills) {
+      const skillDetail = await models.Skill.findByPk(skillItem, {
+        attributes: ["skill_name"],
+      });
+      skillNames.push(skillDetail.skill_name);
+    }
 
     // 4. Send response
     res.json({
@@ -140,7 +160,9 @@ exports.login = async (req, res, next) => {
         // user_id: user.user_id,
         email: user.email,
         full_name: user.full_name,
+        phone_number: user.phone_number,
         roles: user.Roles.map((r) => r.role_name),
+        skills: skillNames,
       },
     });
   } catch (error) {

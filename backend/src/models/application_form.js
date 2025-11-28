@@ -29,10 +29,22 @@ module.exports = (sequelize, DataTypes) => {
       portfolio_id: {
         type: DataTypes.UUID,
         allowNull: false,
+        references: {
+          model: "Portfolios",
+          key: "portfolio_id",
+        },
+        onUpdate: "CASCADE",
+        onDelete: "CASCADE",
       },
       user_id: {
         type: DataTypes.UUID,
         allowNull: false,
+        references: {
+          model: "Users",
+          key: "user_id",
+        },
+        onUpdate: "CASCADE",
+        onDelete: "CASCADE",
       },
       title: {
         type: DataTypes.STRING(255),

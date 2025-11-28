@@ -12,6 +12,7 @@ module.exports = {
           user_id: "7bc50b5b-05ce-4f13-bba9-64473878ac16",
           title: "Sample Portfolio Item",
           description: "This is a sample portfolio item for seeding purposes.",
+          bio: "Brief bio or summary related to the portfolio item.",
           created_at: new Date(),
           updated_at: new Date(),
         },
@@ -22,6 +23,7 @@ module.exports = {
           title: "Another Portfolio Item",
           description:
             "This is another sample portfolio item for seeding purposes.",
+          bio: "Another brief bio or summary related to the portfolio item.",
           created_at: new Date(),
           updated_at: new Date(),
         },
@@ -32,6 +34,7 @@ module.exports = {
           title: "Emily's First Project Showcase",
           description:
             "A comprehensive overview of Emily Carter's contributions to the Q3 development cycle.",
+          bio: "Summary of Emily Carter's role and achievements in the project.",
           created_at: new Date(),
           updated_at: new Date(),
         },
@@ -42,6 +45,7 @@ module.exports = {
           title: "Emily's Design Concepts",
           description:
             "Sketches and finalized UI/UX mockups for the new application interface.",
+          bio: "Collection of design concepts and iterations for the project.",
           created_at: new Date(),
           updated_at: new Date(),
         },
@@ -54,6 +58,7 @@ module.exports = {
           title: "John Peterson - Marketing Strategy",
           description:
             "Detailed analysis of the Q4 marketing campaign performance metrics.",
+          bio: "In-depth insights and outcomes from the Q4 marketing initiatives.",
           created_at: new Date(),
           updated_at: new Date(),
         },
@@ -78,6 +83,7 @@ module.exports = {
           title: "Jason Morales - AI Integration Proposal",
           description:
             "Technical document outlining the proposed integration of machine learning models into the main platform.",
+          bio: "Overview of AI strategies and expected outcomes for platform enhancement.",
           created_at: new Date(),
           updated_at: new Date(),
         },
