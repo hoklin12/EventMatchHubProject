@@ -32,8 +32,8 @@ exports.viewEventParticipants = async (req, res, next) => {
       where: { event_id: eventId },
       include: [
         {
-          model: models.ApplicationForm,
-          as: "ApplicationForm",
+          model: models.FormSubmission,
+          as: "FormSubmission",
           include: [
             {
               model: models.User,
@@ -54,7 +54,7 @@ exports.viewEventParticipants = async (req, res, next) => {
 
     // 1. Get portfolio IDs from registrations
     const portfolioIds = registrations.map(
-      (r) => r.ApplicationForm.Portfolio.portfolio_id
+      (r) => r.FormSubmission.Portfolio.portfolio_id
     );
 
     // 2. Get all certificate_ids related to those portfolios
@@ -79,7 +79,7 @@ exports.viewEventParticipants = async (req, res, next) => {
     // 4. Fetch certificates for each user only once
     await Promise.all(
       registrations.map(async (item) => {
-        const portfolioId = item.ApplicationForm.Portfolio.portfolio_id;
+        const portfolioId = item.FormSubmission.Portfolio.portfolio_id;
 
         if (!portCertMap[portfolioId]) {
           const certs = await models.Certificate.findAll({
@@ -105,7 +105,7 @@ exports.viewEventParticipants = async (req, res, next) => {
     // 5. Build final response
     const participants = registrations
       .map((item) => {
-        const user = item.ApplicationForm.User;
+        const user = item.FormSubmission.User;
 
         return {
           status: item.status,
@@ -114,15 +114,15 @@ exports.viewEventParticipants = async (req, res, next) => {
           user: user,
 
           application_form: {
-            applicationform_id: item.ApplicationForm.applicationform_id,
-            title: item.ApplicationForm.title,
-            description: item.ApplicationForm.description,
+            submission_id: item.FormSubmission.submission_id,
+            title: item.FormSubmission.title,
+            description: item.FormSubmission.description,
             portfolio: {
-              portfolio_id: item.ApplicationForm.Portfolio.portfolio_id,
-              title: item.ApplicationForm.Portfolio.title,
-              description: item.ApplicationForm.Portfolio.description,
+              portfolio_id: item.FormSubmission.Portfolio.portfolio_id,
+              title: item.FormSubmission.Portfolio.title,
+              description: item.FormSubmission.Portfolio.description,
               certifications:
-                portCertMap[item.ApplicationForm.Portfolio.portfolio_id] || [],
+                portCertMap[item.FormSubmission.Portfolio.portfolio_id] || [],
             },
           },
         };

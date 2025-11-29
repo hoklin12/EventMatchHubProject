@@ -1,98 +1,170 @@
+// Import the sequelize instance from your models/index.js to start transactions
+const { sequelize } = require("../models");
 const models = require("../models");
-const {
-  checkUserRoleParticipant,
-  checkUserRoleOrganizer,
-} = require("../utils/checkUserRole");
-
+const { checkUserRoleParticipant } = require("../utils/checkUserRole");
 /* //////////////////////////////////////////////////////////////////////////////////
                           Event Registration Management
 */ //////////////////////////////////////////////////////////////////////////////////
 //================== CRUD Event Register ==================
 // User register for an event (only for participants)
 exports.userRegisterForEvent = async (req, res, next) => {
-  const userId = req.user.userId;
-  const eventId = req.params.event_id;
-  const { portfolioId, title, description } = req.body;
+  // 1. START THE TRANSACTION at the very beginning.
+  const t = await sequelize.transaction();
+
   try {
-    // Check if user is participant
-    const checkParticipant = await checkUserRoleParticipant(userId);
-    if (checkParticipant === false) {
+    const userId = req.user.userId;
+    const eventId = req.params.event_id;
+    const { portfolioId, submission } = req.body;
+
+    // =================================================================
+    //  Step A: Perform Initial Validations (before any database writes)
+    // =================================================================
+
+    // Check if the user has the 'Participant' role
+    const isParticipant = await checkUserRoleParticipant(userId);
+    if (isParticipant) {
+      await t.rollback(); // It's good practice to always close a transaction
       return res.status(403).json({
         status: "fail",
-        message: "Your role haven't permission to access api",
+        message: "Your role does not have permission to perform this action.",
       });
     }
-    //checking event existence
+
+    // Check if the event exists
     const event = await models.Event.findByPk(eventId);
     if (!event) {
+      await t.rollback();
       return res
         .status(404)
         .json({ status: "fail", message: "Event not found." });
     }
 
-    const getApplicationFormUser = await models.ApplicationForm.findOne({
-      where: { user_id: userId },
-      attributes: ["applicationform_id"],
+    // Check if the user is already registered for this specific event
+    const existingRegistration = await models.Registration.findOne({
+      where: { user_id: userId, event_id: eventId },
     });
-    if (getApplicationFormUser != null) {
-      const existingRegistration = await models.Registration.findOne({
-        where: {
-          applicationform_id: getApplicationFormUser.applicationform_id,
-        },
+    if (existingRegistration) {
+      await t.rollback();
+      return res.status(400).json({
+        status: "fail",
+        message: "You are already registered for this event.",
       });
-      if (!existingRegistration) {
-        return res.status(400).json({
-          status: "fail",
-          message: "User is already registered for this event.",
+    }
+
+    // =================================================================
+    //  Step B: Perform Database Writes within the Transaction
+    // =================================================================
+
+    // Create the main registration record, passing the transaction object 't'
+    const newRegistration = await models.Registration.create(
+      {
+        user_id: userId,
+        event_id: eventId,
+        portfolio_id: portfolioId, // This can be null if not provided
+      },
+      { transaction: t }
+    );
+
+    // Process the form submission if it exists and is a valid array
+    if (submission && Array.isArray(submission) && submission.length > 0) {
+      const allFormFields = await models.FormField.findAll({
+        where: { event_id: eventId },
+        transaction: t, // Run read queries inside the transaction for consistency
+      });
+      const fieldsMap = new Map(
+        allFormFields.map((field) => [field.formfield_id, field])
+      );
+
+      // Prepare an array for bulk creation for high performance
+      const answersToCreate = [];
+
+      for (const answer of submission) {
+        const formField = fieldsMap.get(answer.formfield_id);
+        const questionType = formField.field_type;
+        const questionRequired = formField.is_required;
+        const questionText = formField.question;
+
+        // Fail the entire transaction if a submission is for a field that doesn't exist for this event
+        if (!formField) {
+          throw new Error(
+            `Invalid form field ID '${answer.formfield_id}' submitted for this event.`
+          );
+        }
+
+        const answerData = {
+          registration_id: newRegistration.registration_id,
+          formfield_id: answer.formfield_id,
+        };
+
+        // Validate and prepare data based on the question type from the database
+        switch (questionType) {
+          case "short":
+          case "paragraph":
+            if (
+              questionRequired &&
+              (!answer.answer_text || answer.answer_text.trim() === "")
+            ) {
+              throw new Error(
+                `An answer is required for the question: "${questionText}"`
+              );
+            }
+            answerData.answer_text = answer.answer_text || null;
+            break;
+
+          case "radio":
+          case "dropdown":
+            if (questionRequired && !answer.selected_options_id) {
+              throw new Error(
+                `A choice is required for the question: "${questionText}"`
+              );
+            }
+            // Standardize on a single JSON column for all selections
+            answerData.selected_options_id = answer.selected_options_id
+              ? [answer.selected_options_id]
+              : null;
+            break;
+
+          case "checkbox":
+            if (
+              questionRequired &&
+              (!answer.selected_options_ids ||
+                answer.selected_options_ids.length === 0)
+            ) {
+              throw new Error(
+                `At least one checkbox must be selected for the question: "${questionText}"`
+              );
+            }
+            answerData.selected_options_ids =
+              answer.selected_options_ids || null;
+            break;
+
+          default:
+            throw new Error(
+              `Unsupported question type encountered in the database: ${questionType}`
+            );
+        }
+        answersToCreate.push(answerData);
+      }
+      // Create all answers in a single, efficient database call
+      if (answersToCreate.length > 0) {
+        await models.FormResponseAnswer.bulkCreate(answersToCreate, {
+          transaction: t,
         });
       }
     }
 
-    // Checking user already has an application form
-    const userApplicationForm = await models.ApplicationForm.findAll({
-      where: { user_id: userId },
-      attributes: ["applicationform_id"],
-    });
-    let existedRegister = null;
-    userApplicationForm.forEach((form) => {
-      existedRegister = models.Registration.findOne({
-        where: {
-          applicationform_id: form.applicationform_id,
-          event_id: eventId,
-        },
-      });
-    });
-    if (existedRegister) {
-      return res.status(400).json({
-        status: "fail",
-        message: "User already registered for this event.",
-      });
-    }
+    // 2. If all operations were successful, commit the transaction to save the changes.
+    await t.commit();
 
-    // Create a new application form for the user
-    const newApplicationForm = await models.ApplicationForm.create({
-      portfolio_id: portfolioId,
-      user_id: userId,
-      title: title,
-      description: description,
-    });
-
-    // Create a new registration linking the user to the event via the application form
-    const newRegistration = await models.Registration.create({
-      applicationform_id: newApplicationForm.applicationform_id,
-      event_id: eventId,
-      status: "pending",
-      registration_date: new Date(),
-    });
     return res.status(201).json({
       status: "success",
-      message: "User registered for event successfully.",
-      data: {
-        registration: newRegistration,
-      },
+      message: "You have been registered for the event successfully.",
+      data: newRegistration,
     });
   } catch (error) {
-    // console.error("User Register for Event Error:", error);
+    // 3. If ANY error was thrown during the try block, rollback all database changes.
+    await t.rollback();
+    // Pass the error to your global error handling middleware
     next(error);
   }
 };

@@ -8,11 +8,11 @@ const rbacMiddleware = require("../../middleware/rbacMiddleware"); // For role c
                               Form Field Routes
 */ //////////////////////////////////////////////////////////////////////////////////
 // =================== Manage Event Form Fields ==================
-// GET /api/v1/events/:event_id/form-fields - View form fields for an event (only for organizers)
+// GET /api/v1/events/:event_id/form-fields - View form fields for an event
 router.get(
   "/:event_id/form-fields",
   authMiddleware,
-  rbacMiddleware(["organizer"]),
+  rbacMiddleware(["organizer", "participant"]),
   eventFormFieldController.viewEventFormFields
 );
 

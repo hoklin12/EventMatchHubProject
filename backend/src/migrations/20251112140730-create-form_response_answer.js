@@ -10,12 +10,12 @@ module.exports = {
         type: Sequelize.UUID,
         defaultValue: Sequelize.UUIDV4,
       },
-      applicationform_id: {
+      registration_id: {
         type: Sequelize.UUID,
         allowNull: false,
         references: {
-          model: "ApplicationForms",
-          key: "applicationform_id",
+          model: "Registrations",
+          key: "registration_id",
         },
         onUpdate: "CASCADE",
         onDelete: "CASCADE",

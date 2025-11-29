@@ -59,16 +59,16 @@ exports.createCertificates = async (req, res, next) => {
       where: { event_id: eventId },
       include: [
         {
-          model: models.ApplicationForm,
-          as: "ApplicationForm",
-          attributes: ["applicationform_id", "user_id"],
+          model: models.FormSubmission,
+          as: "FormSubmission",
+          attributes: ["submission_id", "user_id"],
         },
       ],
     });
     // Generate certificates for each participant
     const generatedCertificates = [];
     for (const registration of registrations) {
-      const participantId = registration.ApplicationForm.user_id;
+      const participantId = registration.FormSubmission.user_id;
       //Check user has been issued a certificate already
       const existingCertificate = await models.Certificate.findOne({
         where: {

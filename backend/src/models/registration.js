@@ -5,10 +5,10 @@ const bcrypt = require("bcryptjs");
 module.exports = (sequelize, DataTypes) => {
   class Registration extends Model {
     static associate(models) {
-      if (models.ApplicationForm) {
-        Registration.belongsTo(models.ApplicationForm, {
-          foreignKey: "applicationform_id",
-          as: "ApplicationForms",
+      if (models.Portfolio) {
+        Registration.belongsTo(models.Portfolio, {
+          foreignKey: "portfolio_id",
+          as: "Portfolios",
         });
       }
       if (models.Event) {
@@ -17,6 +17,16 @@ module.exports = (sequelize, DataTypes) => {
           as: "Events",
         });
       }
+      if (models.User) {
+        Registration.belongsTo(models.User, {
+          foreignKey: "user_id",
+          as: "Users",
+        });
+      }
+      Registration.hasMany(models.FormResponseAnswer, {
+        foreignKey: "registration_id",
+        as: "FormResponseAnswers",
+      });
     }
   }
   Registration.init(
@@ -26,12 +36,22 @@ module.exports = (sequelize, DataTypes) => {
         defaultValue: DataTypes.UUIDV4,
         primaryKey: true,
       },
-      applicationform_id: {
+      user_id: {
         type: DataTypes.UUID,
         allowNull: false,
         references: {
-          model: "ApplicationForms",
-          key: "applicationform_id",
+          model: "Users",
+          key: "user_id",
+        },
+        onUpdate: "CASCADE",
+        onDelete: "CASCADE",
+      },
+      portfolio_id: {
+        type: DataTypes.UUID,
+        allowNull: false,
+        references: {
+          model: "Portfolios",
+          key: "portfolio_id",
         },
         onUpdate: "CASCADE",
         onDelete: "CASCADE",
@@ -46,11 +66,6 @@ module.exports = (sequelize, DataTypes) => {
         onUpdate: "CASCADE",
         onDelete: "CASCADE",
       },
-      registration_date: {
-        type: DataTypes.DATE,
-        allowNull: false,
-      },
-
       // created_at: DataTypes.DATE,
       // updated_at: DataTypes.DATE,
     },

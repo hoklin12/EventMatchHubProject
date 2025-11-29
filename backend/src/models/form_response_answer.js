@@ -5,10 +5,10 @@ const bcrypt = require("bcryptjs");
 module.exports = (sequelize, DataTypes) => {
   class FormResponseAnswer extends Model {
     static associate(models) {
-      if (models.ApplicationForm) {
-        FormResponseAnswer.belongsTo(models.ApplicationForm, {
-          foreignKey: "applicationform_id",
-          as: "ApplicationForms",
+      if (models.Registration) {
+        FormResponseAnswer.belongsTo(models.Registration, {
+          foreignKey: "registration_id",
+          as: "Registrations",
         });
       }
       if (models.FormField) {
@@ -26,12 +26,12 @@ module.exports = (sequelize, DataTypes) => {
         defaultValue: DataTypes.UUIDV4,
         primaryKey: true,
       },
-      applicationform_id: {
+      registration_id: {
         type: DataTypes.UUID,
         allowNull: false,
         references: {
-          model: "ApplicationForms",
-          key: "applicationform_id",
+          model: "Registrations",
+          key: "registration_id",
         },
         onUpdate: "CASCADE",
         onDelete: "CASCADE",

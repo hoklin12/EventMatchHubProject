@@ -2,19 +2,19 @@
 
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable("ApplicationForms", {
-      applicationform_id: {
+    await queryInterface.createTable("Registrations", {
+      registration_id: {
         allowNull: false,
         primaryKey: true,
         type: Sequelize.UUID,
         defaultValue: Sequelize.UUIDV4,
       },
-      portfolio_id: {
+      event_id: {
         type: Sequelize.UUID,
         allowNull: false,
         references: {
-          model: "Portfolios",
-          key: "portfolio_id",
+          model: "Events",
+          key: "event_id",
         },
         onUpdate: "CASCADE",
         onDelete: "CASCADE",
@@ -29,16 +29,22 @@ module.exports = {
         onUpdate: "CASCADE",
         onDelete: "CASCADE",
       },
-      title: {
-        type: Sequelize.STRING(255),
+      portfolio_id: {
+        type: Sequelize.UUID,
+        allowNull: false,
+        references: {
+          model: "Portfolios",
+          key: "portfolio_id",
+        },
+        onUpdate: "CASCADE",
+        onDelete: "CASCADE",
+      },
+      status: {
+        type: Sequelize.ENUM("pending", "approved", "rejected"),
         allowNull: false,
       },
-      description: {
-        type: Sequelize.TEXT,
-        allowNull: true,
-      },
-      // application_data: {
-      //   type: Sequelize.JSON,
+      // application_summary: {
+      //   type: Sequelize.TEXT,
       //   allowNull: true,
       // },
       created_at: {
@@ -57,6 +63,6 @@ module.exports = {
   },
 
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable("ApplicationForms");
+    await queryInterface.dropTable("Registrations");
   },
 };

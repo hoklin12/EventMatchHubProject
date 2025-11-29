@@ -149,16 +149,12 @@ exports.getAllPortfolios = async (req, res, next) => {
           certificates: p.Certificates.map((c) => ({
             certificate_id: c.certificate_id,
             user_id: c.user_id,
+            organizer_name: c.CertificateDatas.organizer_name,
+            description: c.CertificateDatas.description,
+            issued_date: c.CertificateDatas.issued_date,
+            expiration_duration: c.CertificateDatas.expiration_duration,
             verification_code: c.verification_code,
             file_link: c.file_link,
-            certificates: p.Certificates.map((c) => ({
-              certificate_id: c.certificate_id,
-              organizer_name: c.CertificateDatas.organizer_name,
-              description: c.CertificateDatas.description,
-              issued_date: c.CertificateDatas.issued_date,
-              expiration_duration: c.CertificateDatas.expiration_duration,
-              file_link: c.file_link,
-            })),
           })),
         })),
     });
@@ -173,34 +169,7 @@ exports.getPortfolioById = async (req, res, next) => {
   const userId = req.user.userId;
   const portfolioId = req.params.portf_id;
   try {
-    // //Get portfolio ownership
-    // const ownder = await models.Portfolio.findOne({
-    //   where: { portfolio_id: portfolioId },
-    //   attributes: ["user_id"],
-    // });
-
-    // //Get portfolio of owner
-    // const getOwnerPortfolio = await models.Portfolio.findAll({
-    //   where: { user_id: ownder.user_id },
-    // });
-
-    // const getPortfolioThisCertificate =
-    //   await models.PortfolioCertificates.findAll({
-    //     where: { portfolio_id: portfolioId },
-    //   });
-    // const portfolioThisCertificate = getPortfolioThisCertificate.map(
-    //   (p) => p.portfolio_id
-    // );
-    // console.log(
-    //   "Portfolio This Certificate:",
-    //   portfolioThisCertificate.map((p) => p)
-    // );
-
-    // const ownerPortfolioIds = getOwnerPortfolio.map((p) => p.portfolio_id);
-    // console.log("Portfolio This Certificate:", ownerPortfolioIds);
     let portfolio = null;
-    //Check only event that participant join can access portfolio of participant
-
     //Checking user role
     const userRoles = req.user.roles;
     if (userRoles.includes("organizer")) {
@@ -209,10 +178,10 @@ exports.getPortfolioById = async (req, res, next) => {
       const registeredEvents = await models.Registration.findAll({
         include: [
           {
-            model: models.ApplicationForm,
-            as: "ApplicationForms",
+            model: models.FormSubmission,
+            as: "FormSubmissions",
             where: { portfolio_id: portfolioId },
-            attributes: ["applicationform_id"],
+            attributes: ["submission_id"],
           },
         ],
         attributes: ["event_id"],

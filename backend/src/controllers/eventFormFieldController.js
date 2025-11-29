@@ -13,23 +13,6 @@ exports.viewEventFormFields = async (req, res) => {
   const eventId = req.params.event_id;
   const userId = req.user.userId;
   try {
-    // Check if user is organizer
-    const checkOrganizer = await checkUserRoleOrganizer(userId);
-    if (checkOrganizer) {
-      return res.status(403).json({
-        status: "fail",
-        message: "Your role haven't permission to access api",
-      });
-    }
-    // Check if user is organizer of the event
-    const isOrganizer = await checkEventOrganizer(userId, eventId);
-    if (isOrganizer) {
-      return res.status(403).json({
-        status: "fail",
-        message: `Access denied. You're Not organizer in event ID ${eventId}.`,
-      });
-    }
-
     // Fetch form fields associated with the event
     const formFields = await models.FormField.findAll({
       where: { event_id: eventId },
