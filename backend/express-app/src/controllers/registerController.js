@@ -194,18 +194,29 @@ exports.userRegisterForEvent = async (req, res, next) => {
       event_location: eventData.location,
     };
 
+    // Participant details
+    const userData = await models.User.findByPk(userId);
+    eventDetails.participant_name = userData.full_name;
+    eventDetails.participant_email = userData.email;
+
     // Portfolio
-    const portfolioDataRaw = await models.Portfolio.findByPk(portfolioId);
-    const portfolioData = {
-      title: portfolioDataRaw.title,
-      description: portfolioDataRaw.description,
-      bio: portfolioDataRaw.bio,
-    };
+    let portfolioDataRaw = null;
+    let portfolioData = null;
+    if (portfolioId) {
+      portfolioDataRaw = await models.Portfolio.findByPk(portfolioId);
+      portfolioData = {
+        title: portfolioDataRaw.title,
+        description: portfolioDataRaw.description,
+        bio: portfolioDataRaw.bio,
+      };
+    }
     const finalData = {
       ...eventDetails,
       participant_data: {
         ...jsonformResponse,
-        portfolio: portfolioData,
+        if(portfolioData) {
+          portfolio: portfolioData;
+        },
       },
     };
     // Upload the form submission as a JSON file to Supabase Storage

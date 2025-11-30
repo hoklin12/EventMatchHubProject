@@ -31,7 +31,7 @@ module.exports = {
       },
       portfolio_id: {
         type: Sequelize.UUID,
-        allowNull: false,
+        allowNull: true,
         references: {
           model: "Portfolios",
           key: "portfolio_id",

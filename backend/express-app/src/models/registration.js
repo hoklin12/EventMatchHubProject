@@ -48,7 +48,7 @@ module.exports = (sequelize, DataTypes) => {
       },
       portfolio_id: {
         type: DataTypes.UUID,
-        allowNull: false,
+        allowNull: true,
         references: {
           model: "Portfolios",
           key: "portfolio_id",
