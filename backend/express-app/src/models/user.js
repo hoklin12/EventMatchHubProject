@@ -30,12 +30,13 @@ module.exports = (sequelize, DataTypes) => {
         });
       }
 
-      if (models.Application_Form) {
-        User.hasMany(models.Application_Form, {
+      if (models.Registration) {
+        User.hasMany(models.Registration, {
           foreignKey: "user_id",
-          as: "CreatedForms",
+          as: "Registrations",
         });
       }
+
       if (models.Events) {
         User.hasMany(models.Events, {
           foreignKey: "user_id",

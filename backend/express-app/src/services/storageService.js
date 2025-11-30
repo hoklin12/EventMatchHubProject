@@ -1,6 +1,4 @@
 const supabase = require("../config/supabaseClient");
-const path = require("path");
-const supabaseConfig = require("../config/supabaseConfig");
 
 // Check if folder exists in Supabase Storage
 exports.folderExists = async function (bucket, folderPath) {

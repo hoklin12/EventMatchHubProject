@@ -66,6 +66,20 @@ module.exports = (sequelize, DataTypes) => {
         onUpdate: "CASCADE",
         onDelete: "CASCADE",
       },
+      status: {
+        type: DataTypes.ENUM("pending", "approved", "rejected"),
+        defaultValue: "pending",
+        allowNull: false,
+      },
+      // application_summary: {
+      //   type: DataTypes.TEXT,
+      //   allowNull: true,
+      // },
+      formResponseJson: {
+        type: DataTypes.TEXT,
+        allowNull: true,
+        field: "formResponseJson",
+      },
       // created_at: DataTypes.DATE,
       // updated_at: DataTypes.DATE,
     },

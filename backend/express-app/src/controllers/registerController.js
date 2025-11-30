@@ -2,6 +2,9 @@
 const { sequelize } = require("../models");
 const models = require("../models");
 const { checkUserRoleParticipant } = require("../utils/checkUserRole");
+const { BUCKET_NAME, FOLDERS } = require("../config/supabaseConfig");
+const storageService = require("../services/storageService");
+
 /* //////////////////////////////////////////////////////////////////////////////////
                           Event Registration Management
 */ //////////////////////////////////////////////////////////////////////////////////
@@ -64,7 +67,7 @@ exports.userRegisterForEvent = async (req, res, next) => {
       },
       { transaction: t }
     );
-
+    const questionsAnswered = [];
     // Process the form submission if it exists and is a valid array
     if (submission && Array.isArray(submission) && submission.length > 0) {
       const allFormFields = await models.FormField.findAll({
@@ -143,7 +146,27 @@ exports.userRegisterForEvent = async (req, res, next) => {
               `Unsupported question type encountered in the database: ${questionType}`
             );
         }
-        answersToCreate.push(answerData);
+
+        if (answer.answer_text != null) {
+          questionsAnswered.push(`"${questionText}" : "${answer.answer_text}"`);
+        } else if (answer.selected_options_ids != null) {
+          let options = [];
+          if (Array.isArray(answer.selected_options_ids)) {
+            for (const optionId of answer.selected_options_ids) {
+              const option = await models.FormFieldOption.findByPk(optionId);
+              if (option) {
+                options.push(option.option_text);
+              }
+            }
+          }
+
+          questionsAnswered.push(`"${questionText}" : "${options}"`);
+        } else {
+          const option = await models.FormFieldOption.findByPk(
+            answer.selected_options_id
+          );
+          questionsAnswered.push(`"${questionText}" : "${option.option_text}"`);
+        }
       }
       // Create all answers in a single, efficient database call
       if (answersToCreate.length > 0) {
@@ -151,6 +174,56 @@ exports.userRegisterForEvent = async (req, res, next) => {
           transaction: t,
         });
       }
+    }
+    const jsonformResponse = {};
+
+    questionsAnswered.forEach((line) => {
+      const cleaned = line.replace(/"/g, "");
+      const [key, value] = cleaned.split(" : ");
+      jsonformResponse[key] = value;
+    });
+
+    // Event details
+    const eventData = await models.Event.findByPk(eventId);
+    const eventDetails = {
+      event_name: eventData.event_name,
+      event_description: eventData.description,
+      event_type: eventData.type,
+      event_date: eventData.event_date,
+      event_time: eventData.start_time,
+      event_location: eventData.location,
+    };
+
+    // Portfolio
+    const portfolioDataRaw = await models.Portfolio.findByPk(portfolioId);
+    const portfolioData = {
+      title: portfolioDataRaw.title,
+      description: portfolioDataRaw.description,
+      bio: portfolioDataRaw.bio,
+    };
+    const finalData = {
+      ...eventDetails,
+      participant_data: {
+        ...jsonformResponse,
+        portfolio: portfolioData,
+      },
+    };
+    // Upload the form submission as a JSON file to Supabase Storage
+    if (Object.keys(finalData).length > 0) {
+      const buffer = Buffer.from(JSON.stringify(finalData, null, 2));
+      const filePath = `${FOLDERS.FORMREGISTER}/${eventId}/${newRegistration.registration_id}.json`;
+
+      const uploadedFile = await storageService.uploadFile(
+        BUCKET_NAME.REGISTER,
+        buffer,
+        filePath,
+        "application/json"
+      );
+      if (!uploadedFile) {
+        throw new Error("Failed to upload form submission to storage.");
+      }
+      newRegistration.formResponseJson = uploadedFile;
+      await newRegistration.save({ transaction: t });
     }
 
     // 2. If all operations were successful, commit the transaction to save the changes.

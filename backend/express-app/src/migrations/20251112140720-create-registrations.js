@@ -47,6 +47,10 @@ module.exports = {
       //   type: Sequelize.TEXT,
       //   allowNull: true,
       // },
+      formResponseJson: {
+        type: Sequelize.TEXT,
+        allowNull: true,
+      },
       created_at: {
         allowNull: false,
         type: Sequelize.DATE,
