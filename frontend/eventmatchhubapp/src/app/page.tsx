@@ -5,6 +5,7 @@ import { CTASection } from "./components/events/cta-section"
 import { SiteHeader } from "./components/site-header"
 import { SiteFooter } from "./components/site-footer"
 
+
 export default function HomePage() {
   const categories = [
     { name: "Technology", icon: "💻", count: 245, color: "bg-blue-100 text-blue-700" },
@@ -56,8 +57,10 @@ export default function HomePage() {
       <CategoryGrid categories={categories} />
       <RecommendedEventsSection events={recommendedEvents} />
       <CTASection />
-
+      
       <SiteFooter />
     </div>
   )
 }
+
+
