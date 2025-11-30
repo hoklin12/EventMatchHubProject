@@ -1,7 +1,11 @@
 // Import the sequelize instance from your models/index.js to start transactions
 const { sequelize } = require("../models");
 const models = require("../models");
-const { checkUserRoleParticipant } = require("../utils/checkUserRole");
+const {
+  checkUserRoleParticipant,
+  checkUserRoleOrganizer,
+} = require("../utils/checkUserRole");
+const { checkEventOrganizer } = require("../utils/checkEventOrganizer");
 const { BUCKET_NAME, FOLDERS } = require("../config/supabaseConfig");
 const storageService = require("../services/storageService");
 
@@ -58,12 +62,24 @@ exports.userRegisterForEvent = async (req, res, next) => {
     //  Step B: Perform Database Writes within the Transaction
     // =================================================================
 
+    const eventCheckPrice = await models.EventTicket.findOne({
+      where: { event_id: eventId },
+      transaction: t,
+    });
+    let is_paid = false;
+    if (eventCheckPrice.price > 0) {
+      is_paid = false;
+    } else {
+      is_paid = true;
+    }
+
     // Create the main registration record, passing the transaction object 't'
     const newRegistration = await models.Registration.create(
       {
         user_id: userId,
         event_id: eventId,
-        portfolio_id: portfolioId, // This can be null if not provided
+        portfolio_id: portfolioId,
+        is_paid: is_paid,
       },
       { transaction: t }
     );

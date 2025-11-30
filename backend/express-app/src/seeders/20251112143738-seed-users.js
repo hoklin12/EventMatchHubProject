@@ -33,6 +33,7 @@ module.exports = {
           user_id: "0a8ed84f-4141-4c82-b68e-1c295845c9a1",
           full_name: "Sophea Lim",
           email: "sophea.lim@aquaideas.org",
+          phone_number: "855-23-45678",
           password_hash: hashedPassword,
           organization_name: "AquaIdeas Foundation",
           created_at: new Date(),

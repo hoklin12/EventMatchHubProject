@@ -71,6 +71,16 @@ module.exports = (sequelize, DataTypes) => {
         defaultValue: "pending",
         allowNull: false,
       },
+      is_paid: {
+        type: DataTypes.BOOLEAN,
+        allowNull: false,
+        defaultValue: false,
+      },
+      is_attended: {
+        type: DataTypes.BOOLEAN,
+        allowNull: false,
+        defaultValue: false,
+      },
       // application_summary: {
       //   type: DataTypes.TEXT,
       //   allowNull: true,
@@ -79,6 +89,11 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.TEXT,
         allowNull: true,
         field: "formResponseJson",
+      },
+      is_reminded: {
+        type: DataTypes.BOOLEAN,
+        allowNull: false,
+        defaultValue: false,
       },
       // created_at: DataTypes.DATE,
       // updated_at: DataTypes.DATE,

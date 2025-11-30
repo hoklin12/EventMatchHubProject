@@ -6,6 +6,7 @@ const cors = require("cors");
 const helmet = require("helmet");
 const morgan = require("morgan");
 const createError = require("http-errors");
+require("./cron/reminderCron");
 
 // Import your database configuration and models
 const db = require("./config/database");

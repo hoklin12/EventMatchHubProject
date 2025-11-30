@@ -1,15 +1,16 @@
 import os
 from google import genai
 from google.genai import types
-from typing import Optional, Dict, Any
+from typing import Dict, Any
 from fastapi import HTTPException
-
+import dotenv
 
 class GeminiGeneratorService:
     def __init__(self,):
+        dotenv.load_dotenv()
         self.api_key = os.getenv("GEMINI_API_KEY")
-        # Use a model appropriate for text generation
         self.model = os.getenv("GENERATIVE_MODEL")
+        pass
 
     def generateEmailContent(self, structured_prompt: Dict[str, Any]) -> Dict[str, Any]:
         """
@@ -21,6 +22,7 @@ class GeminiGeneratorService:
         Returns:
             A dictionary containing the generated text content.
         """
+        
         client = genai.Client(api_key=self.api_key)
 
         import json
@@ -28,14 +30,17 @@ class GeminiGeneratorService:
 
         # 3. Define a system instruction to guide the model to follow the prompt rules strictly
         system_instruction = (
-            "You are a friendly and engaging Event Communications Specialist AI. "
-            "Your ONLY task is to generate the event reminder email body based on the JSON payload provided. "
-            "STYLE REQUIREMENTS: "
-            "1. Output MUST be plain text using Markdown formatting (headings, bold, lists). "
-            "2. DO NOT include any JSON, code fences (```), or introductory remarks. "
-            "3. Use appropriate EMOJIS (like 📅, ⏰, 💻, ✨) to make the content visually interesting and welcoming. "
-            "4. Personalize the greeting using the participant's name from the payload. "
-            "5. Structure the reminder clearly into sections (Details, Logistics, Prep List)."
+            "You are an expert Event Communications AI. "
+            "Generate a friendly, visually appealing, modern event reminder email using Markdown formatting. "
+            "RULES:\n"
+            "1. Do NOT include 'Subject:' at the start.\n"
+            "2. Use bold headings instead of #, short paragraphs, bullet points, and emojis to make it engaging.\n"
+            "3. Personalize the greeting using the participant's name from the payload.\n"
+            "4. Include sections: Event Details, Logistics, Prep List.\n"
+            "5. End the email strictly with:\n\n"
+            "Best regards,\n\nEvent Match Hub Team\n\n"
+            "6. Ignore optional fields if missing or null. No JSON or code fences.\n"
+            "7. Output only the complete formatted email body text."
         )
 
         # 4. Generate content

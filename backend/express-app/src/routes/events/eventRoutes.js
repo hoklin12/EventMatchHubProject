@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const eventController = require("../../controllers/eventController");
+const reminderService = require("../../services/reminderService");
 const authMiddleware = require("../../middleware/authMiddleware");
 const rbacMiddleware = require("../../middleware/rbacMiddleware"); // For role checks
 const upload = require("../../middleware/uploadMiddleware");
@@ -65,8 +66,37 @@ router.put(
   eventController.deleteEvent
 );
 
+// GET /api/v1/events/:event_id/registrations - Get all registrations for an event (only for organizers)
+router.get(
+  "/:event_id/registrations",
+  authMiddleware,
+  rbacMiddleware(["organizer"]),
+  eventController.getAllRegistrationsForEvent
+);
 /* //////////////////////////////////////////////////////////////////////////////////
                               Event Participant Routes
 */ //////////////////////////////////////////////////////////////////////////////////
+//PUT : Update registration status (approve/reject) (for event organizers)
+router.put(
+  "/:event_id/registrations/:registration_id/status",
+  authMiddleware,
+  rbacMiddleware(["organizer"]),
+  eventController.updateRegistrationStatus
+);
+
+//GET: Get event that participant has registered
+router.get(
+  "/registered-events/lists",
+  authMiddleware,
+  rbacMiddleware(["participant"]),
+  eventController.getEventsRegisteredByParticipant
+);
+
+// router.get(
+//   "/test-email/test",
+//   // authMiddleware,
+//   // rbacMiddleware(["participant"]),
+//   reminderService.sendUpcomingEventReminders
+// );
 
 module.exports = router;

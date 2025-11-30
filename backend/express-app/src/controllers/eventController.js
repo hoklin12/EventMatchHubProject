@@ -441,3 +441,190 @@ exports.deleteEvent = async (req, res, next) => {
     next(error);
   }
 };
+
+//Get all registrations for a specific event (for event organizers)
+exports.getAllRegistrationsForEvent = async (req, res, next) => {
+  const userId = req.user.userId;
+  const eventId = req.params.event_id;
+  try {
+    // Check if the user has the 'Organizer' role
+    const checkOrganizer = await checkUserRoleOrganizer(userId);
+    if (checkOrganizer) {
+      return res.status(403).json({
+        status: "fail",
+        message: "Your role does not have permission to perform this action.",
+      });
+    }
+
+    // Check if the user is the organizer of the event
+    const isOrganizer = await checkEventOrganizer(userId, req.params.event_id);
+    if (isOrganizer) {
+      return res.status(403).json({
+        status: "fail",
+        message:
+          "You do not have permission to view registrations for this event.",
+      });
+    }
+    const registrations = await models.Registration.findAll({
+      where: { event_id: eventId },
+      attributes: [
+        "registration_id",
+        "user_id",
+        "portfolio_id",
+        "status",
+        "is_paid",
+        "formResponseJson",
+        "createdAt",
+      ],
+    });
+    const registrationsData = await Promise.all(
+      registrations.map(async (registration) => {
+        const userData = await models.User.findByPk(registration.user_id, {
+          attributes: ["full_name", "email", "phone_number"],
+        });
+        return {
+          full_name: userData.full_name,
+          email: userData.email,
+          phone_number: userData.phone_number,
+        };
+      })
+    );
+
+    const registrationsWithUserData = registrations.map(
+      (registration, index) => ({
+        registration_id: registration.registration_id,
+        portfolio_id: registration.portfolio_id,
+        status: registration.status,
+        registrate_date: registration.createdAt,
+        payment_status: registration.is_paid,
+        register_json: registration.formResponseJson,
+        user: registrationsData[index],
+      })
+    );
+
+    return res.status(200).json({
+      status: "success",
+      data: registrationsWithUserData,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+//PUT : Update registration status (approve/reject) (for event organizers)
+exports.updateRegistrationStatus = async (req, res, next) => {
+  const userId = req.user.userId;
+  const eventId = req.params.event_id;
+  const registrationId = req.params.registration_id;
+  try {
+    // Check if the user has the 'Organizer' role
+    const checkOrganizer = await checkUserRoleOrganizer(userId);
+    if (checkOrganizer) {
+      return res.status(403).json({
+        status: "fail",
+        message: "Your role does not have permission to perform this action.",
+      });
+    }
+
+    // Check if the user is the organizer of the event
+    const isOrganizer = await checkEventOrganizer(userId, eventId);
+    if (isOrganizer) {
+      return res.status(403).json({
+        status: "fail",
+        message:
+          "You do not have permission to update registrations for this event.",
+      });
+    }
+    const registrationData = await models.Registration.findByPk(registrationId);
+    if (!registrationData) {
+      return res
+        .status(404)
+        .json({ status: "fail", message: "Registration not found." });
+    }
+
+    // Find the registration to update
+    const registration = await models.Registration.findOne({
+      where: {
+        registration_id: registrationId,
+        event_id: eventId,
+      },
+    });
+
+    if (!registration) {
+      return res
+        .status(404)
+        .json({ status: "fail", message: "Registration not found." });
+    }
+    // Toggle publish status
+    if (registrationData.status === "pending") {
+      registration.status = "approved";
+    } else {
+      registration.status =
+        registration.status === "approved" ? "rejected" : "approved";
+    }
+    await registration.save();
+    return res.status(200).json({
+      status: "success",
+      message: "Registration status updated successfully.",
+      data: registration,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+//GET: Get event that participant has registered
+exports.getEventsRegisteredByParticipant = async (req, res, next) => {
+  const userId = req.user.userId;
+  try {
+    const registrations = await models.Registration.findAll({
+      where: { user_id: userId },
+      attributes: ["registration_id", "event_id", "status", "createdAt"],
+    });
+    const registrationsData = await Promise.all(
+      registrations.map(async (registration) => {
+        const eventData = await models.Event.findByPk(registration.event_id, {
+          attributes: [
+            "title",
+            "description",
+            "type",
+            "theme",
+            "event_date",
+            "start_time",
+            "end_time",
+            "location_name",
+            "location",
+          ],
+          order: [["event_date", "DESC"]],
+        });
+        return {
+          title: eventData.title,
+          description: eventData.description,
+          type: eventData.type,
+          theme: eventData.theme,
+          date: eventData.event_date,
+          start_time: eventData.start_time,
+          end_time: eventData.end_time,
+          location_name: eventData.location_name,
+          location: eventData.location,
+        };
+      })
+    );
+
+    const registrationsWithEventData = registrations.map(
+      (registration, index) => ({
+        registration_id: registration.registration_id,
+        event_id: registration.event_id,
+        status: registration.status,
+        registrate_date: registration.createdAt,
+        event: registrationsData[index],
+      })
+    );
+    return res.status(200).json({
+      status: "success",
+      data: registrationsWithEventData,
+    });
+  } catch (error) {
+    next(error);
+  }
+};

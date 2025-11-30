@@ -42,6 +42,22 @@ module.exports = {
       status: {
         type: Sequelize.ENUM("pending", "approved", "rejected"),
         allowNull: false,
+        defaultValue: "pending",
+      },
+      is_paid: {
+        type: Sequelize.BOOLEAN,
+        allowNull: false,
+        defaultValue: false,
+      },
+      is_attended: {
+        type: Sequelize.BOOLEAN,
+        allowNull: false,
+        defaultValue: false,
+      },
+      is_reminded: {
+        type: Sequelize.BOOLEAN,
+        allowNull: false,
+        defaultValue: false,
       },
       // application_summary: {
       //   type: Sequelize.TEXT,
