@@ -60,7 +60,7 @@ export function SiteHeader({ userName, userAvatar }: SiteHeaderProps) {
     if (role === "participant") {
       return [
         ...baseLinks,
-        { href: "/overview/participant", label: "Overview" },
+        { href: "/participant/overview", label: "Overview" },
       ];
     } else if (role === "organizer") {
       return [
