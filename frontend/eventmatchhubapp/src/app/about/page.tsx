@@ -103,7 +103,7 @@ export default function AboutPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <SiteHeader variant="default" />
+      <SiteHeader  />
 
       <main>
         {/* Hero Section */}
