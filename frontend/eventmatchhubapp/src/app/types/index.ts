@@ -3,18 +3,19 @@
 export interface Event {
   id: number
   title: string
-  category: string
+  category?: string
   date: string
-  time: string
+  time?: string
   location: string
-  organizer: string
-  attendees: number
-  maxAttendees: number
-  price: number
-  rating: number
-  image: string
+  organizer?: string
+  attendees?: number
+  maxAttendees?: number
+  price?: number
+  rating?: number
+  image?: string
   featured?: boolean
-  tags: string[]
+  tags?: string[]
+  daysUntil?: number
 }
 
 export interface Category {
