@@ -1,7 +1,7 @@
 const cron = require("node-cron");
 const { sendUpcomingEventReminders } = require("../services/reminderService");
 
-// Runs every 10 minutes
+// Runs every 60 minutes
 cron.schedule("*/60 * * * *", async () => {
   try {
     await sendUpcomingEventReminders();
