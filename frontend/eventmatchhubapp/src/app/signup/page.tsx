@@ -83,7 +83,7 @@ export default function SignupPage() {
 
     // Redirect to appropriate dashboard based on user type
     if (userType === "participant") {
-      router.push("/dashboard/participant");
+      router.push("/overview/participant");
     } else {
       router.push("/dashboard/organizer/pending");
     }
