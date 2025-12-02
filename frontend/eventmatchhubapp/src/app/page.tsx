@@ -4,6 +4,7 @@ import { RecommendedEventsSection } from "./components/events/recommended-event-
 import { CTASection } from "./components/events/cta-section"
 import { SiteHeader } from "./components/site-header"
 import { SiteFooter } from "./components/site-footer"
+import PortfoliosManager from "./participant/portfolios/Portfolios-Manager"
 
 export default function HomePage() {
   const categories = [
@@ -51,11 +52,12 @@ export default function HomePage() {
   return (
     <div className="min-h-screen bg-background">
       <SiteHeader />
+      <PortfoliosManager />
 
-      <HeroSection />
+      {/* <HeroSection />
       <CategoryGrid categories={categories} />
       <RecommendedEventsSection events={recommendedEvents} />
-      <CTASection />
+      <CTASection /> */}
 
       <SiteFooter />
     </div>
