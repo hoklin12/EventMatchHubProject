@@ -20,7 +20,7 @@ import {
   Calendar,
 } from "lucide-react";
 import { Event } from "@/app/types";
-import { EventList } from "@/app/components/elements/event-list";
+import { EventList } from "@/app/components/sections/elements/event-list";
 
 interface OverviewTabProps {
   upcomingEvents: Event[];

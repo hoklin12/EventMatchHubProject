@@ -1,9 +1,12 @@
-import { HeroSection } from "./components/home/hero-section"
-import { CategoryGrid } from "./components/home/category-grid"
-import { RecommendedEventsSection } from "./components/events/recommended-event-section"
-import { CTASection } from "./components/events/cta-section"
-import { SiteHeader } from "./components/site-header"
-import { SiteFooter } from "./components/site-footer"
+
+
+import MainLayout from "./components/main-layout"
+import { CTASection } from "./components/sections/events/cta-section"
+import { RecommendedEventsSection } from "./components/sections/events/recommended-event-section"
+import { CategoryGrid } from "./components/sections/home/category-grid"
+import { HeroSection } from "./components/sections/home/hero-section"
+import { SiteFooter } from "./components/site/site-footer"
+import { SiteHeader } from "./components/site/site-header"
 
 export default function HomePage() {
   const categories = [
@@ -49,15 +52,13 @@ export default function HomePage() {
   ]
 
   return (
-    <div className="min-h-screen bg-background">
+    <MainLayout>
       <SiteHeader />
-
       <HeroSection />
       <CategoryGrid categories={categories} />
       <RecommendedEventsSection events={recommendedEvents} />
       <CTASection />
-
       <SiteFooter />
-    </div>
+    </MainLayout>
   )
 }
