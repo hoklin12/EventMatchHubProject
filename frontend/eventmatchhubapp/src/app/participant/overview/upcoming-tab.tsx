@@ -4,18 +4,10 @@ import { Input } from "@/app/components/ui/input";
 import { TabsContent } from "@/app/components/ui/tabs";
 import { Search } from "lucide-react";
 import { EventCard } from "@/app/components/elements/event-card";
+import { Event } from "@/app/types";
 
 interface UpcomingTabProps {
-  events: {
-    id: number;
-    title: string;
-    date: string;
-    time: string;
-    location: string;
-    image?: string;
-    daysUntil?: number;
-    tags?: string[];
-  }[];
+  events: Event[];
 }
 
 export function UpcomingTab({ events }: UpcomingTabProps) {

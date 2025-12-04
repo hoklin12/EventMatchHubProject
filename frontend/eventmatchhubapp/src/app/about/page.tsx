@@ -6,7 +6,6 @@ import { SiteFooter } from "../components/site-footer";
 import { Button } from "../components/ui/button";
 import { Card, CardContent } from "../components/ui/card";
 import {
-  Circle,
   Zap,
   Users,
   Shield,

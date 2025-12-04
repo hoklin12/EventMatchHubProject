@@ -28,7 +28,7 @@ export default function LoginPage() {
     await new Promise((resolve) => setTimeout(resolve, 1500))
 
     // Redirect to appropriate dashboard based on user type
-    router.push(`/overview/${userType}`)
+    router.push(`/${userType}/overview`);
   }
 
   return (
@@ -50,11 +50,11 @@ export default function LoginPage() {
           {/* User Type Selection */}
           <Tabs value={userType} onValueChange={(value) => setUserType(value as "participant" | "organizer")}>
             <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="participant" className="flex items-center gap-2">
+              <TabsTrigger value="participant" className="flex items-center justify-center gap-2">
                 <Users className="w-4 h-4" />
                 Participant
               </TabsTrigger>
-              <TabsTrigger value="organizer" className="flex items-center gap-2">
+              <TabsTrigger value="organizer" className="flex items-center justify-center gap-2">
                 <Briefcase className="w-4 h-4" />
                 Organizer
               </TabsTrigger>

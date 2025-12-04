@@ -1,6 +1,6 @@
 // use-event-hooks.tsx
 import { useState, useCallback, useMemo } from "react"
-import { Event } from "./type"
+import { Event } from "@/app/types"
 
 export interface FilterState {
   searchQuery: string

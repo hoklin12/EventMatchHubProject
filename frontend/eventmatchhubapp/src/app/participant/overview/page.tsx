@@ -6,45 +6,15 @@ import { SiteHeader } from "@/app/components/site-header";
 import { SiteFooter } from "@/app/components/site-footer";
 import { OverviewTab } from "./overview-tab";
 import { UpcomingTab } from "./upcoming-tab";
+import { getUpcomingEvents } from "@/lib/data/event-datas";
 
 export default function ParticipantOverview() {
   const [activeTab, setActiveTab] = useState("overview");
-  const upcomingEvents = [
-    {
-      id: 1,
-      title: "AI & Machine Learning Summit 2025",
-      date: "Mar 15, 2025",
-      time: "9:00 AM",
-      location: "San Francisco, CA",
-      image: "/ai-conference.png",
-      daysUntil: 14,
-      tags: ["AI", "ML"],
-    },
-    {
-      id: 2,
-      title: "Digital Marketing Masterclass",
-      date: "Mar 22, 2025",
-      time: "2:00 PM",
-      location: "Online",
-      image: "/digital_mkt.png",
-      daysUntil: 21,
-      tags: ["Marketing", "Digital"],
-    },
-    {
-      id: 3,
-      title: "Contemporary Art Exhibition",
-      date: "Apr 5, 2025",
-      time: "10:00 AM",
-      location: "New York, NY",
-      image: "/art-exhibition.png",
-      daysUntil: 30,
-      tags: ["Art", "Culture"],
-    },
-  ];
+  const upcoming = getUpcomingEvents();
 
   return (
     <div className="min-h-screen bg-background">
-      <SiteHeader  />
+      <SiteHeader />
 
       <div className="container mx-auto px-4 py-8">
         <div className="mb-8">
@@ -109,12 +79,12 @@ export default function ParticipantOverview() {
           </TabsContent> */}
           {/* Overview Tab */}
           <OverviewTab
-            upcomingEvents={upcomingEvents.slice(0, 2)} // limit to 2 for overview
+            upcomingEvents={upcoming.slice(0, 2)} // limit to 2 for overview
             setActiveTab={setActiveTab} // for "View All" button
           />
 
           {/* Upcoming Events Tab */}
-          <UpcomingTab events={upcomingEvents} />
+          <UpcomingTab events={upcoming} />
         </Tabs>
       </div>
       <SiteFooter />

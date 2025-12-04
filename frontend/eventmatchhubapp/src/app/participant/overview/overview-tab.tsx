@@ -27,8 +27,10 @@ interface OverviewTabProps {
   setActiveTab: (value: string) => void;
 }
 
-export function OverviewTab({ upcomingEvents, setActiveTab }: OverviewTabProps) {
-
+export function OverviewTab({
+  upcomingEvents,
+  setActiveTab,
+}: OverviewTabProps) {
   const certificates = [
     {
       id: 1,
@@ -80,15 +82,17 @@ export function OverviewTab({ upcomingEvents, setActiveTab }: OverviewTabProps) 
                   Events you’re registered for
                 </CardDescription>
               </div>
-              <Button variant="outline" className="text-xs" onClick={() => setActiveTab("upcoming")}>
+              <Button
+                variant="outline"
+                className="text-xs"
+                onClick={() => setActiveTab("upcoming")}
+              >
                 View All
               </Button>
             </div>
           </CardHeader>
           <CardContent>
-            <EventList
-              events={upcomingEvents.slice(0, 2)}
-            />
+            <EventList events={upcomingEvents.slice(0, 2)} />
           </CardContent>
         </Card>
 
@@ -104,8 +108,8 @@ export function OverviewTab({ upcomingEvents, setActiveTab }: OverviewTabProps) 
                   Your latest achievements
                 </CardDescription>
               </div>
-              <Button variant="outline" className="text-xs">
-                <Link href="/certificates">View All</Link>
+              <Button variant="outline" asChild className="text-xs">
+                <Link href="/participant/profile">View All</Link>
               </Button>
             </div>
           </CardHeader>
@@ -206,7 +210,7 @@ export function OverviewTab({ upcomingEvents, setActiveTab }: OverviewTabProps) 
                     size="sm"
                     className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:shadow-lg transition-shadow"
                   >
-                    <Link href={`/registration?event=${event.id}`}>Register Now</Link>
+                    <Link href={`/events/${event.id}/register`}>Register Now</Link>
                   </Button>
                 </div>
               </div>
