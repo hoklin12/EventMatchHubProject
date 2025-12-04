@@ -17,94 +17,12 @@ import { EventSearch } from "../components/events/event-components/event-search"
 import { EventFilters } from "../components/events/event-components/event-filter";
 import { EventList } from "../components/events/event-components/event-list";
 import { useEventFilters } from "../components/events/event-components/hooks/use-event-hooks";
-import { Event } from "../components/events/event-components/hooks/type";
 
-// Example events data (replace with your real data or fetch)
-const events: Event[] = [
-  {
-    id: 1,
-    title: "AI & Machine Learning Summit 2025",
-    category: "Technology",
-    date: "2025-11-22",
-    time: "9:00 AM - 10:30 AM",
-    location: "Phnom Penh",
-    organizer: "Cambodia Academy of Digital Technology",
-    attendees: 450,
-    maxAttendees: 500,
-    price: 0,
-    rating: 4.8,
-    image: "/ai-conference.png",
-    featured: false,
-    tags: ["AI", "ML", "Tech"],
-  },
-  {
-    id: 2,
-    title: "Digital Marketing Workshop 2025",
-    category: "Technology",
-    date: "November 24, 2025",
-    time: "9:00 AM - 10:30 AM",
-    location: "Siem Reap",
-    organizer: "by Cambria Academy of Digital Technology",
-    attendees: 120,
-    maxAttendees: 150,
-    price: 0,
-    rating: 4.6,
-    image: "/digital_mkt.png",
-    featured: false,
-    tags: ["Marketing", "Digital", "Business"],
-  },
-  {
-    id: 3,
-    title: "Khmer Art & Culture Exhibition",
-    category: "Arts & Culture",
-    date: "November 26, 2025",
-    time: "9:00 AM - 10:30 AM",
-    location: "Phnom Penh",
-    organizer: "by Cambodia Academy of Digital Technology",
-    attendees: 200,
-    maxAttendees: 300,
-    price: 0,
-    rating: 4.9,
-    image: "/art-exhibition.png",
-    featured: false,
-    tags: ["Art", "Exhibition", "Culture"],
-  },
-  {
-    id: 4,
-    title: "Web Development Bootcamp",
-    category: "Technology",
-    date: "November 28, 2025",
-    time: "9:00 AM - 10:30 AM",
-    location: "Battambang",
-    organizer: "by Cambria Academy of Digital Technology",
-    attendees: 80,
-    maxAttendees: 100,
-    price: 0,
-    rating: 4.7,
-    image: "/web-development-concept.png",
-    featured: false,
-    tags: ["Web Dev", "Coding", "Technology"],
-  },
-  {
-    id: 5,
-    title: "Business Growth Strategy Summit",
-    category: "Business",
-    date: "November 30, 2025",
-    time: "9:00 AM - 10:30 AM",
-    location: "Phnom Penh",
-    organizer: "by Cambria Academy of Digital Technology",
-    attendees: 45,
-    maxAttendees: 60,
-    price: 0,
-    rating: 4.8,
-    image: "/marketing-strategy-meeting.png",
-    featured: false,
-    tags: ["Business", "Strategy", "Growth"],
-  },
-];
+// Import centralized events and helper functions
+import { allEvents } from "@/lib/data/event-datas";
 
 export default function EventsPage() {
-  const { filters, updateFilter, filteredEvents } = useEventFilters(events);
+  const { filters, updateFilter, filteredEvents } = useEventFilters(allEvents); // use allEvents
   const [currentPage, setCurrentPage] = useState(1);
   const [showFilters, setShowFilters] = useState(false);
   const itemsPerPage = 6;
@@ -118,7 +36,7 @@ export default function EventsPage() {
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
-      <SiteHeader variant="default" />
+      <SiteHeader />
 
       <main className="flex-1 container mx-auto px-4 py-12">
         {/* Hero Section */}
@@ -149,7 +67,6 @@ export default function EventsPage() {
 
           {/* Main Content */}
           <div className="md:col-span-3 lg:col-span-4">
-            {/* Browsing Events Section */}
             <div className="mb-8 space-y-4">
               <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
                 <h2 className="text-lg font-semibold text-foreground">
@@ -158,25 +75,25 @@ export default function EventsPage() {
                 <div className="flex gap-2 items-center">
                   <Select
                     value={filters.sortBy}
-                    onValueChange={(val) => updateFilter("sortBy", val as "date" | "popular" | "price-low" | "price-high" | "rating")}
+                    onValueChange={(val) =>
+                      updateFilter(
+                        "sortBy",
+                        val as "date" | "popular" | "price-low" | "price-high" | "rating"
+                      )
+                    }
                   >
                     <SelectTrigger className="w-[160px]">
-                      <SelectValue placeholder="Sort by"></SelectValue>
+                      <SelectValue placeholder="Sort by" />
                     </SelectTrigger>
                     <SelectContent className="bg-white border border-gray-200 shadow-sm rounded-sm w-50">
                       <SelectItem value="date">Date</SelectItem>
                       <SelectItem value="popular">Most Popular</SelectItem>
-                      <SelectItem value="price-low">
-                        Price: Low to High
-                      </SelectItem>
-                      <SelectItem value="price-high">
-                        Price: High to Low
-                      </SelectItem>
+                      <SelectItem value="price-low">Price: Low to High</SelectItem>
+                      <SelectItem value="price-high">Price: High to Low</SelectItem>
                       <SelectItem value="rating">Highest Rated</SelectItem>
                     </SelectContent>
                   </Select>
-                      <FilterIcon className="h-4 w-4 text-gray-400" />
-
+                  <FilterIcon className="h-4 w-4 text-gray-400" />
                   <Button
                     variant="outline"
                     size="icon"
@@ -187,11 +104,14 @@ export default function EventsPage() {
                   </Button>
                 </div>
               </div>
-      <div className="border-t border-gray-200 my-4"/>
+
+              <div className="border-t border-gray-200 my-4" />
 
               <Tabs
                 value={filters.timeframe}
-                onValueChange={(val) => updateFilter("timeframe", val as "all" | "today" | "weekend")}
+                onValueChange={(val) =>
+                  updateFilter("timeframe", val as "all" | "today" | "weekend")
+                }
                 className="w-full"
               >
                 <TabsList className="bg-transparent border-b border-border rounded-none h-auto p-0">
@@ -218,9 +138,6 @@ export default function EventsPage() {
             </div>
 
             {/* Events Section */}
-            {/* <h3 className="mb-6 text-2xl font-bold text-foreground">
-              Events in Your Locations
-            </h3> */}
             <EventList events={paginatedEvents} />
 
             {/* Pagination */}
