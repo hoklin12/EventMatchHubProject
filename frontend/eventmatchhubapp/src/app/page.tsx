@@ -5,6 +5,13 @@ import { CTASection } from "./components/events/cta-section";
 import { SiteHeader } from "./components/site-header";
 import { SiteFooter } from "./components/site-footer";
 import { getRecommendedEvents } from "@/lib/data/event-datas";
+import { HeroSection } from "./components/home/hero-section"
+import { CategoryGrid } from "./components/home/category-grid"
+import { RecommendedEventsSection } from "./components/events/recommended-event-section"
+import { CTASection } from "./components/events/cta-section"
+import { SiteHeader } from "./components/site-header"
+import { SiteFooter } from "./components/site-footer"
+import PortfoliosManager from "./participant/portfolios/Portfolios-Manager"
 
 export default function HomePage() {
   const categories = [
@@ -83,8 +90,9 @@ export default function HomePage() {
   return (
     <div className="min-h-screen bg-background">
       <SiteHeader />
+      <PortfoliosManager />
 
-      <HeroSection />
+      {/* <HeroSection />
       <CategoryGrid categories={categories} />
       {/* Divider */}
       <div className="border-t border-gray-200" />
