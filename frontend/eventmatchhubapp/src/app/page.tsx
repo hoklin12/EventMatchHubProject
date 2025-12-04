@@ -5,13 +5,6 @@ import { CTASection } from "./components/events/cta-section";
 import { SiteHeader } from "./components/site-header";
 import { SiteFooter } from "./components/site-footer";
 import { getRecommendedEvents } from "@/lib/data/event-datas";
-import { HeroSection } from "./components/home/hero-section"
-import { CategoryGrid } from "./components/home/category-grid"
-import { RecommendedEventsSection } from "./components/events/recommended-event-section"
-import { CTASection } from "./components/events/cta-section"
-import { SiteHeader } from "./components/site-header"
-import { SiteFooter } from "./components/site-footer"
-import PortfoliosManager from "./participant/portfolios/Portfolios-Manager"
 
 export default function HomePage() {
   const categories = [
@@ -54,45 +47,12 @@ export default function HomePage() {
   ];
   const recommended = getRecommendedEvents();
 
-  // const recommendedEvents = [
-  //   {
-  //     id: 1,
-  //     title: "AI & Machine Learning Summit 2025",
-  //     category: "Technology",
-  //     date: "Mar 15, 2025",
-  //     location: "San Francisco, CA",
-  //     attendees: 450,
-  //     image: "/ai-conference.png",
-  //     featured: true,
-  //   },
-  //   {
-  //     id: 2,
-  //     title: "Digital Marketing Masterclass",
-  //     category: "Business",
-  //     date: "Mar 22, 2025",
-  //     location: "Online",
-  //     attendees: 320,
-  //     image: "/digital_mkt.png",
-  //     featured: false,
-  //   },
-  //   {
-  //     id: 3,
-  //     title: "Contemporary Art Exhibition",
-  //     category: "Arts & Culture",
-  //     date: "Apr 5, 2025",
-  //     location: "New York, NY",
-  //     attendees: 280,
-  //     image: "/art-exhibition.png",
-  //     featured: true,
-  //   },
-  // ]
-
   return (
     <div className="min-h-screen bg-background">
       <SiteHeader />
-      <PortfoliosManager />
 
-      {/* <HeroSection />
+      {/* <HeroSection />*/}
+      <HeroSection/>
       <CategoryGrid categories={categories} />
       {/* Divider */}
       <div className="border-t border-gray-200" />

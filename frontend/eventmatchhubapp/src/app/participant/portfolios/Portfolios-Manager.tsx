@@ -2,7 +2,7 @@
 
 "use client";
 import React, { useState, useRef } from "react";
-import { Plus, Upload, X, Download, Share2, Eye, Edit2, Trash2 } from "lucide-react";
+import { Upload, X, Download, Share2, Eye, Edit2, Trash2 } from "lucide-react";
 import FolderCopyMUI from '@mui/icons-material/FolderCopy';
 import CardGiftcardIcon from '@mui/icons-material/CardGiftcard';
 import { Button } from "@/app/components/ui/button";
