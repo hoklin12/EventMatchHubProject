@@ -32,7 +32,7 @@ const eventReminderJob = cron.schedule(
 
 // Run every 10 minutes
 const autoCheckPayment = cron.schedule(
-  "*/10 * * * *",
+  "*/1 * * * *",
   async () => {
     try {
       await autoCheckPaymentStatus();

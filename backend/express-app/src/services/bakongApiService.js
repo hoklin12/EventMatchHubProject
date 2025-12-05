@@ -207,6 +207,67 @@ exports.autoCheckPaymentStatus = async () => {
       }
     }
   }
+
+  const registrationTransaction = await models.RegisterTransactions.findAll({
+    where: { status: "pending" },
+  });
+
+  for (const rtx of registrationTransaction) {
+    if (rtx.created_at < new Date(Date.now() - 24 * 60 * 60 * 1000)) {
+      await models.PlanTransaction.destroy({
+        where: { transaction_id: rtx.transaction_id },
+      });
+      console.log(
+        `Transaction ${rtx.transaction_id} marked as failed due to timeout.`
+      );
+    } else {
+      const verificationRegisterResult = await exports.checkTransactionByMD5(
+        rtx.transactionMD5
+      );
+      if (verificationRegisterResult.status.toUpperCase() === "COMPLETED") {
+        // Update transaction status in DB
+        // 1️⃣ Convert timestamp to Date object
+        const dateObj = new Date(
+          verificationRegisterResult.details.createdDateMs
+        );
+        // 2️⃣ Format date as string for database
+        const formattedDate =
+          dateObj.getFullYear() +
+          "-" +
+          String(dateObj.getMonth() + 1).padStart(2, "0") +
+          "-" +
+          String(dateObj.getDate()).padStart(2, "0") +
+          " " +
+          String(dateObj.getHours()).padStart(2, "0") +
+          ":" +
+          String(dateObj.getMinutes()).padStart(2, "0") +
+          ":" +
+          String(dateObj.getSeconds()).padStart(2, "0");
+        // 3️⃣ Update transaction
+        rtx.status = "completed";
+        rtx.transaction_date = formattedDate; // string
+        rtx.externalRef = verificationRegisterResult.details.externalRef;
+        await rtx.save();
+
+        await models.Registration.update(
+          { is_paid: true },
+          { where: { registration_id: rtx.registration_id } }
+        );
+
+        console.log(
+          `Registration Transaction ${rtx.registration_id} completed.`
+        );
+      } else if (verificationRegisterResult.status.toUpperCase() === "FAILED") {
+        // Delete transaction where failed
+        rtx.status = "failed";
+        rtx.failReason = verificationRegisterResult.message;
+        await rtx.save();
+        console.log(
+          `Registration Transaction ${rtx.transaction_id} marked as failed.`
+        );
+      }
+    }
+  }
 };
 
 exports.autoCheckExpiredSubscriptions = async () => {

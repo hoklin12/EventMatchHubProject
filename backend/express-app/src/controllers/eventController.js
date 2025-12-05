@@ -336,6 +336,33 @@ exports.publishEvent = async (req, res, next) => {
         .status(404)
         .json({ status: "fail", message: "Event not found." });
     }
+
+    const eventTickets = await models.EventTicket.findAll({
+      where: { event_id: eventId },
+    });
+
+    if (eventTickets.length === 0) {
+      return res.status(400).json({
+        status: "fail",
+        message:
+          "Cannot publish event without at least one event ticket. Please create an event ticket first.",
+      });
+    }
+
+    for (const ticket of eventTickets) {
+      if (ticket.price > 0) {
+        const checkEventBakongExist = await models.EventBakong.findOne({
+          where: { event_id: eventId },
+        });
+        if (!checkEventBakongExist) {
+          return res.status(400).json({
+            status: "fail",
+            message: `Cannot publish paid event with ticket ID ${ticket.eventticket_id} without Bakong payment setup. Please set up Bakong payment.`,
+          });
+        }
+      }
+    }
+
     // Toggle publish status
     event.status = event.status === "public" ? "private" : "public";
     await event.save();

@@ -62,6 +62,7 @@ exports.initiateSubscriptionPayment = async (req, res, next) => {
 
     const data = {
       price: plan.price,
+      // price: 0.01,
       bakongAccountID: "vichet_kao@aclb",
       merchantName: "Vichet Kao",
       acquiringBank: "Aclena Bank",
@@ -89,7 +90,7 @@ exports.initiateSubscriptionPayment = async (req, res, next) => {
 
     res.status(200).json({
       status: "pending",
-      khqrString: khqrString,
+      // khqrString: khqrString,
       md5Hash: md5Hash,
       // decode: decode,
       qrStand: qrStand,
@@ -189,7 +190,7 @@ exports.checkPaymentStatusMD5 = async (req, res, next) => {
           { where: { user_id: transaction.user_id } }
         );
       }
-      res.status(200).json({
+      return res.status(200).json({
         status: verificationResult.status,
         detail: verificationResult.details,
         message: verificationResult.message,
@@ -199,13 +200,13 @@ exports.checkPaymentStatusMD5 = async (req, res, next) => {
       transaction.status = "failed";
       transaction.failReason = verificationResult.message;
       await transaction.save();
-      res.status(400).json({
+      return res.status(400).json({
         status: verificationResult.status,
         detail: verificationResult.details,
         message: verificationResult.message,
       });
     }
-    res.status(202).json({
+    return res.status(202).json({
       status: verificationResult.status,
       detail: verificationResult.details,
       message: verificationResult.message,
