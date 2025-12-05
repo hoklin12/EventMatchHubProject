@@ -1,7 +1,6 @@
 const express = require("express");
 const router = express.Router();
 const eventController = require("../../controllers/eventController");
-const reminderService = require("../../services/reminderService");
 const authMiddleware = require("../../middleware/authMiddleware");
 const rbacMiddleware = require("../../middleware/rbacMiddleware"); // For role checks
 const upload = require("../../middleware/uploadMiddleware");
@@ -73,6 +72,24 @@ router.get(
   rbacMiddleware(["organizer"]),
   eventController.getAllRegistrationsForEvent
 );
+
+// ================== AI Reminder Event ==================
+// GET /api/v1/events/:event_id/email-reminders - Check AI-generated event reminders (for organizers)
+router.get(
+  "/:event_id/email-reminders",
+  authMiddleware,
+  rbacMiddleware(["organizer"]),
+  eventController.checkEmailReminderFeature
+);
+
+// PUT /api/v1/events/:event_id/email-reminders - Generate AI email reminders for an event (for organizers)
+router.put(
+  "/:event_id/enable-email-reminders",
+  authMiddleware,
+  rbacMiddleware(["organizer"]),
+  eventController.toggleEmailReminderFeature
+);
+
 /* //////////////////////////////////////////////////////////////////////////////////
                               Event Participant Routes
 */ //////////////////////////////////////////////////////////////////////////////////
@@ -91,12 +108,5 @@ router.get(
   rbacMiddleware(["participant"]),
   eventController.getEventsRegisteredByParticipant
 );
-
-// router.get(
-//   "/test-email/test",
-//   // authMiddleware,
-//   // rbacMiddleware(["participant"]),
-//   reminderService.sendUpcomingEventReminders
-// );
 
 module.exports = router;

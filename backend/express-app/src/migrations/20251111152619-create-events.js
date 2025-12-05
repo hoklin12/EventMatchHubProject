@@ -100,6 +100,11 @@ module.exports = {
         type: Sequelize.DATE,
         allowNull: true,
       },
+      allowRemindEmail: {
+        type: Sequelize.BOOLEAN,
+        allowNull: false,
+        defaultValue: false,
+      },
       created_at: {
         allowNull: true,
         type: Sequelize.DATE,

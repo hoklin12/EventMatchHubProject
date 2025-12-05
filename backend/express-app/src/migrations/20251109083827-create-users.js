@@ -43,6 +43,13 @@ module.exports = {
         type: Sequelize.STRING(40),
         allowNull: true, // Allow NULL
       },
+      plan: {
+        // Foreign key to Plans table
+        type: Sequelize.ENUM("Basic", "Enterprise", "Premium"),
+        allowNull: false,
+        defaultValue: "Basic",
+      },
+
       created_at: {
         allowNull: false,
         type: Sequelize.DATE,

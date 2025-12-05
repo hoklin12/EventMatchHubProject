@@ -151,6 +151,50 @@ exports.login = async (req, res, next) => {
       skillNames.push(skillDetail.skill_name);
     }
 
+    const checkUserPlan = await models.Subscription.findOne({
+      where: { user_id: user.user_id, status: "active" },
+    });
+
+    if (checkUserPlan) {
+      const planTransaction = await models.PlanTransaction.findOne({
+        where: { transaction_id: checkUserPlan.transaction_id },
+      });
+      const checkPlan = await models.Plan.findOne({
+        where: { plan_id: planTransaction.plan_id },
+      });
+      switch (checkPlan.plan_id) {
+        case "8512e6f3-2bb2-4b9a-9af1-d967d5ffbdf1":
+          await models.User.update(
+            { plan: "Enterprise" },
+            { where: { user_id: user.user_id } }
+          );
+          break;
+        case "8c414757-0ce6-4f0d-89e4-97cb9746446e":
+          await models.User.update(
+            { plan: "Premium" },
+            { where: { user_id: user.user_id } }
+          );
+          break;
+        default:
+          await models.User.update(
+            { plan: "Basic" },
+            { where: { user_id: user.user_id } }
+          );
+      }
+    } else {
+      await models.User.update(
+        { plan: "Basic" },
+        { where: { user_id: user.user_id } }
+      );
+    }
+
+    if (checkUserPlan == null) {
+      await models.User.update(
+        { plan: "Basic" },
+        { where: { user_id: user.user_id } }
+      );
+    }
+
     // 4. Send response
     res.json({
       status: "success",
@@ -163,6 +207,7 @@ exports.login = async (req, res, next) => {
         phone_number: user.phone_number,
         roles: user.Roles.map((r) => r.role_name),
         skills: skillNames,
+        Plan: user.plan,
       },
     });
   } catch (error) {

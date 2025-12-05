@@ -19,7 +19,7 @@ function hashJsonObject(jsonObject) {
  * @returns {string} The SHA-256 hash as a hexadecimal string.
  */
 function hashString(inputString) {
-  // FIX: Replaced the invalid algorithm "hash" with the specific "sha256".
+  // FIX: Replaced the invalid algorithm "hash" with the specific "md5".
   const hash = crypto.createHash("md5");
 
   hash.update(inputString);

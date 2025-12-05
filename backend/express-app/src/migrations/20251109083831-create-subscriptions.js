@@ -3,49 +3,46 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable("EventTickets", {
-      eventticket_id: {
+    await queryInterface.createTable("Subscriptions", {
+      subscription_id: {
         allowNull: false,
         primaryKey: true,
         type: Sequelize.UUID,
         defaultValue: Sequelize.UUIDV4,
       },
-      event_id: {
+      user_id: {
         type: Sequelize.UUID,
         allowNull: false,
         references: {
-          model: "Events",
-          key: "event_id",
+          model: "Users",
+          key: "user_id",
         },
         onUpdate: "CASCADE",
         onDelete: "CASCADE",
       },
-      ticket_type: {
-        type: Sequelize.ENUM(
-          "general",
-          "vip",
-          "early_bird",
-          "student",
-          "other"
-        ),
-        defaultValue: "general",
+      transaction_id: {
+        type: Sequelize.UUID,
         allowNull: false,
+        references: {
+          model: "Plan_Transactions",
+          key: "transaction_id",
+        },
+        onUpdate: "CASCADE",
+        onDelete: "CASCADE",
       },
-      price: {
-        type: Sequelize.DECIMAL(10, 2),
+      status: {
+        type: Sequelize.ENUM("active", "inactive", "canceled", "expired"),
         allowNull: false,
+        defaultValue: "active",
       },
-      quantity: {
-        type: Sequelize.INTEGER,
-        allowNull: false,
-      },
-      start_sale_date: {
+      starts_at: {
         type: Sequelize.DATE,
-        allowNull: false,
+        allowNull: true,
+        defaultValue: Sequelize.literal("CURRENT_TIMESTAMP"),
       },
-      end_sale_date: {
+      expires_at: {
         type: Sequelize.DATE,
-        allowNull: false,
+        allowNull: true,
       },
       created_at: {
         allowNull: false,
@@ -63,6 +60,6 @@ module.exports = {
   },
 
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable("EventTickets");
+    await queryInterface.dropTable("Subscriptions");
   },
 };

@@ -43,6 +43,13 @@ module.exports = (sequelize, DataTypes) => {
           as: "OrganizedEvents",
         });
       }
+
+      if (models.Subscription) {
+        User.hasMany(models.Subscription, {
+          foreignKey: "user_id",
+          as: "Subscriptions",
+        });
+      }
     }
 
     async comparePassword(password) {
@@ -74,6 +81,12 @@ module.exports = (sequelize, DataTypes) => {
       },
       password_hash: { type: DataTypes.STRING(255), allowNull: false },
       organization_name: { type: DataTypes.STRING(40) },
+      plan: {
+        // Foreign key to Plans table
+        type: DataTypes.ENUM("Basic", "Enterprise", "Premium"),
+        allowNull: false,
+        defaultValue: "Basic",
+      },
       // created_at: DataTypes.DATE,
       // updated_at: DataTypes.DATE,
     },

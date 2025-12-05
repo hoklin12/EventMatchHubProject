@@ -3,6 +3,7 @@ const {
   checkUserRoleParticipant,
   checkUserRoleOrganizer,
 } = require("../utils/checkUserRole");
+const checkUserPlanUtils = require("../utils/checkUserPlanUtils");
 const { checkEventOrganizer } = require("../utils/checkEventOrganizer");
 const mime = require("mime-types");
 const { uploadFile } = require("../services/storageService");
@@ -625,6 +626,96 @@ exports.getEventsRegisteredByParticipant = async (req, res, next) => {
       data: registrationsWithEventData,
     });
   } catch (error) {
+    next(error);
+  }
+};
+
+// GET /api/v1/events/:event_id/email-reminders - Check AI-generated event reminders (for organizers)
+exports.checkEmailReminderFeature = async (req, res, next) => {
+  const eventId = req.params.event_id;
+  const userId = req.user.userId;
+  try {
+    // Check if user is organizer
+    const checkOrganizer = await checkUserRoleOrganizer(userId);
+    if (checkOrganizer) {
+      return res.status(403).json({
+        status: "fail",
+        message: "Your role haven't permission to access api",
+      });
+    }
+
+    // Check if user is organizer of the event
+    const isOrganizer = await checkEventOrganizer(userId, eventId);
+    if (isOrganizer) {
+      return res.status(403).json({
+        status: "fail",
+        message: `Access denied. You're Not organizer in event ID ${eventId}.`,
+      });
+    }
+
+    // Find the event
+    const event = await models.Event.findByPk(eventId);
+    return res.status(200).json({
+      status: "success",
+      allow_remind_email: event.allowRemindEmail,
+    });
+  } catch (error) {
+    console.error("Check AI Reminder Feature Error:", error);
+    next(error);
+  }
+};
+
+// PUT /api/v1/events/:event_id/email-reminders - Enable/Disable AI-generated event reminders (for organizers)
+exports.toggleEmailReminderFeature = async (req, res, next) => {
+  const eventId = req.params.event_id;
+  const userId = req.user.userId;
+  try {
+    // Check if user is organizer
+    const checkOrganizer = await checkUserRoleOrganizer(userId);
+    if (checkOrganizer) {
+      return res.status(403).json({
+        status: "fail",
+        message: "Your role haven't permission to access api",
+      });
+    }
+    // Check if user is organizer of the event
+    const isOrganizer = await checkEventOrganizer(userId, eventId);
+    if (isOrganizer) {
+      return res.status(403).json({
+        status: "fail",
+        message: `Access denied. You're Not organizer in event ID ${eventId}.`,
+      });
+    }
+
+    const featureID = await checkUserPlanUtils.checkUserPlanUtils(userId);
+    // Check if user's plan includes the AI reminder feature
+    if (
+      featureID !== "8c414757-0ce6-4f0d-89e4-97cb9746446e" &&
+      featureID !== "8512e6f3-2bb2-4b9a-9af1-d967d5ffbdf1"
+    ) {
+      return res.status(403).json({
+        status: "fail",
+        message:
+          "Your current plan does not include the AI-generated email reminder feature. Please upgrade your plan to access this feature.",
+      });
+    }
+
+    // Find the event
+    const event = await models.Event.findByPk(eventId);
+    if (!event) {
+      return res
+        .status(404)
+        .json({ status: "fail", message: "Event not found." });
+    }
+    // Update allowRemindEmail field
+    event.allowRemindEmail = event.allowRemindEmail === true ? false : true;
+    await event.save();
+    return res.status(200).json({
+      status: "success",
+      allowRemindEmail: event.allowRemindEmail,
+    });
+  } catch (error) {
+    console.error("Toggle AI Reminder Feature Error:", error);
     next(error);
   }
 };

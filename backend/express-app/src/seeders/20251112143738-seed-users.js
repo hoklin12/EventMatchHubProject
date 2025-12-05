@@ -21,8 +21,8 @@ module.exports = {
         },
         {
           user_id: "3c8db38d-9cc4-455b-bd24-60bfd9583087",
-          full_name: "Michael Chen",
-          email: "michael.chen@futuretech.io",
+          full_name: "Kao Vichet",
+          email: "kaovichet02@gmail.com",
           phone_number: "234-567-8901",
           password_hash: hashedPassword,
           organization_name: "FutureTech Solutions",

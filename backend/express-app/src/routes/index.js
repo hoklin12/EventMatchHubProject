@@ -28,4 +28,9 @@ router.use(`/users`, require("./users/userRoutes"));
 router.use(`/users`, require("./users/certificateRoutes"));
 router.use(`/users`, require("./users/portfolioRoutes"));
 
+/* //////////////////////////////////////////////////////////////////////////////////
+                        Manage Plan Payment Information
+*/ //////////////////////////////////////////////////////////////////////////////////
+router.use(`/payments`, require("./payments/planPaymentRoutes"));
+
 module.exports = router;
