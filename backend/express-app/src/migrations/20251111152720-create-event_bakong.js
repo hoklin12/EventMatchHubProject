@@ -20,9 +20,15 @@ module.exports = {
         onUpdate: "CASCADE",
         onDelete: "CASCADE",
       },
-      amount: {
-        type: Sequelize.DECIMAL(10, 2),
+      eventticket_id: {
+        type: Sequelize.UUID,
         allowNull: false,
+        references: {
+          model: "EventTickets",
+          key: "eventticket_id",
+        },
+        onUpdate: "CASCADE",
+        onDelete: "CASCADE",
       },
       bakongAccountID: {
         type: Sequelize.STRING,

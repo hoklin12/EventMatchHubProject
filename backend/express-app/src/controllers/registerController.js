@@ -331,10 +331,13 @@ exports.initiateRegistrationPayment = async (req, res, next) => {
     );
 
     const transactionRef = `EMH-${transactionRefHashString.substring(0, 20)}`;
+    const amount = await models.EventTicket.findOne({
+      where: { eventticket_id: eventBakong.eventticket_id },
+    });
 
     const data = {
       // price: plan.price,
-      price: eventBakong.amount,
+      price: amount.price,
       bakongAccountID: eventBakong.bakongAccountID,
       merchantName: eventBakong.merchantName,
       acquiringBank: eventBakong.acquiringBank,

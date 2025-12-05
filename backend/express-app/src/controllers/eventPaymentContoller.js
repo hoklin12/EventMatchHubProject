@@ -81,7 +81,7 @@ exports.setupEventPayment = async (req, res, next) => {
 
     const featureID = await checkUserPlanUtils(userId);
 
-    const evennTicket = await models.EventTicket.findOne({
+    const eventTicket = await models.EventTicket.findOne({
       where: { event_id: eventId },
     });
 
@@ -93,7 +93,7 @@ exports.setupEventPayment = async (req, res, next) => {
         acquiringBank: acquiringBank,
         merchantCity: merchantCity,
         mobileNumber: mobileNumber,
-        amount: evennTicket.price,
+        eventticket_id: eventTicket.eventticket_id,
         storeLabel: organizationName.organization_name,
         plan_name: "Buy Ticket",
       });

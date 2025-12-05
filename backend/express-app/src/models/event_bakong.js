@@ -42,9 +42,15 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: false,
         field: "merchantName",
       },
-      amount: {
-        type: DataTypes.DECIMAL(10, 2),
+      eventticket_id: {
+        type: DataTypes.UUID,
         allowNull: false,
+        references: {
+          model: "EventTickets",
+          key: "eventticket_id",
+        },
+        onUpdate: "CASCADE",
+        onDelete: "CASCADE",
       },
       acquiringBank: {
         type: DataTypes.STRING,
