@@ -12,22 +12,24 @@ PATHS = CONFIG['paths']
 SETTINGS = CONFIG['generation_settings']
 FONT_MAP = CONFIG['font_map']
 
+
 def generate_certificate_service(input_data):
     meta = input_data["metadata"]
     user = input_data["userData"]
 
     # Load template image (base64, URL, path)
     template_src = meta.get("template")
+
     if template_src.startswith("http://") or template_src.startswith("https://"):
-        template_data = urlopen(template_src).read()
-        template = io.BytesIO(template_data)
+        template_bytes = urlopen(template_src).read()
+        template = Image.open(io.BytesIO(template_bytes)).convert("RGBA")
     else:
-        template = template_src
+        template = Image.open(template_src).convert("RGBA")
 
     metadata_json_url = meta.get("metadata")
     metadata_json = json.load(urlopen(metadata_json_url))
 
-    img = Image.open(template).convert("RGBA")
+    img = template
     draw = ImageDraw.Draw(img)
 
     ref_width = metadata_json["width"]
@@ -42,14 +44,17 @@ def generate_certificate_service(input_data):
         y = field["y"] * scale_factor
         width = field["width"] * scale_factor
 
-        # --- IMAGE FIELDS ---
+        # ----------------------------------------------------
+        # IMAGE FIELDS (QR, SIGNATURE)
+        # ----------------------------------------------------
         if key in ["qr_code", "signature"]:
-            img_src = fetch_image(value)
-            if img_src is None:
+            field_img = fetch_image(value)
+
+            if field_img is None:
                 continue
 
             try:
-                field_img = Image.open(img_src).convert("RGBA")
+                field_img = field_img.convert("RGBA")
             except UnidentifiedImageError:
                 continue
 
@@ -64,7 +69,9 @@ def generate_certificate_service(input_data):
             img.paste(field_img, (int(x), int(y)), field_img)
             continue
 
-        # --- TEXT FIELDS ---
+        # ----------------------------------------------------
+        # TEXT FIELDS
+        # ----------------------------------------------------
         pt_size = float(field.get("font_size", 12))
         px_size = convert_pt_to_px(pt_size, SETTINGS["design_dpi"])
 
@@ -87,8 +94,11 @@ def generate_certificate_service(input_data):
 
         draw.text((x, y), value, font=font, fill=color, anchor=anchor)
 
-    # Export → base64
-    buffer = io.BytesIO()
-    img.save(buffer, format="PNG")
-    buffer.seek(0)
-    return base64.b64encode(buffer.getvalue()).decode()
+    # ----------------------------------------------------
+    # RETURN BASE64 PNG
+    # ----------------------------------------------------
+    out_buffer = io.BytesIO()
+    img.save(out_buffer, format="PNG")
+    out_buffer.seek(0)
+
+    return base64.b64encode(out_buffer.getvalue()).decode()
