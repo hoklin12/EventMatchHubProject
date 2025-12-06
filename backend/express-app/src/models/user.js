@@ -80,6 +80,10 @@ module.exports = (sequelize, DataTypes) => {
         },
       },
       password_hash: { type: DataTypes.STRING(255), allowNull: false },
+      profile: {
+        type: DataTypes.TEXT,
+        allowNull: true,
+      },
       organization_name: { type: DataTypes.STRING(40) },
       position: {
         // Matches your SQL position

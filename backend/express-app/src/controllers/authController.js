@@ -295,18 +295,6 @@ exports.login = async (req, res, next) => {
         .json({ status: "fail", message: "Invalid credentials." });
     }
 
-    // Check User Approved Status
-    const userRoles = await user.getRoles({
-      through: { attributes: ["status"] },
-    });
-
-    if (userRoles.some((role) => role.UserRoles.status !== "approved")) {
-      return res.status(403).json({
-        status: "fail",
-        message: "Your account not approved. Please contact support.",
-      });
-    }
-
     // 3. Generate JWT
     const token = generateToken(user);
     const skill = await models.UserSkills.findAll({

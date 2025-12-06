@@ -38,6 +38,10 @@ module.exports = {
         type: Sequelize.STRING(255),
         allowNull: false,
       },
+      profile: {
+        type: Sequelize.TEXT,
+        allowNull: true,
+      },
       organization_name: {
         // Matches your SQL organization_name
         type: Sequelize.STRING(40),

@@ -2,6 +2,14 @@
 const models = require("../models");
 const bcrypt = require("bcryptjs"); // For password comparison on update
 const { checkUserRoleParticipant } = require("../utils/checkUserRole");
+const {
+  uploadFile,
+  replaceFile,
+  deleteFile,
+} = require("../services/storageService");
+const { FOLDERS, BUCKET_NAME } = require("../config/supabaseConfig");
+const { fileTypeFromBuffer } = require("file-type");
+const axios = require("axios");
 
 // Get current authenticated user's profile
 exports.getCurrentUser = async (req, res, next) => {
@@ -52,7 +60,8 @@ exports.getCurrentUser = async (req, res, next) => {
 // Update current authenticated user's profile
 exports.updateCurrentUser = async (req, res, next) => {
   const userId = req.user.userId; // Get ID from authenticated user
-  const { full_name, phone_number, organization_name, skills } = req.body;
+  const userData = JSON.parse(req.body.data);
+  const profileFile = req.files["profile"] ? req.files["profile"][0] : null;
 
   try {
     const user = await models.User.findByPk(userId);
@@ -63,15 +72,59 @@ exports.updateCurrentUser = async (req, res, next) => {
     }
 
     const existingUserData = await models.User.findByPk(userId);
-    existingUserData.full_name = full_name;
-    existingUserData.phone_number = phone_number;
-    existingUserData.organization_name = organization_name;
+    existingUserData.full_name = userData.full_name;
+    existingUserData.phone_number = userData.phone_number;
+    existingUserData.organization_name = userData.organization_name;
+    existingUserData.position = userData.position;
+
+    let fileType;
+    if (profileFile != null) {
+      fileType = await fileTypeFromBuffer(profileFile.buffer);
+    } else {
+      if (user.profile != null) {
+        const response = await axios.get(user.profile, {
+          responseType: "arraybuffer",
+        });
+        const buffer = Buffer.from(response.data);
+        const fileType = await fileTypeFromBuffer(buffer);
+        await deleteFile(
+          BUCKET_NAME.USER,
+          `${FOLDERS.PROFILE}/${userId}.${fileType.ext}`
+        );
+        existingUserData.profile = null;
+      }
+    }
+    if (user.profile === null) {
+      // Upload new profile picture
+      if (profileFile) {
+        const uploadResult = await uploadFile(
+          BUCKET_NAME.USER,
+          profileFile.buffer,
+          `${FOLDERS.PROFILE}/${userId}.${fileType.ext}`,
+          fileType.mime
+        );
+        existingUserData.profile = uploadResult;
+      }
+    } else {
+      // Replace existing profile picture
+      if (profileFile) {
+        const replaceResult = await replaceFile(
+          BUCKET_NAME.USER,
+          profileFile.buffer,
+          `${FOLDERS.PROFILE}/${userId}.${fileType.ext}`,
+          fileType.mime
+        );
+        existingUserData.profile = replaceResult;
+      }
+    }
 
     await models.User.update(
       {
         full_name: existingUserData.full_name,
         phone_number: existingUserData.phone_number,
         organization_name: existingUserData.organization_name,
+        position: existingUserData.position,
+        profile: existingUserData.profile,
       },
       { where: { user_id: userId } }
     );
@@ -80,8 +133,11 @@ exports.updateCurrentUser = async (req, res, next) => {
     await models.UserSkills.destroy({ where: { user_id: userId } });
 
     // Then, add new skills
-    for (const skillId of skills) {
-      await models.UserSkills.create({ user_id: userId, skill_id: skillId });
+    for (const skillId of userData.skills) {
+      await models.UserSkills.create({
+        user_id: userId,
+        skill_id: skillId,
+      });
     }
 
     return res.status(200).json({
