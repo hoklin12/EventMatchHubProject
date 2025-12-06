@@ -2,6 +2,8 @@
 const models = require("../models");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs"); // For password comparison
+const authService = require("../services/authService");
+const { simpleHtmlResponse } = require("../utils/authUtils");
 
 // Helper to generate JWT
 const generateToken = (user) => {
@@ -20,17 +22,29 @@ const generateToken = (user) => {
   );
 };
 
-exports.register = async (req, res, next) => {
+exports.participantRegister = async (req, res, next) => {
   const {
     email,
     password_hash,
     full_name,
-    organization_name,
+    // organization_name,
     skills,
     phone_number,
   } = req.body;
 
   try {
+    // Validate required fields
+    if (!email || !password_hash || !full_name || !phone_number) {
+      return res.status(400).json({
+        status: "fail",
+        message: `Missing required fields. ${!email ? "email " : ""}${
+          !password_hash ? "password_hash " : ""
+        }${!full_name ? "full_name " : ""}${
+          !phone_number ? "phone_number " : ""
+        }`.trim(),
+      });
+    }
+
     // 1. Check if user already exists
     const existingUser = await models.User.findOne({ where: { email } });
     if (existingUser) {
@@ -39,17 +53,8 @@ exports.register = async (req, res, next) => {
         message: "User already exists with this email.",
       });
     }
-    // 2. Create User (password_hash will be hashed by the model hook)
-    // Do not set user_id here; let the database assign the auto-increment integer PK
-    const newUser = await models.User.create({
-      email,
-      password_hash, // Raw password - will be hashed before saving
-      phone_number,
-      full_name,
-      organization_name,
-    });
 
-    // 3. Assign Default Role: 'participant'
+    // 2. Assign Default Role: 'participant'
     const participantRole = await models.Role.findOne({
       where: { role_name: "participant" },
     });
@@ -60,7 +65,20 @@ exports.register = async (req, res, next) => {
         .status(500)
         .json({ message: "Internal server error: role setup issue." });
     }
-    await newUser.addRole(participantRole); // Use Sequelize's association method
+
+    // 3. Create User (password_hash will be hashed by the model hook)
+    // Do not set user_id here; let the database assign the auto-increment integer PK
+    const newUser = await models.User.create({
+      email,
+      password_hash, // Raw password - will be hashed before saving
+      phone_number,
+      full_name,
+      // organization_name,
+    });
+
+    await newUser.addRole(participantRole);
+
+    await authService.sendVerificationEmail(newUser);
 
     if (skills && Array.isArray(skills)) {
       // Associate skills if provided
@@ -106,6 +124,147 @@ exports.register = async (req, res, next) => {
   }
 };
 
+exports.organizerRegister = async (req, res, next) => {
+  const {
+    email,
+    password_hash,
+    full_name,
+    organization_name,
+    position,
+    skills,
+    phone_number,
+  } = req.body;
+
+  try {
+    // Validate required fields
+    if (
+      !email ||
+      !password_hash ||
+      !full_name ||
+      !phone_number ||
+      !organization_name ||
+      !position
+    ) {
+      return res.status(400).json({
+        status: "fail",
+        message: `Missing required fields. ${!email ? "email " : ""}${
+          !password_hash ? "password_hash " : ""
+        }${!full_name ? "full_name " : ""}${
+          !phone_number ? "phone_number " : ""
+        }${!organization_name ? "organization_name " : ""}${
+          !position ? "position " : ""
+        }`.trim(),
+      });
+    }
+    // 1. Check if user already exists
+    const existingUser = await models.User.findOne({ where: { email } });
+    if (existingUser) {
+      return res.status(400).json({
+        status: "fail",
+        message: "User already exists with this email.",
+      });
+    }
+
+    // 2. Assign Default Role: 'organizer'
+    const organizerRole = await models.Role.findOne({
+      where: { role_name: "organizer" },
+    });
+    if (!organizerRole) {
+      // This is a critical setup error if the default role isn't seeded
+      console.error("FATAL: 'organizer' role not found in DB!");
+      return res
+        .status(500)
+        .json({ message: "Internal server error: role setup issue." });
+    }
+
+    // 3. Create User (password_hash will be hashed by the model hook)
+    // Do not set user_id here; let the database assign the auto-increment integer PK
+    const newUser = await models.User.create({
+      email,
+      password_hash, // Raw password - will be hashed before saving
+      phone_number,
+      full_name,
+      position,
+      organization_name,
+    });
+
+    await newUser.addRole(organizerRole);
+
+    await authService.sendVerificationEmail(newUser);
+
+    if (skills && Array.isArray(skills)) {
+      // Associate skills if provided
+      const skillRecords = await models.Skill.findAll({
+        where: { skill_id: skills },
+      });
+      await newUser.addSkills(skillRecords);
+    }
+
+    // 4. Fetch user with roles to generate token
+    const userWithRolesAndSkills = await models.User.findByPk(newUser.user_id, {
+      include: [
+        { model: models.Role, as: "Roles", attributes: ["role_name"] },
+        { model: models.Skill, as: "Skills", attributes: ["skill_name"] },
+      ],
+    });
+
+    // 5. Generate JWT
+    const token = generateToken(userWithRolesAndSkills);
+
+    // 6. Send response
+    return res.status(201).json({
+      status: "success",
+      message: "User registered successfully!",
+      token,
+      user: {
+        // user_id: userWithRoles.user_id,
+        email: userWithRolesAndSkills.email,
+        full_name: userWithRolesAndSkills.full_name,
+        phone_number: userWithRolesAndSkills.phone_number,
+        organization_name: userWithRolesAndSkills.organization_name,
+        position: userWithRolesAndSkills.position,
+        roles: userWithRolesAndSkills.Roles.map((r) => r.role_name),
+        skills: userWithRolesAndSkills.Skills.map((s) => s.skill_name),
+      },
+    });
+  } catch (error) {
+    console.error("Registration Error:", error);
+    // Pass to global error handler for consistent response
+    next(error);
+  }
+};
+
+exports.verifyEmail = async (req, res, next) => {
+  const token = req.query.token;
+
+  if (!token) {
+    // Use the utility to send the simple HTML failure message
+    const html = simpleHtmlResponse(
+      false,
+      "Verification Failed",
+      "Verification link is missing."
+    );
+    return res.status(400).send(html);
+  }
+
+  try {
+    const result = await authService.verifyUserEmail(token);
+
+    // Success: Send the direct HTML success page
+    const html = simpleHtmlResponse(true, "Success!", result.message);
+    res.status(200).send(html);
+  } catch (error) {
+    // Failure: Send the direct HTML failure page
+    const html = simpleHtmlResponse(
+      false,
+      "Verification Failed",
+      error.message
+    );
+    // Use 400 status for validation/token failure
+    res.status(400).send(html);
+  }
+};
+
 exports.login = async (req, res, next) => {
   const { email, password_hash } = req.body;
 
@@ -134,6 +293,18 @@ exports.login = async (req, res, next) => {
       return res
         .status(401)
         .json({ status: "fail", message: "Invalid credentials." });
+    }
+
+    // Check User Approved Status
+    const userRoles = await user.getRoles({
+      through: { attributes: ["status"] },
+    });
+
+    if (userRoles.some((role) => role.UserRoles.status !== "approved")) {
+      return res.status(403).json({
+        status: "fail",
+        message: "Your account not approved. Please contact support.",
+      });
     }
 
     // 3. Generate JWT

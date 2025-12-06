@@ -74,18 +74,28 @@ module.exports = (sequelize, DataTypes) => {
         // Matches your SQL email
         type: DataTypes.STRING(191),
         allowNull: false,
-        unique: true,
+        // unique: true,
         validate: {
           is: /^[0-9+\-() ]+$/i, // Basic phone number validation
         },
       },
       password_hash: { type: DataTypes.STRING(255), allowNull: false },
       organization_name: { type: DataTypes.STRING(40) },
+      position: {
+        // Matches your SQL position
+        type: DataTypes.STRING(100),
+        allowNull: true, // Allow NULL
+      },
       plan: {
         // Foreign key to Plans table
         type: DataTypes.ENUM("Basic", "Enterprise", "Premium"),
         allowNull: false,
         defaultValue: "Basic",
+      },
+      status: {
+        type: DataTypes.ENUM("active", "inactive", "banned"),
+        allowNull: false,
+        defaultValue: "inactive",
       },
       // created_at: DataTypes.DATE,
       // updated_at: DataTypes.DATE,
