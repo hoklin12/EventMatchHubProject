@@ -11,6 +11,8 @@ async function sendUpcomingEventReminders() {
   const events = await Event.findAll({
     where: {
       event_date: { [Op.between]: [now, next24h] },
+      status: "public",
+      allowRemindEmail: true,
     },
   });
 
@@ -19,30 +21,38 @@ async function sendUpcomingEventReminders() {
       where: { event_id: event.event_id, is_reminded: false },
     });
     for (const reg of registrations) {
-      const response = await axios.post(
-        "http://127.0.0.1:8000/api/v1/gemini/generate-email",
-        { formRegisterID: reg.formResponseJson }
-      );
-
-      if (response.data.status_code !== 200 || !response.data.detail.success) {
-        console.error(
-          `Failed to generate email content for registration_id: ${reg.registration_id}`
+      if (reg.formResponseJson != null) {
+        const response = await axios.post(
+          "http://127.0.0.1:8000/api/v1/gemini/generate-email",
+          { formRegisterID: reg.formResponseJson }
         );
-        continue;
-      }
-      const userData = await models.User.findByPk(reg.user_id);
-      const emailContent = response.data.detail.data;
-      await sendEmail(
-        userData.email,
-        `Reminder: ${event.title} that you have registered for is starting soon!`,
-        emailContent
-      );
 
-      // Mark as sent
-      await models.Registration.update(
-        { is_reminded: true },
-        { where: { registration_id: reg.registration_id } }
-      );
+        if (
+          response.data.status_code !== 200 ||
+          !response.data.detail.success
+        ) {
+          console.error(
+            `Failed to generate email content for registration_id: ${reg.registration_id}`
+          );
+          continue;
+        }
+        // Mark as sent
+        reg.is_reminded = true;
+        await reg.save();
+        const userData = await models.User.findByPk(reg.user_id);
+        const emailContent = response.data.detail.data;
+        await sendEmail(
+          userData.email,
+          `Reminder: ${event.title} that you have registered for is starting soon!`,
+          emailContent
+        );
+      } else {
+        console.log(
+          `No formResponseJson for registration_id: ${reg.registration_id}, skipping email generation.`
+        );
+        reg.is_reminded = true;
+        await reg.save();
+      }
     }
   }
 }

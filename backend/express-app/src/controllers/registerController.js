@@ -8,6 +8,14 @@ const {
 const { checkEventOrganizer } = require("../utils/checkEventOrganizer");
 const { BUCKET_NAME, FOLDERS } = require("../config/supabaseConfig");
 const storageService = require("../services/storageService");
+const {
+  generateKhqrPayload,
+  createQrCodeImage,
+  createQRStand,
+} = require("../utils/khqrUtils");
+const bakongApiService = require("../services/bakongApiService");
+const { hashJsonObject } = require("../utils/encryptUtils");
+const { BakongKHQR } = require("bakong-khqr");
 
 /* //////////////////////////////////////////////////////////////////////////////////
                           Event Registration Management
@@ -90,6 +98,12 @@ exports.userRegisterForEvent = async (req, res, next) => {
         where: { event_id: eventId },
         transaction: t, // Run read queries inside the transaction for consistency
       });
+      if (allFormFields.length === 0) {
+        return res.status(400).json({
+          status: "fail",
+          message: "No form fields found for this event.",
+        });
+      }
       const fieldsMap = new Map(
         allFormFields.map((field) => [field.formfield_id, field])
       );
@@ -256,15 +270,187 @@ exports.userRegisterForEvent = async (req, res, next) => {
     // 2. If all operations were successful, commit the transaction to save the changes.
     await t.commit();
 
+    const eventTicket = await models.EventTicket.findOne({
+      where: { event_id: eventId },
+    });
+
     return res.status(201).json({
       status: "success",
       message: "You have been registered for the event successfully.",
-      data: newRegistration,
+      // data: newRegistration,
+      hasPayment: eventTicket.price > 0 ? true : false,
     });
   } catch (error) {
     // 3. If ANY error was thrown during the try block, rollback all database changes.
     await t.rollback();
     // Pass the error to your global error handling middleware
+    next(error);
+  }
+};
+
+exports.initiateRegistrationPayment = async (req, res, next) => {
+  const userId = req.user.userId;
+  const eventId = req.params.event_id;
+  const { methodId } = req.body;
+  try {
+    const registration = await models.Registration.findOne({
+      where: { user_id: userId, event_id: eventId },
+    });
+    if (!registration) {
+      return res
+        .status(404)
+        .json({ status: "fail", message: "Registration not found." });
+    }
+
+    const eventBakong = await models.EventBakong.findOne({
+      where: { event_id: eventId },
+    });
+    if (!eventBakong) {
+      return res.status(404).json({
+        status: "fail",
+        message: "Event payment setup not found.",
+      });
+    }
+
+    const eventTicket = await models.EventTicket.findOne({
+      where: { event_id: eventId },
+    });
+
+    if (eventTicket.price == 0) {
+      return res.status(400).json({
+        status: "fail",
+        message: "This event is free. No payment is required.",
+      });
+    }
+
+    const transactionRefHash = {
+      user_id: userId,
+      method_id: methodId,
+      event_id: eventId,
+      amount: eventBakong.amount,
+      currency: "USD",
+      dateTime: new Date().toISOString(),
+    };
+
+    const transactionRefHashString = hashJsonObject(
+      JSON.stringify(transactionRefHash)
+    );
+
+    const transactionRef = `EMH-${transactionRefHashString.substring(0, 20)}`;
+    const amount = await models.EventTicket.findOne({
+      where: { eventticket_id: eventBakong.eventticket_id },
+    });
+
+    const data = {
+      // price: plan.price,
+      price: amount.price,
+      bakongAccountID: eventBakong.bakongAccountID,
+      merchantName: eventBakong.merchantName,
+      acquiringBank: eventBakong.acquiringBank,
+      merchantCity: eventBakong.merchantCity,
+      mobileNumber: eventBakong.mobileNumber,
+      storeLabel: eventBakong.storeLabel,
+      plan_name: eventBakong.plan_name,
+    };
+
+    const { khqrString, md5Hash } = generateKhqrPayload(transactionRef, data);
+    let qrStand;
+    if (khqrString) {
+      const qrCodeImage = await createQrCodeImage(khqrString);
+      qrStand = await createQRStand(qrCodeImage, eventBakong.merchantName);
+      await models.RegisterTransactions.create({
+        method_id: methodId,
+        registration_id: registration.registration_id,
+        event_id: eventId,
+        status: "pending",
+        transactionMD5: md5Hash,
+      });
+    }
+
+    res.status(200).json({
+      status: "success",
+      // khqrString: khqrString,
+      md5Hash: md5Hash,
+      qrStand: qrStand,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// Checking payment status by MD5 hash in every 3s(3000ms) for pending transactions
+exports.checkRegisterPaymentStatusMD5 = async (req, res, next) => {
+  const { md5Hash } = req.params;
+  // const userId = req.user.userId;
+  const registration_id = req.body.registration_id;
+
+  try {
+    const transaction = await models.RegisterTransactions.findOne({
+      where: { transactionMD5: md5Hash, registration_id: registration_id },
+    });
+
+    if (!transaction) {
+      return res.status(404).json({ message: "Transaction not found." });
+    }
+
+    // --- 1. CHECK STATUS WITH BAKONG ---
+    const verificationResult = await bakongApiService.checkTransactionByMD5(
+      md5Hash
+    );
+
+    if (verificationResult.status.toUpperCase() === "COMPLETED") {
+      // Update transaction status in DB
+      // 1️⃣ Convert timestamp to Date object
+      const dateObj = new Date(verificationResult.details.createdDateMs);
+
+      // 2️⃣ Format date as string for database
+      const formattedDate =
+        dateObj.getFullYear() +
+        "-" +
+        String(dateObj.getMonth() + 1).padStart(2, "0") +
+        "-" +
+        String(dateObj.getDate()).padStart(2, "0") +
+        " " +
+        String(dateObj.getHours()).padStart(2, "0") +
+        ":" +
+        String(dateObj.getMinutes()).padStart(2, "0") +
+        ":" +
+        String(dateObj.getSeconds()).padStart(2, "0");
+
+      // 3️⃣ Update transaction
+      transaction.status = "completed";
+      transaction.transaction_date = formattedDate; // string
+      transaction.externalRef = verificationResult.details.externalRef;
+      await transaction.save();
+
+      await models.Registration.update(
+        { is_paid: true },
+        { where: { registration_id: registration_id } }
+      );
+
+      return res.status(200).json({
+        status: verificationResult.status,
+        detail: verificationResult.details,
+        message: verificationResult.message,
+      });
+    } else if (verificationResult.status.toUpperCase() === "FAILED") {
+      // Update transaction status to failed
+      transaction.status = "failed";
+      transaction.failReason = verificationResult.message;
+      await transaction.save();
+      return res.status(400).json({
+        status: verificationResult.status,
+        detail: verificationResult.details,
+        message: verificationResult.message,
+      });
+    }
+    return res.status(202).json({
+      status: verificationResult.status,
+      detail: verificationResult.details,
+      message: verificationResult.message,
+    });
+  } catch (error) {
+    console.error("Verification Status Check Error:", error);
     next(error);
   }
 };

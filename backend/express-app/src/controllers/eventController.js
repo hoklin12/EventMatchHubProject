@@ -3,8 +3,10 @@ const {
   checkUserRoleParticipant,
   checkUserRoleOrganizer,
 } = require("../utils/checkUserRole");
+const checkUserPlanUtils = require("../utils/checkUserPlanUtils");
 const { checkEventOrganizer } = require("../utils/checkEventOrganizer");
 const mime = require("mime-types");
+const { hashJsonObject } = require("../utils/encryptUtils");
 const { uploadFile } = require("../services/storageService");
 const { FOLDERS, BUCKET_NAME } = require("../config/supabaseConfig");
 
@@ -335,6 +337,33 @@ exports.publishEvent = async (req, res, next) => {
         .status(404)
         .json({ status: "fail", message: "Event not found." });
     }
+
+    const eventTickets = await models.EventTicket.findAll({
+      where: { event_id: eventId },
+    });
+
+    if (eventTickets.length === 0) {
+      return res.status(400).json({
+        status: "fail",
+        message:
+          "Cannot publish event without at least one event ticket. Please create an event ticket first.",
+      });
+    }
+
+    for (const ticket of eventTickets) {
+      if (ticket.price > 0) {
+        const checkEventBakongExist = await models.EventBakong.findOne({
+          where: { event_id: eventId },
+        });
+        if (!checkEventBakongExist) {
+          return res.status(400).json({
+            status: "fail",
+            message: `Cannot publish paid event with ticket ID ${ticket.eventticket_id} without Bakong payment setup. Please set up Bakong payment.`,
+          });
+        }
+      }
+    }
+
     // Toggle publish status
     event.status = event.status === "public" ? "private" : "public";
     await event.save();
@@ -625,6 +654,165 @@ exports.getEventsRegisteredByParticipant = async (req, res, next) => {
       data: registrationsWithEventData,
     });
   } catch (error) {
+    next(error);
+  }
+};
+
+// GET /api/v1/events/:event_id/email-reminders - Check AI-generated event reminders (for organizers)
+exports.checkEmailReminderFeature = async (req, res, next) => {
+  const eventId = req.params.event_id;
+  const userId = req.user.userId;
+  try {
+    // Check if user is organizer
+    const checkOrganizer = await checkUserRoleOrganizer(userId);
+    if (checkOrganizer) {
+      return res.status(403).json({
+        status: "fail",
+        message: "Your role haven't permission to access api",
+      });
+    }
+
+    // Check if user is organizer of the event
+    const isOrganizer = await checkEventOrganizer(userId, eventId);
+    if (isOrganizer) {
+      return res.status(403).json({
+        status: "fail",
+        message: `Access denied. You're Not organizer in event ID ${eventId}.`,
+      });
+    }
+
+    // Find the event
+    const event = await models.Event.findByPk(eventId);
+    return res.status(200).json({
+      status: "success",
+      allow_remind_email: event.allowRemindEmail,
+    });
+  } catch (error) {
+    console.error("Check AI Reminder Feature Error:", error);
+    next(error);
+  }
+};
+
+// PUT /api/v1/events/:event_id/email-reminders - Enable/Disable AI-generated event reminders (for organizers)
+exports.toggleEmailReminderFeature = async (req, res, next) => {
+  const eventId = req.params.event_id;
+  const userId = req.user.userId;
+  try {
+    // Check if user is organizer
+    const checkOrganizer = await checkUserRoleOrganizer(userId);
+    if (checkOrganizer) {
+      return res.status(403).json({
+        status: "fail",
+        message: "Your role haven't permission to access api",
+      });
+    }
+    // Check if user is organizer of the event
+    const isOrganizer = await checkEventOrganizer(userId, eventId);
+    if (isOrganizer) {
+      return res.status(403).json({
+        status: "fail",
+        message: `Access denied. You're Not organizer in event ID ${eventId}.`,
+      });
+    }
+
+    const featureID = await checkUserPlanUtils.checkUserPlanUtils(userId);
+    // Check if user's plan includes the AI reminder feature
+    if (
+      featureID !== "8c414757-0ce6-4f0d-89e4-97cb9746446e" &&
+      featureID !== "8512e6f3-2bb2-4b9a-9af1-d967d5ffbdf1"
+    ) {
+      return res.status(403).json({
+        status: "fail",
+        message:
+          "Your current plan does not include the AI-generated email reminder feature. Please upgrade your plan to access this feature.",
+      });
+    }
+
+    // Find the event
+    const event = await models.Event.findByPk(eventId);
+    if (!event) {
+      return res
+        .status(404)
+        .json({ status: "fail", message: "Event not found." });
+    }
+    // Update allowRemindEmail field
+    event.allowRemindEmail = event.allowRemindEmail === true ? false : true;
+    await event.save();
+    return res.status(200).json({
+      status: "success",
+      allowRemindEmail: event.allowRemindEmail,
+    });
+  } catch (error) {
+    console.error("Toggle AI Reminder Feature Error:", error);
+    next(error);
+  }
+};
+
+exports.toggleParticipantEventApprove = async (req, res, next) => {
+  const userId = req.user.userId;
+  const eventId = req.params.event_id;
+  const registrationId = req.body.registration_id;
+  try {
+    // Check if user is participant
+    const checkOrganizer = await checkUserRoleOrganizer(userId);
+    if (checkOrganizer) {
+      return res.status(403).json({
+        status: "fail",
+        message: "Your role haven't permission to access api",
+      });
+    }
+
+    // Check if user is organizer of the event
+    const isOrganizer = await checkEventOrganizer(userId, eventId);
+    if (isOrganizer) {
+      return res.status(403).json({
+        status: "fail",
+        message: `Access denied. You're Not organizer in event ID ${eventId}.`,
+      });
+    }
+
+    // Find the event
+    const event = await models.Event.findByPk(eventId);
+    if (!event) {
+      return res
+        .status(404)
+        .json({ status: "fail", message: "Event not found." });
+    }
+
+    // Check if the participant is registered for the event
+    const registration = await models.Registration.findOne({
+      where: {
+        event_id: eventId,
+        registration_id: registrationId,
+      },
+    });
+    if (!registration) {
+      return res.status(404).json({
+        status: "fail",
+        message: "Participant is not registered for this event.",
+      });
+    }
+
+    registration.status =
+      registration.status === "approved" ? "rejected" : "approved";
+
+    if (registration.status === "approved") {
+      registration.registrationHash = hashJsonObject(registration);
+    } else {
+      registration.registrationHash = null;
+    }
+
+    await registration.save();
+
+    return res.status(200).json({
+      status: "success",
+      message: `Participant status has been ${registration.status}.`,
+      data: {
+        registration: registration,
+      },
+    });
+  } catch (error) {
+    console.error("Toggle Participant Status Error:", error);
     next(error);
   }
 };

@@ -3,6 +3,7 @@ const {
   checkUserRoleParticipant,
   checkUserRoleOrganizer,
 } = require("../utils/checkUserRole");
+const { checkUserPlanUtils } = require("../utils/checkUserPlanUtils");
 const { checkEventOrganizer } = require("../utils/checkEventOrganizer");
 
 /* //////////////////////////////////////////////////////////////////////////////////
@@ -81,6 +82,9 @@ exports.updateEventTicket = async (req, res, next) => {
         .status(404)
         .json({ status: "fail", message: "Event ticket not found." });
     }
+
+    const planID = await checkUserPlanUtils(userId);
+
     // Update event ticket details
     await eventTicket.update({
       price: price || eventTicket.price,
@@ -88,6 +92,55 @@ exports.updateEventTicket = async (req, res, next) => {
       start_sale_date: start_sale_date || eventTicket.start_sale_date,
       end_sale_date: end_sale_date || eventTicket.end_sale_date,
     });
+    switch (planID) {
+      case "fa846b73-58a0-4fa3-9f1a-8475ee5da1a2": // Basic plan
+        if (quantity > 50) {
+          return res.status(400).json({
+            status: "fail",
+            message: "Basic plan allows a maximum ticket quantity of 50.",
+          });
+        }
+        if (price > 0.0) {
+          return res.status(400).json({
+            status: "fail",
+            message: "Basic plan didn't allow paid event tickets.",
+          });
+        }
+        eventTicket.price = 0.0;
+        eventTicket.quantity = quantity;
+        eventTicket.start_sale_date = start_sale_date;
+        eventTicket.end_sale_date = end_sale_date;
+        break;
+      case "8c414757-0ce6-4f0d-89e4-97cb9746446e": // Premium plan
+        if (quantity > 250) {
+          return res.status(400).json({
+            status: "fail",
+            message: "Basic plan allows a maximum ticket quantity of 50.",
+          });
+        }
+        if (price > 0.0) {
+          return res.status(400).json({
+            status: "fail",
+            message: "Basic plan didn't allow paid event tickets.",
+          });
+        }
+        eventTicket.price = price;
+        eventTicket.quantity = quantity;
+        eventTicket.start_sale_date = start_sale_date;
+        eventTicket.end_sale_date = end_sale_date;
+        break;
+      case "8512e6f3-2bb2-4b9a-9af1-d967d5ffbdf1": // Enterprise plan
+        eventTicket.price = price;
+        eventTicket.quantity = quantity;
+        eventTicket.start_sale_date = start_sale_date;
+        eventTicket.end_sale_date = end_sale_date;
+        break;
+      default:
+        return res.status(400).json({
+          status: "fail",
+          message: "Invalid user plan.",
+        });
+    }
 
     return res.status(200).json({
       status: "success",

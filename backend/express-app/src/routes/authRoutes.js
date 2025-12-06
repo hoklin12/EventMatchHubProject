@@ -8,8 +8,22 @@ const {
 } = require("../middleware/validationMiddleware");
 const authMiddleware = require("../middleware/authMiddleware"); // For logout
 
-// POST /api/v1/auth/register
-router.post("/register", validateRegistration, authController.register);
+// POST /api/v1/auth/participantRegister
+router.post(
+  "/participantRegister",
+  validateRegistration,
+  authController.participantRegister
+);
+
+// POST /api/v1/auth/organizerRegister
+router.post(
+  "/organizerRegister",
+  validateRegistration,
+  authController.organizerRegister
+);
+
+// 2. Verification Endpoint (Uses the new controller function)
+router.get("/verify-email", authController.verifyEmail);
 
 // POST /api/v1/auth/login
 router.post("/login", validateLogin, authController.login);

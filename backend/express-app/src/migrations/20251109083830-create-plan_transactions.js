@@ -1,23 +1,14 @@
 "use strict";
 
+/** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable("Registrations", {
-      registration_id: {
-        allowNull: false,
-        primaryKey: true,
+    await queryInterface.createTable("Plan_Transactions", {
+      transaction_id: {
         type: Sequelize.UUID,
         defaultValue: Sequelize.UUIDV4,
-      },
-      event_id: {
-        type: Sequelize.UUID,
         allowNull: false,
-        references: {
-          model: "Events",
-          key: "event_id",
-        },
-        onUpdate: "CASCADE",
-        onDelete: "CASCADE",
+        primaryKey: true,
       },
       user_id: {
         type: Sequelize.UUID,
@@ -29,51 +20,52 @@ module.exports = {
         onUpdate: "CASCADE",
         onDelete: "CASCADE",
       },
-      portfolio_id: {
+      plan_id: {
         type: Sequelize.UUID,
-        allowNull: true,
+        allowNull: false,
         references: {
-          model: "Portfolios",
-          key: "portfolio_id",
+          model: "Plans",
+          key: "plan_id",
         },
         onUpdate: "CASCADE",
         onDelete: "CASCADE",
       },
+      method_id: {
+        type: Sequelize.UUID,
+        allowNull: false,
+        references: {
+          model: "Payment_Methods",
+          key: "method_id",
+        },
+        onUpdate: "CASCADE",
+        onDelete: "CASCADE",
+      },
+      transactionMD5: {
+        type: Sequelize.STRING(32),
+        allowNull: false,
+        unique: true,
+      },
       status: {
-        type: Sequelize.ENUM("pending", "approved", "rejected"),
+        type: Sequelize.ENUM("pending", "completed", "failed", "refunded"),
         allowNull: false,
         defaultValue: "pending",
       },
-      is_paid: {
-        type: Sequelize.BOOLEAN,
+      transaction_date: {
+        type: Sequelize.DATE,
         allowNull: false,
-        defaultValue: false,
+        defaultValue: Sequelize.NOW,
       },
-      is_attended: {
-        type: Sequelize.BOOLEAN,
-        allowNull: false,
-        defaultValue: false,
-      },
-      is_reminded: {
-        type: Sequelize.BOOLEAN,
-        allowNull: false,
-        defaultValue: false,
-      },
-      registrationHash: {
-        type: Sequelize.STRING(32),
-        allowNull: true,
-        unique: true,
-      },
-      // application_summary: {
-      //   type: Sequelize.TEXT,
-      //   allowNull: true,
-      // },
-      formResponseJson: {
+      failReason: {
         type: Sequelize.TEXT,
         allowNull: true,
       },
+      externalRef: {
+        type: Sequelize.STRING,
+        allowNull: true,
+        unique: true,
+      },
       created_at: {
-        allowNull: false,
+        allowNull: true,
         type: Sequelize.DATE,
         defaultValue: Sequelize.literal("CURRENT_TIMESTAMP"),
       },
@@ -88,6 +80,6 @@ module.exports = {
   },
 
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable("Registrations");
+    await queryInterface.dropTable("Plan_Transactions");
   },
 };

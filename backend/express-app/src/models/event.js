@@ -139,6 +139,12 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.DATE,
         allowNull: true,
       },
+      allowRemindEmail: {
+        type: DataTypes.BOOLEAN,
+        allowNull: false,
+        defaultValue: false,
+        field: "allowRemindEmail",
+      },
       // created_at: DataTypes.DATE,
       // updated_at: DataTypes.DATE,
     },

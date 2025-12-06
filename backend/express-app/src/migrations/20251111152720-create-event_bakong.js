@@ -3,8 +3,8 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable("EventTickets", {
-      eventticket_id: {
+    await queryInterface.createTable("EventBakong", {
+      eventbakong_id: {
         allowNull: false,
         primaryKey: true,
         type: Sequelize.UUID,
@@ -20,31 +20,42 @@ module.exports = {
         onUpdate: "CASCADE",
         onDelete: "CASCADE",
       },
-      ticket_type: {
-        type: Sequelize.ENUM(
-          "general",
-          "vip",
-          "early_bird",
-          "student",
-          "other"
-        ),
-        defaultValue: "general",
+      eventticket_id: {
+        type: Sequelize.UUID,
+        allowNull: false,
+        references: {
+          model: "EventTickets",
+          key: "eventticket_id",
+        },
+        onUpdate: "CASCADE",
+        onDelete: "CASCADE",
+      },
+      bakongAccountID: {
+        type: Sequelize.STRING,
         allowNull: false,
       },
-      price: {
-        type: Sequelize.DECIMAL(10, 2),
+      merchantName: {
+        type: Sequelize.STRING,
         allowNull: false,
       },
-      quantity: {
-        type: Sequelize.INTEGER,
+      acquiringBank: {
+        type: Sequelize.STRING,
         allowNull: false,
       },
-      start_sale_date: {
-        type: Sequelize.DATE,
+      merchantCity: {
+        type: Sequelize.STRING,
         allowNull: false,
       },
-      end_sale_date: {
-        type: Sequelize.DATE,
+      mobileNumber: {
+        type: Sequelize.STRING,
+        allowNull: false,
+      },
+      storeLabel: {
+        type: Sequelize.STRING,
+        allowNull: false,
+      },
+      plan_name: {
+        type: Sequelize.STRING,
         allowNull: false,
       },
       created_at: {
@@ -63,6 +74,6 @@ module.exports = {
   },
 
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable("EventTickets");
+    await queryInterface.dropTable("EventBakong");
   },
 };
