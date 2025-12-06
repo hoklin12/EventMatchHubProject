@@ -98,6 +98,12 @@ exports.userRegisterForEvent = async (req, res, next) => {
         where: { event_id: eventId },
         transaction: t, // Run read queries inside the transaction for consistency
       });
+      if (allFormFields.length === 0) {
+        return res.status(400).json({
+          status: "fail",
+          message: "No form fields found for this event.",
+        });
+      }
       const fieldsMap = new Map(
         allFormFields.map((field) => [field.formfield_id, field])
       );

@@ -9,6 +9,15 @@ const upload = require("../../middleware/uploadMiddleware");
                               Certificate Organizer Routes
 */ //////////////////////////////////////////////////////////////////////////////////
 // ================== Manage Event Certificates ==================
+//PUT /api/v1/events/:event_id/certificates/certificate-data - Update certificate template (only for organizers)
+router.put(
+  "/:event_id/certificates/certificate-data",
+  authMiddleware,
+  rbacMiddleware(["organizer"]),
+  upload.fields([{ name: "signature", maxCount: 1 }]),
+  certificateController.updateCertificateData
+);
+
 //POST /api/v1/events/:event_id/certificates/generate - Generate certificates for event participants (only for organizers)
 router.post(
   "/:event_id/certificates/generate",

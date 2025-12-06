@@ -86,17 +86,25 @@ exports.setupEventPayment = async (req, res, next) => {
     });
 
     if (featureID === "8512e6f3-2bb2-4b9a-9af1-d967d5ffbdf1") {
-      await models.EventBakong.create({
-        event_id: eventId,
-        bakongAccountID: bakongAccountID,
-        merchantName: merchantName,
-        acquiringBank: acquiringBank,
-        merchantCity: merchantCity,
-        mobileNumber: mobileNumber,
-        eventticket_id: eventTicket.eventticket_id,
-        storeLabel: organizationName.organization_name,
-        plan_name: "Buy Ticket",
-      });
+      if (eventTicket.price > 0) {
+        await models.EventBakong.create({
+          event_id: eventId,
+          eventticket_id: eventTicket.eventticket_id,
+          bakongAccountID: bakongAccountID,
+          merchantName: merchantName,
+          acquiringBank: acquiringBank,
+          merchantCity: merchantCity,
+          mobileNumber: mobileNumber,
+          storeLabel: organizationName.organization_name,
+          amount: eventTicket.price,
+          plan_name: `Paid for registered event ticket - ${event.title}`,
+        });
+      } else {
+        return res.status(403).json({
+          status: "fail",
+          message: "Free event doesn't need to setup event payment.",
+        });
+      }
     } else {
       return res.status(403).json({
         status: "fail",

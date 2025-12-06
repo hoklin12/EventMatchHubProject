@@ -90,6 +90,15 @@ router.put(
   eventController.toggleEmailReminderFeature
 );
 
+// ================== Manage Event ==================
+//POST /api/v1/events/:event_id/registrations/toggle-status - Toggle registration status (approve/reject) (for event organizers)
+router.post(
+  "/:event_id/registrations/toggle-status",
+  authMiddleware,
+  rbacMiddleware(["organizer"]),
+  eventController.toggleParticipantEventApprove
+);
+
 /* //////////////////////////////////////////////////////////////////////////////////
                               Event Participant Routes
 */ //////////////////////////////////////////////////////////////////////////////////

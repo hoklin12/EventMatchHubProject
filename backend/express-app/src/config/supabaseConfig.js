@@ -9,6 +9,7 @@ const FOLDERS = {
   TEMPLATES_APPRECIATION: "template/appreciation",
   TEMPLATES_COMPLETION: "template/completion",
   GENERATED: "generated",
+  SIGNATURE: "signature",
 
   //Event
   THEME: "theme",

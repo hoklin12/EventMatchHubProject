@@ -43,6 +43,7 @@ module.exports = {
           user_id: "cd110769-3a7f-4fad-9461-d80e4342d950",
           full_name: "David Kim",
           email: "david.kim@innovasia.tech",
+          password_hash: hashedPassword,
           phone_number: "345-678-9012",
           organization_name: "InnovAsia Technologies",
           created_at: new Date(),

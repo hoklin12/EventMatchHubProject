@@ -6,6 +6,7 @@ const {
 const checkUserPlanUtils = require("../utils/checkUserPlanUtils");
 const { checkEventOrganizer } = require("../utils/checkEventOrganizer");
 const mime = require("mime-types");
+const { hashJsonObject } = require("../utils/encryptUtils");
 const { uploadFile } = require("../services/storageService");
 const { FOLDERS, BUCKET_NAME } = require("../config/supabaseConfig");
 
@@ -743,6 +744,75 @@ exports.toggleEmailReminderFeature = async (req, res, next) => {
     });
   } catch (error) {
     console.error("Toggle AI Reminder Feature Error:", error);
+    next(error);
+  }
+};
+
+exports.toggleParticipantEventApprove = async (req, res, next) => {
+  const userId = req.user.userId;
+  const eventId = req.params.event_id;
+  const registrationId = req.body.registration_id;
+  try {
+    // Check if user is participant
+    const checkOrganizer = await checkUserRoleOrganizer(userId);
+    if (checkOrganizer) {
+      return res.status(403).json({
+        status: "fail",
+        message: "Your role haven't permission to access api",
+      });
+    }
+
+    // Check if user is organizer of the event
+    const isOrganizer = await checkEventOrganizer(userId, eventId);
+    if (isOrganizer) {
+      return res.status(403).json({
+        status: "fail",
+        message: `Access denied. You're Not organizer in event ID ${eventId}.`,
+      });
+    }
+
+    // Find the event
+    const event = await models.Event.findByPk(eventId);
+    if (!event) {
+      return res
+        .status(404)
+        .json({ status: "fail", message: "Event not found." });
+    }
+
+    // Check if the participant is registered for the event
+    const registration = await models.Registration.findOne({
+      where: {
+        event_id: eventId,
+        registration_id: registrationId,
+      },
+    });
+    if (!registration) {
+      return res.status(404).json({
+        status: "fail",
+        message: "Participant is not registered for this event.",
+      });
+    }
+
+    registration.status =
+      registration.status === "approved" ? "rejected" : "approved";
+
+    if (registration.status === "approved") {
+      registration.registrationHash = hashJsonObject(registration);
+    } else {
+      registration.registrationHash = null;
+    }
+
+    await registration.save();
+
+    return res.status(200).json({
+      status: "success",
+      message: `Participant status has been ${registration.status}.`,
+      data: {
+        registration: registration,
+      },
+    });
+  } catch (error) {
+    console.error("Toggle Participant Status Error:", error);
     next(error);
   }
 };
