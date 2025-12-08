@@ -1,9 +1,14 @@
 const cron = require("node-cron");
+const { Op } = require("sequelize");
+const models = require("../models");
 const { sendUpcomingEventReminders } = require("../services/reminderService");
 const {
   autoCheckPaymentStatus,
   autoCheckExpiredSubscriptions,
 } = require("../services/bakongApiService");
+const {
+  EventAttendanceService,
+} = require("../services/eventAttendanceService");
 
 // Schedule a daily job at 8:00 AM to send event reminders ("0 8 * * *", async () => {})
 
@@ -59,9 +64,20 @@ const autoCheckExpiredSubscriptionsJob = cron.schedule(
   { scheduled: false }
 ); // Set to false initially
 
+// Cron job to mark absent for expired QR codes every minute
+const markAbsentForExpiredQR = cron.schedule("* * * * *", async () => {
+  try {
+    const count = await EventAttendanceService.markAbsentForExpiredSessions();
+    console.log(`✔ Marked absents for ${count} expired sessions`);
+  } catch (err) {
+    console.error("Cron Error:", err.message);
+  }
+});
+
 const startAllCronJobs = () => {
   eventReminderJob.start();
   autoCheckPayment.start();
+  markAbsentForExpiredQR.start();
   autoCheckExpiredSubscriptionsJob.start();
 };
 

@@ -59,11 +59,11 @@ module.exports = {
         allowNull: false,
         defaultValue: false,
       },
-      registrationHash: {
-        type: Sequelize.STRING(32),
-        allowNull: true,
-        unique: true,
-      },
+      // registrationHash: {
+      //   type: Sequelize.STRING(32),
+      //   allowNull: true,
+      //   unique: true,
+      // },
       // application_summary: {
       //   type: Sequelize.TEXT,
       //   allowNull: true,

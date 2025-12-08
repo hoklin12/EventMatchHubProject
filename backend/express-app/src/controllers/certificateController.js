@@ -3,8 +3,6 @@ const certificateService = require("../services/certificateService");
 const { hashJsonObject } = require("../utils/encryptUtils");
 const { uploadFile, replaceFile } = require("../services/storageService");
 const { FOLDERS, BUCKET_NAME } = require("../config/supabaseConfig");
-const mime = require("mime-types");
-const fetch = require("node-fetch");
 const { getSignatureBase64 } = require("../utils/urlImageUtils");
 
 const { fileTypeFromBuffer } = require("file-type");
@@ -185,7 +183,11 @@ exports.createCertificates = async (req, res, next) => {
 
     // Fetch participants registered for the event
     const registrations = await models.Registration.findAll({
-      where: { event_id: eventId, status: "approved" },
+      where: {
+        event_id: eventId,
+        status: "approved",
+        end_date: { [Op.lte]: new Date() },
+      },
     });
     if (registrations.length === 0) {
       return res.status(400).json({
@@ -193,10 +195,30 @@ exports.createCertificates = async (req, res, next) => {
         message: "No participants registered for this event.",
       });
     }
+
+    // Fetch all sessions for the event
+    const sessions = await models.EventSession.findAll({
+      where: { event_id: eventId },
+      attributes: ["event_session_id"],
+    });
+    const sessionIds = sessions.map((s) => s.event_session_id);
+
     // Generate certificates for each participant
     const generatedCertificates = [];
     for (const registration of registrations) {
+      // Check full attendance
       const participantId = registration.user_id;
+      const attendanceCount = await models.EventAttendance.count({
+        where: {
+          registration_id: registration.registration_id,
+          event_session_id: sessionIds,
+          attendance_status: "present",
+        },
+      });
+
+      // Skip participant if not attended all sessions
+      if (attendanceCount !== sessionIds.length) continue;
+
       //Check user has been issued a certificate already
       const existingCertificate = await models.Certificate.findOne({
         where: {

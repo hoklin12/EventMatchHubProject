@@ -46,6 +46,13 @@ module.exports = (sequelize, DataTypes) => {
           as: "Registrations",
         });
       }
+
+      if (models.EventSession) {
+        Event.hasMany(models.EventSession, {
+          foreignKey: "event_id",
+          as: "EventSessions",
+        });
+      }
     }
   }
   Event.init(
@@ -111,16 +118,12 @@ module.exports = (sequelize, DataTypes) => {
         defaultValue: "draft",
         allowNull: false,
       },
-      event_date: {
+      start_date: {
         type: DataTypes.DATE,
         allowNull: false,
       },
-      start_time: {
-        type: DataTypes.TIME,
-        allowNull: false,
-      },
-      end_time: {
-        type: DataTypes.TIME,
+      end_date: {
+        type: DataTypes.DATE,
         allowNull: false,
       },
       location_name: {
@@ -144,6 +147,18 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: false,
         defaultValue: false,
         field: "allowRemindEmail",
+      },
+      attendance_token: {
+        type: DataTypes.TEXT,
+        allowNull: true,
+      },
+      attendance_token_start: {
+        type: DataTypes.DATE,
+        allowNull: true,
+      },
+      attendance_token_expiry: {
+        type: DataTypes.DATE,
+        allowNull: true,
       },
       // created_at: DataTypes.DATE,
       // updated_at: DataTypes.DATE,

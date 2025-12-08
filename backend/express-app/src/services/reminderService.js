@@ -10,7 +10,7 @@ async function sendUpcomingEventReminders() {
 
   const events = await Event.findAll({
     where: {
-      event_date: { [Op.between]: [now, next24h] },
+      start_date: { [Op.between]: [now, next24h] },
       status: "public",
       allowRemindEmail: true,
     },

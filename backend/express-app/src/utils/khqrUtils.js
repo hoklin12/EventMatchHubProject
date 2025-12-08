@@ -1,6 +1,7 @@
 const QRCode = require("qrcode");
 const sharp = require("sharp");
 const fs = require("fs");
+const path = require("path");
 
 /**
  * 1. Generates the raw KHQR payload string using the KHQR SDK.
@@ -110,8 +111,103 @@ async function createQRStand(bufferImage, holder_name) {
   return `data:image/png;base64,${finalImage.toString("base64")}`;
 }
 
+const MAX_TEXT_WIDTH_PX = 1273.4; // Maximum width for the text block (from your design)
+const FONT_SIZE = 75;
+const FONT_NAME = "Lora-Bold";
+const FONT_PATH = path.resolve("./public/fonts/Lora-Bold.ttf");
+
+// Utility to split text into lines based on max characters per line
+function wrapText(text, maxCharsPerLine) {
+  const words = text.split(" ");
+  const lines = [];
+  let currentLine = "";
+
+  for (const word of words) {
+    if ((currentLine + " " + word).trim().length <= maxCharsPerLine) {
+      currentLine = (currentLine + " " + word).trim();
+    } else {
+      if (currentLine) lines.push(currentLine);
+      currentLine = word;
+    }
+  }
+  if (currentLine) lines.push(currentLine);
+  return lines;
+}
+
+async function createAttendanceQRStand(bufferImage, eventTitle) {
+  const baseImagePath = "./public/images/Event_Attendance_Stand.png";
+  const baseImageBuffer = fs.readFileSync(baseImagePath);
+
+  // Load custom font and convert to Base64
+  const fontPath = path.resolve("./public/fonts/Lora-Bold.ttf");
+  const fontData = fs.readFileSync(fontPath);
+  const fontBase64 = fontData.toString("base64");
+
+  // Prepare QR image
+  const cleanBase64 = bufferImage.replace(/^data:image\/\w+;base64,/, "");
+  const overlayBuffer = Buffer.from(cleanBase64, "base64");
+  const resizedQR = await sharp(overlayBuffer)
+    .resize({ width: 777, height: 777, fit: "cover" })
+    .png()
+    .toBuffer();
+
+  // Wrap event title
+  const maxCharsPerLine = 23;
+  const lines = wrapText(eventTitle, maxCharsPerLine);
+  const fontSize = 75;
+  const lineHeight = fontSize * 1.2; // spacing between lines
+  const totalHeight = lines.length * lineHeight;
+
+  // Generate SVG with <tspan> for proper line breaks and centered text
+  let svgText = `<svg width="1274" height="${totalHeight}" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <style type="text/css">
+        @font-face {
+          font-family: 'Lora-Bold';
+          src: url('data:font/ttf;base64,${fontBase64}') format('truetype');
+        }
+        .title {
+          font-family: 'Lora-Bold';
+          font-size: ${fontSize}px;
+          font-weight: bold;
+          fill: white;
+        }
+      </style>
+    </defs>
+    <text x="50%" y="0" class="title" text-anchor="middle">`;
+
+  lines.forEach((line, index) => {
+    const y = (index + 1) * lineHeight; // line spacing
+    svgText += `<tspan x="55%" y="${y}" text-anchor="middle">${line}</tspan>`;
+  });
+
+  svgText += `</text></svg>`;
+
+  const textBuffer = Buffer.from(svgText);
+
+  // Composite QR and text onto base image
+  const finalImage = await sharp(baseImageBuffer)
+    .composite([
+      {
+        input: resizedQR,
+        left: Math.round(348.1),
+        top: Math.round(650.9),
+      },
+      {
+        input: textBuffer,
+        left: 0,
+        top: Math.round(286.1),
+      },
+    ])
+    .png()
+    .toBuffer();
+
+  return `data:image/png;base64,${finalImage.toString("base64")}`;
+}
+
 module.exports = {
   generateKhqrPayload,
   createQrCodeImage,
   createQRStand,
+  createAttendanceQRStand,
 };

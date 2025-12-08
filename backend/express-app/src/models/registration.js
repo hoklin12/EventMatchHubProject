@@ -95,12 +95,12 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: false,
         defaultValue: false,
       },
-      registrationHash: {
-        type: DataTypes.STRING(32),
-        allowNull: true,
-        unique: true,
-        field: "registrationHash",
-      },
+      // registrationHash: {
+      //   type: DataTypes.STRING(32),
+      //   allowNull: true,
+      //   unique: true,
+      //   field: "registrationHash",
+      // },
       // created_at: DataTypes.DATE,
       // updated_at: DataTypes.DATE,
     },

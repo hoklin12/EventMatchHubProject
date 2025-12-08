@@ -5,7 +5,7 @@ const userController = require("../../controllers/userController");
 const authMiddleware = require("../../middleware/authMiddleware");
 const rbacMiddleware = require("../../middleware/rbacMiddleware"); // For role checks
 const { validateUpdateUser } = require("../../middleware/validationMiddleware"); // Assuming you'll create this validator
-const upload = require("../../middleware/uploadMiddleware");
+const { upload, uploadPDF } = require("../../middleware/uploadMiddleware");
 
 /* //////////////////////////////////////////////////////////////////////////////////
                                User Routes

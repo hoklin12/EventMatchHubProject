@@ -17,9 +17,8 @@ module.exports = {
         category_id: "88b86831-1b32-49aa-aa27-e6f3c7584bd9", // Technology Category
         type: "conference",
         status: "draft",
-        event_date: "2025-02-15",
-        start_time: "09:00:00", // Required by your migration
-        end_time: "17:00:00", // Required by your migration
+        start_date: "2025-02-15 09:00:00",
+        end_date: "2025-02-16 17:00:00",
         location_name: "Phnom Penh Convention Center", // Required
         location: "Diamond Island, Building A, Phnom Penh",
         // fee_amount: 25.0,
@@ -44,9 +43,8 @@ module.exports = {
         category_id: "88b86831-1b32-49aa-aa27-e6f3c7584bd9", // Technology Category
         type: "workshop",
         status: "public",
-        event_date: "2025-03-10",
-        start_time: "08:30:00",
-        end_time: "16:30:00",
+        start_date: "2025-03-10 09:00:00",
+        end_date: "2025-03-11 17:00:00",
         location_name: "TechLab Cambodia",
         location: "Russian Blvd, Room 204, Phnom Penh",
         // fee_amount: 10.0,
@@ -72,9 +70,8 @@ module.exports = {
         category_id: "88b86831-1b32-49aa-aa27-e6f3c7584bd9", // Technology Category
         type: "competition",
         status: "completed",
-        event_date: "2025-05-20",
-        start_time: "07:00:00",
-        end_time: "19:00:00",
+        start_date: "2025-04-05 08:00:00",
+        end_date: "2025-04-07 20:00:00",
         location_name: "National University of Management",
         location: "Main Campus Hall, Phnom Penh",
         // fee_amount: 0.0,
@@ -99,9 +96,8 @@ module.exports = {
         category_id: "88b86831-1b32-49aa-aa27-e6f3c7584bd9", // Technology Category
         type: "meetup",
         status: "public",
-        event_date: "2025-05-20",
-        start_time: "07:00:00",
-        end_time: "19:00:00",
+        start_date: "2025-05-20 07:00:00",
+        end_date: "2025-05-20 19:00:00",
         location_name: "National University of Management",
         location: "ACET Lab, Phnom Penh",
         // fee_amount: 0.0,
@@ -122,9 +118,8 @@ module.exports = {
         category_id: "88b86831-1b32-49aa-aa27-e6f3c7584bd9", // Technology Category
         type: "competition",
         status: "schedule",
-        event_date: "2025-09-20",
-        start_time: "09:00:00",
-        end_time: "15:00:00",
+        start_date: "2025-09-20 09:00:00",
+        end_date: "2025-09-20 15:00:00",
         location_name: "National University of Management",
         location: "Asianet Lab, Phnom Penh",
         // fee_amount: 0.0,
