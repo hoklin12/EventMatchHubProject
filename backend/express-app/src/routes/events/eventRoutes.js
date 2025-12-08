@@ -1,10 +1,10 @@
 const express = require("express");
 const router = express.Router();
 const eventController = require("../../controllers/eventController");
-const reminderService = require("../../services/reminderService");
 const authMiddleware = require("../../middleware/authMiddleware");
 const rbacMiddleware = require("../../middleware/rbacMiddleware"); // For role checks
-const upload = require("../../middleware/uploadMiddleware");
+const { upload, uploadPDF } = require("../../middleware/uploadMiddleware");
+const attendanceController = require("../../controllers/eventAttendanceController");
 
 /* //////////////////////////////////////////////////////////////////////////////////
                               Event Organizer Routes
@@ -30,6 +30,7 @@ router.put(
   "/:event_id",
   authMiddleware,
   rbacMiddleware(["organizer"]),
+  upload.single("theme"),
   eventController.updateEvent
 );
 
@@ -39,6 +40,24 @@ router.delete(
   authMiddleware,
   rbacMiddleware(["organizer"]),
   eventController.deleteEvent
+);
+
+// POST /api/v1/events/:event_id/agenda - Add agenda to an event (only for organizers)
+router.post(
+  "/:event_id/agenda",
+  authMiddleware,
+  rbacMiddleware(["organizer"]),
+  uploadPDF.single("agenda"),
+  eventController.addAgendaToEvent
+);
+
+// PUT /api/v1/events/:event_id/agenda - Update agenda of an event (only for organizers)
+router.put(
+  "/:event_id/agenda",
+  authMiddleware,
+  rbacMiddleware(["organizer"]),
+  uploadPDF.single("agenda"),
+  eventController.updateAgendaOfEvent
 );
 
 // ================== Manage Event POST ==================
@@ -73,6 +92,45 @@ router.get(
   rbacMiddleware(["organizer"]),
   eventController.getAllRegistrationsForEvent
 );
+
+// ================== AI Reminder Event ==================
+// GET /api/v1/events/:event_id/email-reminders - Check AI-generated event reminders (for organizers)
+router.get(
+  "/:event_id/email-reminders",
+  authMiddleware,
+  rbacMiddleware(["organizer"]),
+  eventController.checkEmailReminderFeature
+);
+
+// PUT /api/v1/events/:event_id/email-reminders - Generate AI email reminders for an event (for organizers)
+router.put(
+  "/:event_id/enable-email-reminders",
+  authMiddleware,
+  rbacMiddleware(["organizer"]),
+  eventController.toggleEmailReminderFeature
+);
+
+// ================== Manage Event ==================
+//POST /api/v1/events/:event_id/registrations/toggle-status - Toggle registration status (approve/reject) (for event organizers)
+router.post(
+  "/:event_id/registrations/toggle-status",
+  authMiddleware,
+  rbacMiddleware(["organizer"]),
+  eventController.toggleParticipantEventApprove
+);
+
+// ================== Manage Event Attendance ==================
+router.put(
+  "/sessions/:session_id/refresh-qr",
+  authMiddleware,
+  attendanceController.regenerateQR
+);
+
+// -----------------------------
+// Participant QR Check-in
+// -----------------------------
+router.post("/sessions/check-in", authMiddleware, attendanceController.checkIn);
+
 /* //////////////////////////////////////////////////////////////////////////////////
                               Event Participant Routes
 */ //////////////////////////////////////////////////////////////////////////////////
@@ -91,12 +149,5 @@ router.get(
   rbacMiddleware(["participant"]),
   eventController.getEventsRegisteredByParticipant
 );
-
-// router.get(
-//   "/test-email/test",
-//   // authMiddleware,
-//   // rbacMiddleware(["participant"]),
-//   reminderService.sendUpcomingEventReminders
-// );
 
 module.exports = router;

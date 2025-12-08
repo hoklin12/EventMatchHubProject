@@ -3,7 +3,7 @@
 import { Input } from "@/app/components/ui/input";
 import { TabsContent } from "@/app/components/ui/tabs";
 import { Search } from "lucide-react";
-import { EventCard } from "@/app/components/elements/event-card";
+import { EventCard } from "@/app/components/sections/elements/event-card";
 import { Event } from "@/app/types";
 
 interface UpcomingTabProps {

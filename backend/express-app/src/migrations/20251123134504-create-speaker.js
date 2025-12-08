@@ -16,7 +16,7 @@ module.exports = {
           type: Sequelize.UUID,
           allowNull: false,
           references: {
-            model: "events",
+            model: "Events",
             key: "event_id",
           },
           onUpdate: "CASCADE",

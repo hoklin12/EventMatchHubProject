@@ -1,7 +1,7 @@
 import Link from "next/link"
 import { Card, CardContent } from "@/app/components/ui/card"
 import { Award, CheckCircle2 } from "lucide-react"
-import { Button } from "../ui/button"
+import { Button } from "@/app/components/ui/button"
 
 export function CTASection() {
   return (

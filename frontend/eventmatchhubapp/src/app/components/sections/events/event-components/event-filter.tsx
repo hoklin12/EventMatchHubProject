@@ -1,10 +1,11 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import { Button } from "../../ui/button";
+import { Button } from "@/app/components/ui/button";
 // import { Input } from "../../ui/input";
-import { Card, CardContent, CardHeader, CardTitle } from "../../ui/card";
-import { Checkbox } from "../../ui/checkbox";
-import { Label } from "../../ui/label";
+import { Card, CardContent, CardHeader, CardTitle } from "@/app/components/ui/card";
+import { Checkbox } from "@/app/components/ui/checkbox";
+import { Label } from "@/app/components/ui/label";
 import { X } from "lucide-react";
 
 export interface FilterState {

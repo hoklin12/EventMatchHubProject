@@ -28,7 +28,7 @@ module.exports = {
         // Matches your SQL email
         type: Sequelize.STRING(191),
         allowNull: false,
-        unique: true,
+        // unique: true,
         validate: {
           is: /^[0-9+\-() ]+$/i, // Basic phone number validation
         },
@@ -38,11 +38,32 @@ module.exports = {
         type: Sequelize.STRING(255),
         allowNull: false,
       },
+      profile: {
+        type: Sequelize.TEXT,
+        allowNull: true,
+      },
       organization_name: {
         // Matches your SQL organization_name
         type: Sequelize.STRING(40),
         allowNull: true, // Allow NULL
       },
+      position: {
+        // Matches your SQL position
+        type: Sequelize.STRING(100),
+        allowNull: true, // Allow NULL
+      },
+      plan: {
+        // Foreign key to Plans table
+        type: Sequelize.ENUM("Basic", "Enterprise", "Premium"),
+        allowNull: false,
+        defaultValue: "Basic",
+      },
+      status: {
+        type: Sequelize.ENUM("active", "inactive", "banned"),
+        allowNull: false,
+        defaultValue: "inactive",
+      },
+
       created_at: {
         allowNull: false,
         type: Sequelize.DATE,

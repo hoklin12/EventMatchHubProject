@@ -1,17 +1,38 @@
 const multer = require("multer");
 
-const storage = multer.memoryStorage(); // store files in memory
+// Use memory storage to temporarily store files in memory
+const storage = multer.memoryStorage();
 
-const upload = multer({
-  storage: storage,
-  limits: { fileSize: 5 * 1024 * 1024 }, // optional: 5MB limit
-  fileFilter: (req, file, cb) => {
-    if (file.mimetype.startsWith("image/")) {
-      cb(null, true);
-    } else {
-      cb(new Error("Only image files are allowed"));
-    }
-  },
+// Helper function to create multer instance
+const createMulterUpload = (options) => {
+  return multer({
+    storage,
+    limits: options.limits,
+    fileFilter: (req, file, cb) => {
+      if (options.allowedMimeTypes.includes(file.mimetype)) {
+        cb(null, true);
+      } else {
+        cb(new Error(options.errorMessage));
+      }
+    },
+  });
+};
+
+// Upload images (max 5MB)
+const upload = createMulterUpload({
+  limits: { fileSize: 5 * 1024 * 1024 },
+  allowedMimeTypes: ["image/jpeg", "image/png", "image/gif", "image/webp"],
+  errorMessage: "Only image files are allowed",
 });
 
-module.exports = upload;
+// Upload PDFs (max 10MB)
+const uploadPDF = createMulterUpload({
+  limits: { fileSize: 10 * 1024 * 1024 },
+  allowedMimeTypes: ["application/pdf"],
+  errorMessage: "Only PDF files are allowed",
+});
+
+module.exports = {
+  upload,
+  uploadPDF,
+};

@@ -54,6 +54,10 @@ module.exports = {
         type: Sequelize.STRING(255),
         allowNull: false,
       },
+      signature_file_name: {
+        type: Sequelize.STRING(255),
+        allowNull: true,
+      },
       signature_url: {
         type: Sequelize.TEXT,
         allowNull: true,

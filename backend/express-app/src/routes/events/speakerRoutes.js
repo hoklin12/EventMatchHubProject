@@ -3,7 +3,7 @@ const router = express.Router();
 const eventSpeakerController = require("../../controllers/eventSpeakerController");
 const authMiddleware = require("../../middleware/authMiddleware");
 const rbacMiddleware = require("../../middleware/rbacMiddleware");
-const upload = require("../../middleware/uploadMiddleware");
+const { upload, uploadPDF } = require("../../middleware/uploadMiddleware");
 
 /* //////////////////////////////////////////////////////////////////////////////////
                               Speaker Routes

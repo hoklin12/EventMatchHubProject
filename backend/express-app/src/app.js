@@ -6,7 +6,7 @@ const cors = require("cors");
 const helmet = require("helmet");
 const morgan = require("morgan");
 const createError = require("http-errors");
-require("./cron/reminderCron");
+const { startAllCronJobs } = require("./cron/reminderCron");
 
 // Import your database configuration and models
 const db = require("./config/database");
@@ -77,6 +77,7 @@ db.authenticate()
 
     app.listen(PORT, HOST, () => {
       console.log(`Auth API server running on http://${HOST}:${PORT}`);
+      startAllCronJobs();
     });
   })
   .catch((err) => {

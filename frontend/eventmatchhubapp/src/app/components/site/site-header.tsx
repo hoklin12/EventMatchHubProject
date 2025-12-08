@@ -3,8 +3,8 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { Button } from "./ui/button";
-import { Avatar, AvatarFallback, AvatarImage } from "../components/ui/avatar";
+import { Button } from "../ui/button";
+import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -12,7 +12,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "../components/ui/dropdown-menu";
+} from "../ui/dropdown-menu";
 import { Bell, Settings, LogOut, User, Menu, X, FolderOpen } from "lucide-react";
 import { useState, useEffect } from "react";
 

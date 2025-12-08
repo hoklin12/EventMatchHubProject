@@ -20,7 +20,9 @@ import {
   Calendar,
 } from "lucide-react";
 import { Event } from "@/app/types";
-import { EventList } from "@/app/components/elements/event-list";
+import { EventList } from "@/app/components/sections/elements/event-list";
+import { getRecommendedEvents } from "@/lib/data/event-datas";
+import { getCertificate } from "@/lib/data/certificates";
 
 interface OverviewTabProps {
   upcomingEvents: Event[];
@@ -31,41 +33,9 @@ export function OverviewTab({
   upcomingEvents,
   setActiveTab,
 }: OverviewTabProps) {
-  const certificates = [
-    {
-      id: 1,
-      title: "Design Thinking Bootcamp",
-      issuer: "Event Match Hub",
-      date: "Feb 15, 2025",
-      verified: true,
-    },
-    {
-      id: 2,
-      title: "Python Programming Workshop",
-      issuer: "Event Match Hub",
-      date: "Jan 20, 2025",
-      verified: true,
-    },
-  ];
+  const certificates = getCertificate();
 
-  const recommendedEvents = [
-    {
-      id: 3,
-      title: "Web Development Bootcamp",
-      category: "Technology",
-      date: "Apr 5, 2025",
-      attendees: 120,
-      image: "/web-development-concept.png",
-    },
-    {
-      id: 4,
-      title: "UX Design Workshop",
-      category: "Design",
-      date: "Apr 12, 2025",
-      attendees: 85,
-      image: "/ux-design-workshop.png",
-    },
-  ];
+  const recommendedEvents = getRecommendedEvents();
 
   return (
     <TabsContent value="overview" className="space-y-6">
@@ -128,7 +98,7 @@ export function OverviewTab({
                     <p className="text-xs text-muted-foreground">
                       Issued by {cert.issuer}
                     </p>
-                    <p className="text-xs text-muted-foreground">{cert.date}</p>
+                    <p className="text-xs text-muted-foreground">{cert.issueDate}</p>
                   </div>
                   {cert.verified && (
                     <Badge

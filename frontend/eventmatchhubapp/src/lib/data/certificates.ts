@@ -4,6 +4,7 @@ export const certificates = [
         title: "Design Thinking Bootcamp",
         eventOrganizer: "Design Academy",
         issueDate: "February 15, 2025",
+        issuer: "Event Match Hub",
         certificateId: "DT-2025-001234",
         verified: true,
     },
@@ -12,6 +13,7 @@ export const certificates = [
         title: "Advanced UI/UX Workshop",
         eventOrganizer: "Creative Labs",
         issueDate: "March 10, 2025",
+        issuer: "Event Match Hub",
         certificateId: "UX-2025-005678",
         verified: true,
     },
@@ -20,6 +22,7 @@ export const certificates = [
         title: "Frontend Development Masterclass",
         eventOrganizer: "CodeCraft",
         issueDate: "April 22, 2025",
+        issuer: "Event Match Hub",
         certificateId: "FE-2025-009012",
         verified: false,
     },
@@ -28,7 +31,10 @@ export const certificates = [
         title: "Project Management Essentials",
         eventOrganizer: "PM Institute",
         issueDate: "May 5, 2025",
+        issuer: "Event Match Hub",
         certificateId: "PM-2025-003456",
         verified: true,
     },
 ];
+
+export const getCertificate = () => certificates.slice(0, 2)

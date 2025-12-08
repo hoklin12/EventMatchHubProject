@@ -306,7 +306,7 @@ export const getUpcomingEvents = () => allEvents.slice(0, 3)
 export const getEventById = (id: number) => allEvents.find(event => event.id === id)
 
 export const getRecommendedEvents = () =>
-    allEvents.filter(e => e.rating && e.rating >= 4.7 || e.featured).slice(0, 3)
+    allEvents.filter(e => e.rating && e.rating >= 4.7 || e.featured).slice(0, 4)
 
 export const getPastEvents = () => {
     const today = new Date()

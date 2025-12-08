@@ -17,9 +17,10 @@ const checkUserRoleOrganizer = async function (userID) {
       role_id: organizerId.role_id,
     },
   });
-  if (!isOrganizerRole) {
+  if (isOrganizerRole) {
     return false;
   }
+  return true;
 };
 
 const checkUserRoleParticipant = async function (userID) {

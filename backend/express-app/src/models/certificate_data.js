@@ -71,6 +71,10 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.TEXT,
         allowNull: true,
       },
+      signature_file_name: {
+        type: DataTypes.STRING(255),
+        allowNull: true,
+      },
       organizer_role: {
         type: DataTypes.STRING(255),
         allowNull: false,

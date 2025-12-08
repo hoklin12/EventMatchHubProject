@@ -2,6 +2,7 @@ const BUCKET_NAME = {
   CERTIFICATE: "certificate",
   EVENT: "event",
   REGISTER: "register",
+  USER: "user",
 };
 
 const FOLDERS = {
@@ -9,6 +10,7 @@ const FOLDERS = {
   TEMPLATES_APPRECIATION: "template/appreciation",
   TEMPLATES_COMPLETION: "template/completion",
   GENERATED: "generated",
+  SIGNATURE: "signature",
 
   //Event
   THEME: "theme",
@@ -19,6 +21,9 @@ const FOLDERS = {
   //Register
   SUMMARYFORMREGISTER: "summaryFormRegister",
   FORMREGISTER: "formRegister",
+
+  //User
+  PROFILE: "profile",
 };
 
 module.exports = Object.freeze({

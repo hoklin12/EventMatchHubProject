@@ -1,7 +1,11 @@
 const models = require("../models");
 const certificateService = require("../services/certificateService");
 const { hashJsonObject } = require("../utils/encryptUtils");
+const { uploadFile, replaceFile } = require("../services/storageService");
+const { FOLDERS, BUCKET_NAME } = require("../config/supabaseConfig");
+const { getSignatureBase64 } = require("../utils/urlImageUtils");
 
+const { fileTypeFromBuffer } = require("file-type");
 const {
   generateVerificationCode,
   generateQRCodePayload,
@@ -14,26 +18,148 @@ const {
 
 const { checkUserRoleOrganizer } = require("../utils/checkUserRole");
 
-exports.createCertificates = async (req, res, next) => {
+exports.updateCertificateData = async (req, res, next) => {
   const userId = req.user.userId;
   const eventId = req.params.event_id;
   const data = JSON.parse(req.body.data);
   const signatureFile = req.files["signature"]
     ? req.files["signature"][0]
     : null;
+  try {
+    // Check if user is participant
+    const checkOrganizer = await checkUserRoleOrganizer(userId);
+    if (checkOrganizer) {
+      return res.status(403).json({
+        status: "fail",
+        message: "Your role haven't permission to access api",
+      });
+    }
+    // Check if the event exists and if the user is an organizer for that event
+    const isOrganizer = await models.Event.findOne({
+      where: { event_id: eventId, user_id: userId },
+    });
+    if (!isOrganizer) {
+      return res.status(404).json({
+        status: "fail",
+        message: "User is not an organizer of this event.",
+      });
+    }
+    // Update or create certificate data for the event
+    const certificateData = await models.CertificateData.findOne({
+      where: { event_id: eventId },
+    });
+
+    if (
+      certificateData.signature_url == null ||
+      certificateData.signature_file_name == null
+    ) {
+      if (!signatureFile) {
+        return res.status(400).json({
+          status: "fail",
+          message: "Signature image is required.",
+        });
+      }
+    }
+    const fileType = await fileTypeFromBuffer(signatureFile.buffer);
+    console.log("Uploaded signature file type:", fileType.mime);
+
+    if (data.template_id != null) {
+      const template = await models.CertificateTemplate.findByPk(
+        data.template_id
+      );
+      if (!template) {
+        return res.status(404).json({
+          status: "fail",
+          message: "Certificate template not found.",
+        });
+      }
+    }
+
+    if (certificateData) {
+      // Update existing record
+      certificateData.template_id = data.template_id;
+      certificateData.organizer_name = data.organizer_name;
+      certificateData.description = data.description;
+      certificateData.issued_date = data.issued_date;
+      certificateData.expiration_duration = data.expiration_duration;
+      certificateData.organization_director_name =
+        data.organization_director_name;
+      certificateData.organizer_role = data.organizer_role;
+      if (
+        certificateData.signature_url != null ||
+        certificateData.signature_file_name != null
+      ) {
+        if (signatureFile) {
+          // Upload signature to Supabase
+          const uploadResult = await replaceFile(
+            BUCKET_NAME.CERTIFICATE,
+            signatureFile.buffer,
+            `${FOLDERS.SIGNATURE}/${eventId}.${fileType.ext}`,
+            fileType.mime
+          );
+          certificateData.signature_file_name = signatureFile.originalname;
+          certificateData.signature_url = uploadResult;
+        }
+      }
+      await certificateData.save();
+    } else {
+      const uploadResult = await uploadFile(
+        BUCKET_NAME.CERTIFICATE,
+        signatureFile.buffer,
+        `${FOLDERS.SIGNATURE}/${eventId}.${fileType.ext}`,
+        fileType.mime
+      );
+      const signature_file_name = signatureFile.originalname;
+      const signature_url = uploadResult;
+      // Create new record
+      await models.CertificateData.create({
+        event_id: eventId,
+        template_id: data.template_id,
+        organization_name: data.organization_name,
+        description: data.description,
+        issued_date: data.issued_date,
+        expiration_duration: data.expiration_duration,
+        organization_director_name: data.organization_director_name,
+        organizer_role: data.organizer_role,
+        signature_file_name,
+        signature_url,
+      });
+    }
+
+    return res.status(200).json({
+      status: "success",
+      data: certificateData,
+    });
+  } catch (error) {
+    console.error("Update Certificate Template Error:", error);
+    next(error);
+  }
+};
+
+exports.createCertificates = async (req, res, next) => {
+  const userId = req.user.userId;
+  const eventId = req.params.event_id;
+  const data = JSON.parse(req.body.data);
 
   // 1. Validate
+  const certificateData = await models.CertificateData.findOne({
+    where: { event_id: eventId },
+  });
+  if (!certificateData) {
+    return res.status(400).json({
+      status: "fail",
+      message: "Please set up certificate data before generating certificates.",
+    });
+  }
+
+  const signatureFile = await getSignatureBase64(certificateData.signature_url);
+
   if (!signatureFile) {
     return res.status(400).json({
       status: "fail",
       message: "Signature image is required.",
     });
   }
-
-  // console.log(
-  //   "Files received:",
-  //   signatureFile?.originalname ? signatureFile.originalname : "No file"
-  // );
 
   try {
     // Check if user is participant
@@ -54,26 +180,50 @@ exports.createCertificates = async (req, res, next) => {
         message: "User is not an organizer of this event.",
       });
     }
+
     // Fetch participants registered for the event
     const registrations = await models.Registration.findAll({
-      where: { event_id: eventId },
-      include: [
-        {
-          model: models.FormSubmission,
-          as: "FormSubmission",
-          attributes: ["submission_id", "user_id"],
-        },
-      ],
+      where: {
+        event_id: eventId,
+        status: "approved",
+        end_date: { [Op.lte]: new Date() },
+      },
     });
+    if (registrations.length === 0) {
+      return res.status(400).json({
+        status: "fail",
+        message: "No participants registered for this event.",
+      });
+    }
+
+    // Fetch all sessions for the event
+    const sessions = await models.EventSession.findAll({
+      where: { event_id: eventId },
+      attributes: ["event_session_id"],
+    });
+    const sessionIds = sessions.map((s) => s.event_session_id);
+
     // Generate certificates for each participant
     const generatedCertificates = [];
     for (const registration of registrations) {
-      const participantId = registration.FormSubmission.user_id;
+      // Check full attendance
+      const participantId = registration.user_id;
+      const attendanceCount = await models.EventAttendance.count({
+        where: {
+          registration_id: registration.registration_id,
+          event_session_id: sessionIds,
+          attendance_status: "present",
+        },
+      });
+
+      // Skip participant if not attended all sessions
+      if (attendanceCount !== sessionIds.length) continue;
+
       //Check user has been issued a certificate already
       const existingCertificate = await models.Certificate.findOne({
         where: {
-          event_id: eventId,
           user_id: participantId,
+          certificatedata_id: certificateData.certificatedata_id,
         },
       });
 
@@ -82,46 +232,15 @@ exports.createCertificates = async (req, res, next) => {
       }
 
       const newCertificate = await models.Certificate.create({
-        event_id: eventId,
+        certificatedata_id: certificateData.certificatedata_id,
         user_id: participantId,
-        organizer_name: data.organizer_name,
-        description: data.description,
-        issued_date: new Date(),
-        expiration_duration: data.expiration_duration,
         verification_code: generateVerificationCode(eventId, participantId),
         file_link: "",
       });
 
+      const qrPayload = await generateQRCodePayload(eventId, participantId);
       const participant = await models.User.findByPk(participantId);
       const metadata = await models.CertificateTemplate.findByPk(data.metadata);
-
-      // // Validate base64 QR payload before sending to Python
-      // const isBase64 = (str) => {
-      //   if (!str || typeof str !== "string") return false;
-      //   const cleaned = str.replace(/\s+/g, "");
-      //   try {
-      //     const buf = Buffer.from(cleaned, "base64");
-      //     return buf.toString("base64") === cleaned;
-      //   } catch (e) {
-      //     return false;
-      //   }
-      // };
-
-      // let qrPayload = "";
-      // if (data.qr_code && isBase64(data.qr_code)) {
-      //   qrPayload = data.qr_code;
-      // } else if (data.qr_code) {
-      //   console.warn(
-      //     "Invalid QR base64 provided; skipping QR for participant",
-      //     participantId
-      //   );
-      // }
-
-      const qrPayload = await generateQRCodePayload(
-        eventId,
-        participant.user_id
-      );
-
       const pythonInput = {
         metadata: {
           template: metadata.template,
@@ -133,16 +252,17 @@ exports.createCertificates = async (req, res, next) => {
           participant_name: participant.full_name,
           organizer_name: data.organizer_name,
           description: data.description,
-          date_certified: formatDateCertificate(newCertificate.issued_date),
+          date_certified: formatDateCertificate(certificateData.issued_date),
           valid_through: formatDateCertificate(
             getExpirationDate(
-              newCertificate.issued_date,
-              data.expiration_duration
+              new Date(certificateData.issued_date),
+              Number(certificateData.expiration_duration)
             )
           ),
+
           // valid_through: newCertificate.issued_date.toISOString().split("T")[0],
           certificate_id: newCertificate.verification_code,
-          signature: signatureFile.buffer.toString("base64"),
+          signature: signatureFile,
           qr_code: qrPayload,
           organizer_directer: data.organizer_directer,
           organizer_role: data.organizer_role,
@@ -167,6 +287,7 @@ exports.createCertificates = async (req, res, next) => {
       status: "success",
       message: "Certificates generated successfully for event participants.",
       data: generatedCertificates,
+      // data: signatureFile,
     });
   } catch (error) {
     console.error("Generate Certificates Error:", error);

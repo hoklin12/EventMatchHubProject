@@ -1,58 +1,46 @@
 const path = require("path");
-const { spawn } = require("child_process");
 const { uploadFile } = require("../services/storageService");
 const { FOLDERS, BUCKET_NAME } = require("../config/supabaseConfig");
-const fileTypeFromBuffer = require("file-type");
+const { fileTypeFromBuffer } = require("file-type");
+const axios = require("axios");
 
+const PYTHON_SERVICE_URL =
+  process.env.PYTHON_WORKER_URL || "http://localhost:8000/api/v1";
 exports.generateCertificate = async (data) => {
-  return new Promise((resolve, reject) => {
-    const pyFile = path.join(
-      __dirname,
-      "../python/certificate_generator/main.py"
+  try {
+    const response = await axios.post(
+      `${PYTHON_SERVICE_URL}/certificate/generate`,
+      data,
+      { timeout: 20000 }
     );
 
-    const python = spawn("python", [pyFile]);
+    if (!response.data || !response.data.image) {
+      throw new Error("FastAPI did not return image");
+    }
 
-    let result = "";
+    const base64Image = response.data.image.replace(
+      /^data:image\/png;base64,/,
+      ""
+    );
 
-    python.stdout.on("data", (chunk) => {
-      result += chunk.toString();
-    });
+    const imageBuffer = Buffer.from(base64Image, "base64");
 
-    python.on("close", async (code) => {
-      console.log("Python exit:", code);
+    // Detect file type
+    const type = await fileTypeFromBuffer(imageBuffer);
 
-      try {
-        // parse python output once
-        const parsed = JSON.parse(result);
-        const image = parsed.image;
+    const uploadUrl = await uploadFile(
+      BUCKET_NAME.CERTIFICATE,
+      imageBuffer,
+      `${FOLDERS.GENERATED}/${data.metadata.event_id}/${data.userData.user_id}.${type.ext}`,
+      type.mime
+    );
 
-        // Convert to clean buffer
-        const base64Data = image.replace(/^data:image\/png;base64,/, "");
-        const imageBuffer = Buffer.from(base64Data, "base64");
-        const type = await fileTypeFromBuffer(imageBuffer);
-
-        // Upload file
-        const exists = await uploadFile(
-          BUCKET_NAME.CERTIFICATE,
-          imageBuffer,
-          `${FOLDERS.GENERATED}/${data.metadata.event_id}/${data.userData.user_id}`,
-          type
-        );
-
-        // 👇 Return the upload result to controller
-        resolve({
-          success: true,
-          url: exists,
-        });
-      } catch (err) {
-        console.error("Error:", err);
-        reject("Python returned invalid JSON or upload failed");
-      }
-    });
-
-    // Send input JSON
-    python.stdin.write(JSON.stringify(data));
-    python.stdin.end();
-  });
+    return {
+      success: true,
+      url: uploadUrl,
+    };
+  } catch (error) {
+    console.error("Certificate generation failed:", error);
+    throw new Error("Failed to generate certificate using FastAPI");
+  }
 };

@@ -23,7 +23,7 @@ import {
   Award,
   Shield,
 } from "lucide-react";
-import { SiteHeader } from "@/app/components/site-header";
+import { SiteHeader } from "@/app/components/site/site-header";
 import { useParams } from "next/navigation";
 import { getEventById } from "@/lib/data/event-datas";
 
