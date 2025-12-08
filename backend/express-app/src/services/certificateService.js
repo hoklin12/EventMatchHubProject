@@ -4,10 +4,12 @@ const { FOLDERS, BUCKET_NAME } = require("../config/supabaseConfig");
 const { fileTypeFromBuffer } = require("file-type");
 const axios = require("axios");
 
+const PYTHON_SERVICE_URL =
+  process.env.PYTHON_WORKER_URL || "http://localhost:8000/api/v1";
 exports.generateCertificate = async (data) => {
   try {
     const response = await axios.post(
-      "http://127.0.0.1:8000/api/v1/certificate/generate",
+      `${PYTHON_SERVICE_URL}/certificate/generate`,
       data,
       { timeout: 20000 }
     );

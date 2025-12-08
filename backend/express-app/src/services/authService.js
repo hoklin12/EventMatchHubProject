@@ -5,7 +5,8 @@ require("dotenv").config();
 const models = require("../models"); // Your Sequelize models
 
 const EMAIL_VERIFICATION_SECRET = process.env.EMAIL_VERIFICATION_SECRET;
-const BACKEND_API_URL = process.env.BACKEND_API_URL; // e.g., http://localhost:5000/api
+const BACKEND_API_URL =
+  process.env.BACKEND_API_URL || "http://127.0.0.1:3000/api/v1"; // e.g., http://localhost:5000/api
 
 exports.sendVerificationEmail = async (user) => {
   if (!user || !user.user_id || !user.email) {
