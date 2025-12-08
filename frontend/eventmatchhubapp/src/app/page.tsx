@@ -7,58 +7,62 @@ import { CategoryGrid } from "./components/sections/home/category-grid"
 import { HeroSection } from "./components/sections/home/hero-section"
 import { SiteFooter } from "./components/site/site-footer"
 import { SiteHeader } from "./components/site/site-header"
+import { getRecommendedEvents } from "@/lib/data/event-datas"
 
 export default function HomePage() {
   const categories = [
-    { name: "Technology", icon: "💻", count: 245, color: "bg-blue-100 text-blue-700" },
-    { name: "Business", icon: "💼", count: 189, color: "bg-purple-100 text-purple-700" },
-    { name: "Arts & Culture", icon: "🎨", count: 156, color: "bg-pink-100 text-pink-700" },
-    { name: "Sports", icon: "⚽", count: 134, color: "bg-green-100 text-green-700" },
-    { name: "Education", icon: "📚", count: 198, color: "bg-orange-100 text-orange-700" },
-    { name: "Health", icon: "🏥", count: 112, color: "bg-red-100 text-red-700" },
-  ]
-
-  const recommendedEvents = [
     {
-      id: 1,
-      title: "AI & Machine Learning Summit 2025",
-      category: "Technology",
-      date: "Mar 15, 2025",
-      location: "San Francisco, CA",
-      attendees: 450,
-      image: "/ai-conference.png",
-      featured: true,
+      name: "Technology",
+      icon: "💻",
+      count: 245,
+      color: "bg-blue-100 text-blue-700",
     },
     {
-      id: 2,
-      title: "Digital Marketing Masterclass",
-      category: "Business",
-      date: "Mar 22, 2025",
-      location: "Online",
-      attendees: 320,
-      image: "/digital_mkt.png",
-      featured: false,
+      name: "Business",
+      icon: "💼",
+      count: 189,
+      color: "bg-purple-100 text-purple-700",
     },
     {
-      id: 3,
-      title: "Contemporary Art Exhibition",
-      category: "Arts & Culture",
-      date: "Apr 5, 2025",
-      location: "New York, NY",
-      attendees: 280,
-      image: "/art-exhibition.png",
-      featured: true,
+      name: "Arts & Culture",
+      icon: "🎨",
+      count: 156,
+      color: "bg-pink-100 text-pink-700",
     },
-  ]
+    {
+      name: "Sports",
+      icon: "⚽",
+      count: 134,
+      color: "bg-green-100 text-green-700",
+    },
+    {
+      name: "Education",
+      icon: "📚",
+      count: 198,
+      color: "bg-orange-100 text-orange-700",
+    },
+    {
+      name: "Health",
+      icon: "🏥",
+      count: 112,
+      color: "bg-red-100 text-red-700",
+    },
+  ];
+  const recommended = getRecommendedEvents();
 
   return (
     <MainLayout>
       <SiteHeader />
-      <HeroSection />
+      {/* <HeroSection />*/}
+      <HeroSection/>
       <CategoryGrid categories={categories} />
-      <RecommendedEventsSection events={recommendedEvents} />
+      {/* Divider */}
+      <div className="border-t border-gray-200" />
+      <RecommendedEventsSection events={recommended} />
+      {/* Divider */}
+      <div className="border-t border-gray-200" />
       <CTASection />
       <SiteFooter />
     </MainLayout>
-  )
+  );
 }

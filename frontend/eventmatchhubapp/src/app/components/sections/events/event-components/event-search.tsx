@@ -1,7 +1,7 @@
 "use client"
 
-import { Input } from "../../ui/input"
-import { Button } from "../../ui/button"
+import { Input } from "@/app/components/ui/input"
+import { Button } from "@/app/components/ui/button"
 import { Search } from 'lucide-react'
 
 interface EventSearchProps {

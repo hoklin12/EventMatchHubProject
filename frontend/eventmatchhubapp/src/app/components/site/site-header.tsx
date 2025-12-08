@@ -199,7 +199,7 @@ export function SiteHeader({ userName, userAvatar }: SiteHeaderProps) {
                     </DropdownMenuItem>
                     <DropdownMenuItem asChild>
                       <Link
-                        href="/participant/portfolio"
+                        href="/participant/portfolios"
                         className="cursor-pointer"
                       >
                         <FolderOpen className="mr-2 h-4 w-4" />

@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { RecommendedEventCard } from "./recommended-event-card"
-import { Button } from "../ui/button"
+import { Button } from "@/app/components/ui/button"
 import { Event } from "@/app/types"
 
 interface RecommendedEventsSectionProps {
