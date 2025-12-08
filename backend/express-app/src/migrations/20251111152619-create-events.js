@@ -64,16 +64,12 @@ module.exports = {
         defaultValue: "draft",
         allowNull: false,
       },
-      event_date: {
+      start_date: {
         type: Sequelize.DATE,
         allowNull: false,
       },
-      start_time: {
-        type: Sequelize.TIME,
-        allowNull: false,
-      },
-      end_time: {
-        type: Sequelize.TIME,
+      end_date: {
+        type: Sequelize.DATE,
         allowNull: false,
       },
       location_name: {
@@ -104,6 +100,18 @@ module.exports = {
         type: Sequelize.BOOLEAN,
         allowNull: false,
         defaultValue: false,
+      },
+      attendance_token: {
+        type: Sequelize.TEXT,
+        allowNull: true,
+      },
+      attendance_token_start: {
+        type: Sequelize.DATE,
+        allowNull: true,
+      },
+      attendance_token_expiry: {
+        type: Sequelize.DATE,
+        allowNull: true,
       },
       created_at: {
         allowNull: true,

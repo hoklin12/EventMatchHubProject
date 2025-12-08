@@ -219,8 +219,9 @@ exports.userRegisterForEvent = async (req, res, next) => {
       event_name: eventData.event_name,
       event_description: eventData.description,
       event_type: eventData.type,
-      event_date: eventData.event_date,
-      event_time: eventData.start_time,
+      start_date: eventData.start_date,
+      end_date: eventData.end_date,
+      event_category: eventData.category_id,
       event_location: eventData.location,
     };
 

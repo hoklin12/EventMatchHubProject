@@ -3,7 +3,7 @@ const router = express.Router();
 const certificateController = require("../../controllers/certificateController");
 const authMiddleware = require("../../middleware/authMiddleware");
 const rbacMiddleware = require("../../middleware/rbacMiddleware"); // For role checks
-const upload = require("../../middleware/uploadMiddleware");
+const { upload, uploadPDF } = require("../../middleware/uploadMiddleware");
 
 /* //////////////////////////////////////////////////////////////////////////////////
                               Certificate Organizer Routes

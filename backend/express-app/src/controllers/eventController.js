@@ -7,8 +7,17 @@ const checkUserPlanUtils = require("../utils/checkUserPlanUtils");
 const { checkEventOrganizer } = require("../utils/checkEventOrganizer");
 const mime = require("mime-types");
 const { hashJsonObject } = require("../utils/encryptUtils");
-const { uploadFile } = require("../services/storageService");
+const {
+  uploadFile,
+  replaceFile,
+  deleteFile,
+} = require("../services/storageService");
 const { FOLDERS, BUCKET_NAME } = require("../config/supabaseConfig");
+const {
+  generateDailySessionsForRange,
+} = require("../services/eventAttendanceService");
+const { Op } = require("sequelize");
+const { fileTypeFromBuffer } = require("file-type");
 
 /* //////////////////////////////////////////////////////////////////////////////////
                               Create Event
@@ -30,11 +39,11 @@ exports.listEvents = async (req, res, next) => {
 // Create a new event only for organizers
 exports.createEvent = async (req, res, next) => {
   const userId = req.user.userId;
-  // title, description, type, category, status, event_date,start_time, end_time,location_name, location, agenda, schedule_date,
+  // title, description, type, category, status, start_date,end_date, location_name, location, agenda, schedule_date,
   const data = JSON.parse(req.body.data);
   const themeFile = req.file ? req.file : null;
   try {
-    // Check if user is participant
+    // Check if user is organizer
     const checkOrganizer = await checkUserRoleOrganizer(userId);
     if (checkOrganizer) {
       return res.status(403).json({
@@ -44,7 +53,7 @@ exports.createEvent = async (req, res, next) => {
     }
 
     //Check Event Date Validity
-    const eventDateObj = new Date(data.event_date);
+    const eventDateObj = new Date(data.start_date);
     const currentDate = new Date();
     if (isNaN(eventDateObj.getTime()) || eventDateObj < currentDate) {
       return res.status(400).json({
@@ -60,22 +69,39 @@ exports.createEvent = async (req, res, next) => {
       title: data.title,
       description: data.description,
       type: data.type,
-      event_date: data.event_date,
-      start_time: data.start_time,
-      end_time: data.end_time,
+      start_date: data.start_date,
+      end_date: data.end_date,
       location_name: data.location_name,
       location: data.location,
     });
 
-    const mimeType =
-      mime.lookup(themeFile.originalname) || "application/octet-stream";
-
-    const themeURL = await uploadFile(
-      BUCKET_NAME.EVENT,
-      themeFile.buffer,
-      `${FOLDERS.THEME}/${newEvent.event_id}`,
-      mimeType
+    const sessions = await generateDailySessionsForRange(
+      newEvent.event_id,
+      newEvent.start_date,
+      newEvent.end_date
     );
+
+    if (sessions.length === 0) {
+      return res.status(400).json({
+        status: "fail",
+        message: "Failed to create event sessions. Please check event dates.",
+      });
+    }
+
+    console.log("Event Sessions created:", sessions.length);
+
+    let themeURL = null;
+    if (themeFile) {
+      fileType = await fileTypeFromBuffer(themeFile.buffer);
+      themeURL = await uploadFile(
+        BUCKET_NAME.EVENT,
+        themeFile.buffer,
+        `${FOLDERS.THEME}/${newEvent.event_id}.${fileType.ext}`,
+        fileType.mime
+      );
+      newEvent.theme = themeURL;
+      await newEvent.save();
+    }
     newEvent.theme = themeURL;
     await newEvent.save();
 
@@ -86,7 +112,7 @@ exports.createEvent = async (req, res, next) => {
         price: 0.0,
         quantity: 100,
         start_sale_date: new Date(),
-        end_sale_date: newEvent.event_date,
+        end_sale_date: newEvent.start_date,
       });
 
       if (!eventTicket) {
@@ -134,20 +160,22 @@ exports.createEvent = async (req, res, next) => {
         "Search Engine",
         "Other",
       ];
-      for (const optionText of optionsQ1) {
-        await models.FormFieldOption.create({
-          formfield_id: question_1.formfield_id,
-          option_text: optionText,
-          order: optionsQ1.indexOf(optionText) + 1,
-        });
-      }
+      await Promise.all(
+        optionsQ1.map((optionText, index) =>
+          models.FormFieldOption.create({
+            formfield_id: question_1.formfield_id,
+            option_text: optionText,
+            option_order: index + 1,
+          })
+        )
+      );
       // Create options for question 4
       const optionsQ4 = ["XS", "S", "M", "L", "XL", "XXL"];
       for (const optionText of optionsQ4) {
         await models.FormFieldOption.create({
           formfield_id: question_4.formfield_id,
           option_text: optionText,
-          order: optionsQ4.indexOf(optionText) + 1,
+          option_order: optionsQ4.indexOf(optionText) + 1,
         });
       }
 
@@ -203,7 +231,8 @@ exports.viewSpecificEvent = async (req, res, next) => {
         description: event.description,
         type: event.type,
         status: event.status,
-        date: event.event_date,
+        start_date: event.start_date,
+        end_date: event.end_date,
         location: event.location,
         fee_amount: event.fee_amount,
       },
@@ -218,10 +247,32 @@ exports.viewSpecificEvent = async (req, res, next) => {
 exports.updateEvent = async (req, res, next) => {
   const userId = req.user.userId;
   const eventId = req.params.event_id;
-  const { title, description, type, status, event_date, location, fee_amount } =
-    req.body;
+  const data = JSON.parse(req.body.data);
+  const themeFile = req.file ? req.file : null;
+
   try {
-    // Check if user is organizer
+    // Validation for data fields
+    if (
+      !data.title ||
+      !data.description ||
+      !data.type ||
+      !data.start_date ||
+      !data.end_date ||
+      !data.location ||
+      !data.location_name ||
+      data.type === "" ||
+      data.title === "" ||
+      data.description === "" ||
+      data.location === "" ||
+      data.location_name === ""
+    ) {
+      return res.status(400).json({
+        status: "fail",
+        message: "Title, description, and type are required fields.",
+      });
+    }
+
+    // Check organizer
     const checkOrganizer = await checkUserRoleOrganizer(userId);
     if (checkOrganizer) {
       return res.status(403).json({
@@ -239,39 +290,102 @@ exports.updateEvent = async (req, res, next) => {
       });
     }
 
-    // Check if the event exists and if the user is an organizer for that event
+    // Get event
     const event = await models.Event.findByPk(eventId);
-    if (!event) {
+    if (!event)
       return res
         .status(404)
-        .json({ status: "fail", message: "Event not found." });
-    }
-    if (event.user_id !== userId) {
-      return res.status(403).json({
+        .json({ status: "fail", message: "Event not found" });
+
+    // Check Start and End Date Validity
+    const newStartDate = data.start_date ? new Date(data.start_date) : null;
+    const newEndDate = data.end_date ? new Date(data.end_date) : null;
+    if (newStartDate && isNaN(newStartDate.getTime())) {
+      return res.status(400).json({
         status: "fail",
-        message: `Access denied. You're Not organizer in event ID ${eventId}.`,
+        message: "Invalid start date format.",
       });
     }
-    // Update event details
+
+    // Check if end date is before start date
+    if (newStartDate && newEndDate && newEndDate < newStartDate) {
+      return res.status(400).json({
+        status: "fail",
+        message: "End date cannot be before start date.",
+      });
+    }
+
+    // Handle theme file upload if provided
+    if (themeFile) {
+      const fileType = await fileTypeFromBuffer(themeFile.buffer);
+      if (event.theme === null || event.theme === "") {
+        const themeURL = await uploadFile(
+          BUCKET_NAME.EVENT,
+          themeFile.buffer,
+          `${FOLDERS.THEME}/${eventId}.${fileType.ext}`,
+          fileType.mime
+        );
+        event.theme = themeURL;
+      } else {
+        const themeURL = await replaceFile(
+          BUCKET_NAME.EVENT,
+          themeFile.buffer,
+          `${FOLDERS.THEME}/${eventId}.${fileType.ext}`,
+          fileType.mime
+        );
+        event.theme = themeURL;
+      }
+      await event.save();
+    } else {
+      // Delete theme from storage if themeFile is null and request has theme as empty string
+      const themeCurrentURL = event.theme;
+      const parts = themeCurrentURL.split(".");
+      const extension = parts[parts.length - 1];
+      await deleteFile(
+        BUCKET_NAME.EVENT,
+        `${FOLDERS.THEME}/${eventId}.${extension}`
+      );
+      event.theme = null;
+      await event.save();
+    }
+
+    // Update event
     await event.update({
-      title: title || event.title,
-      description: description || event.description,
-      type: type || event.type,
-      status: status || event.status,
-      event_date: event_date || event.event_date,
-      location: location || event.location,
-      fee_amount: fee_amount || event.fee_amount,
+      title: data.title || event.title,
+      description: data.description || event.description,
+      type: data.type || event.type,
+      status: data.status || event.status,
+      start_date: data.start_date || event.start_date,
+      end_date: data.end_date || event.end_date,
+      location: data.location || event.location,
+      location_name: data.location_name || event.location_name,
     });
-    return res.status(200).json({
-      status: "success",
-      message: "Event updated successfully.",
-      data: {
-        event: event,
+
+    const newStart = new Date(data.start_date || event.start_date);
+    const newEnd = new Date(data.end_date || event.end_date);
+
+    // Delete sessions outside the new range
+    await models.EventSession.destroy({
+      where: {
+        event_id: eventId,
+        [Op.or]: [
+          { session_date: { [Op.lt]: newStart } },
+          { session_date: { [Op.gt]: newEnd } },
+        ],
       },
     });
-  } catch (error) {
-    console.error("Update Event Error:", error);
-    next(error);
+
+    // Generate missing sessions
+    await generateDailySessionsForRange(eventId, newStart, newEnd);
+
+    return res.status(200).json({
+      status: "success",
+      message: "Event updated successfully and sessions synchronized",
+      data: { event },
+    });
+  } catch (err) {
+    console.error("Update Event Error:", err);
+    next(err);
   }
 };
 
@@ -304,6 +418,144 @@ exports.deleteEvent = async (req, res, next) => {
     });
   } catch (error) {
     console.error("Delete Event Error:", error);
+    next(error);
+  }
+};
+
+// ================== Manage Event Agenda ==================
+
+// POST /api/v1/events/:event_id/agenda - Add agenda to an event (only for organizers)
+exports.addAgendaToEvent = async (req, res, next) => {
+  const userId = req.user.userId;
+  const eventId = req.params.event_id;
+  const agenda = req.file ? req.file : null;
+  try {
+    // Check if user is organizer
+    const checkOrganizer = await checkUserRoleOrganizer(userId);
+    if (checkOrganizer) {
+      return res.status(403).json({
+        status: "fail",
+        message: "Your role haven't permission to access api",
+      });
+    }
+    // Check if user is organizer of the event
+    const isOrganizer = await checkEventOrganizer(userId, eventId);
+    if (isOrganizer) {
+      return res.status(403).json({
+        status: "fail",
+        message: `Access denied. You're Not organizer in event ID ${eventId}.`,
+      });
+    }
+    // Find the event
+    const event = await models.Event.findByPk(eventId);
+    if (!event) {
+      return res
+        .status(404)
+        .json({ status: "fail", message: "Event not found." });
+    }
+    // Create new agenda
+    const fileType = await fileTypeFromBuffer(agenda.buffer);
+    const agendaURL = await uploadFile(
+      BUCKET_NAME.EVENT,
+      agenda.buffer,
+      `${FOLDERS.AGENDA}/${eventId}.${fileType.ext}`,
+      fileType.mime
+    );
+
+    const updateEvent = await models.Event.update(
+      { agenda: agendaURL },
+      { where: { event_id: eventId } }
+    );
+
+    if (!updateEvent) {
+      return res.status(500).json({
+        status: "fail",
+        message: "Failed to add agenda to the event.",
+      });
+    }
+
+    return res.status(201).json({
+      status: "success",
+      message: "Agenda added to event successfully.",
+      data: { agenda: agendaURL },
+    });
+  } catch (error) {
+    console.error("Add Agenda Error:", error);
+    next(error);
+  }
+};
+
+// PUT /api/v1/events/:event_id/agenda/:agenda_id - Update agenda of an event (only for organizers)
+
+exports.updateAgendaOfEvent = async (req, res, next) => {
+  const userId = req.user.userId;
+  const eventId = req.params.event_id;
+  const agenda = req.file ? req.file : null;
+  try {
+    // Check if user is organizer
+    const checkOrganizer = await checkUserRoleOrganizer(userId);
+    if (checkOrganizer) {
+      return res.status(403).json({
+        status: "fail",
+        message: "Your role haven't permission to access api",
+      });
+    }
+    // Check if user is organizer of the event
+    const isOrganizer = await checkEventOrganizer(userId, eventId);
+    if (isOrganizer) {
+      return res.status(403).json({
+        status: "fail",
+        message: `Access denied. You're Not organizer in event ID ${eventId}.`,
+      });
+    }
+    // Find the event
+    const event = await models.Event.findByPk(eventId);
+    if (!event) {
+      return res
+        .status(404)
+        .json({ status: "fail", message: "Event not found." });
+    }
+    // Create new agenda
+
+    if (event.agenda === null || event.agenda === "") {
+      const fileType = await fileTypeFromBuffer(agenda.buffer);
+      const agendaURL = await uploadFile(
+        BUCKET_NAME.EVENT,
+        agenda.buffer,
+        `${FOLDERS.AGENDA}/${eventId}.${fileType.ext}`,
+        fileType.mime
+      );
+      event.agenda = agendaURL;
+    } else {
+      if (!agenda) {
+        const match = event.agenda.match(/\.(jpg|jpeg|png|gif|webp)$/i);
+        const extension = match ? match[1] : null;
+        await deleteFile(
+          BUCKET_NAME.EVENT,
+          `${FOLDERS.AGENDA}/${eventId}.${extension}`
+        );
+        event.agenda = null;
+      } else {
+        const fileType = await fileTypeFromBuffer(agenda.buffer);
+        const agendaURL = await replaceFile(
+          BUCKET_NAME.EVENT,
+          agenda.buffer,
+          `${FOLDERS.AGENDA}/${eventId}.${fileType.ext}`,
+          fileType.mime
+        );
+        event.agenda = agendaURL;
+      }
+    }
+
+    await event.save();
+
+    return res.status(201).json({
+      status: "success",
+      message: "Agenda added to event successfully.",
+      data: { agenda: event.agenda },
+    });
+  } catch (error) {
+    console.error("Add Agenda Error:", error);
     next(error);
   }
 };
@@ -618,22 +870,20 @@ exports.getEventsRegisteredByParticipant = async (req, res, next) => {
             "description",
             "type",
             "theme",
-            "event_date",
-            "start_time",
-            "end_time",
+            "start_date",
+            "end_date",
             "location_name",
             "location",
           ],
-          order: [["event_date", "DESC"]],
+          order: [["start_date", "DESC"]],
         });
         return {
           title: eventData.title,
           description: eventData.description,
           type: eventData.type,
           theme: eventData.theme,
-          date: eventData.event_date,
-          start_time: eventData.start_time,
-          end_time: eventData.end_time,
+          start_date: eventData.start_date,
+          end_date: eventData.end_date,
           location_name: eventData.location_name,
           location: eventData.location,
         };
@@ -748,68 +998,146 @@ exports.toggleEmailReminderFeature = async (req, res, next) => {
   }
 };
 
+// exports.toggleParticipantEventApprove = async (req, res, next) => {
+//   const userId = req.user.userId;
+//   const eventId = req.params.event_id;
+//   const registrationId = req.body.registration_id;
+//   try {
+//     // Check if user is participant
+//     const checkOrganizer = await checkUserRoleOrganizer(userId);
+//     if (checkOrganizer) {
+//       return res.status(403).json({
+//         status: "fail",
+//         message: "Your role haven't permission to access api",
+//       });
+//     }
+
+//     // Check if user is organizer of the event
+//     const isOrganizer = await checkEventOrganizer(userId, eventId);
+//     if (isOrganizer) {
+//       return res.status(403).json({
+//         status: "fail",
+//         message: `Access denied. You're Not organizer in event ID ${eventId}.`,
+//       });
+//     }
+
+//     // Find the event
+//     const event = await models.Event.findByPk(eventId);
+//     if (!event) {
+//       return res
+//         .status(404)
+//         .json({ status: "fail", message: "Event not found." });
+//     }
+
+//     // Check if the participant is registered for the event
+//     const registration = await models.Registration.findOne({
+//       where: {
+//         event_id: eventId,
+//         registration_id: registrationId,
+//       },
+//     });
+//     if (!registration) {
+//       return res.status(404).json({
+//         status: "fail",
+//         message: "Participant is not registered for this event.",
+//       });
+//     }
+
+//     registration.status =
+//       registration.status === "approved" ? "rejected" : "approved";
+
+//     // if (registration.status === "approved") {
+//     //   registration.registrationHash = hashJsonObject(registration);
+//     // } else {
+//     //   registration.registrationHash = null;
+//     // }
+
+//     await registration.save();
+
+//     return res.status(200).json({
+//       status: "success",
+//       message: `Participant status has been ${registration.status}.`,
+//       data: {
+//         registration: registration,
+//       },
+//     });
+//   } catch (error) {
+//     console.error("Toggle Participant Status Error:", error);
+//     next(error);
+//   }
+// };
+
 exports.toggleParticipantEventApprove = async (req, res, next) => {
   const userId = req.user.userId;
   const eventId = req.params.event_id;
   const registrationId = req.body.registration_id;
+
   try {
-    // Check if user is participant
+    // Check organizer
     const checkOrganizer = await checkUserRoleOrganizer(userId);
-    if (checkOrganizer) {
+    if (checkOrganizer)
       return res.status(403).json({
         status: "fail",
-        message: "Your role haven't permission to access api",
+        message: "Your role does not have permission to access this API",
       });
-    }
 
-    // Check if user is organizer of the event
     const isOrganizer = await checkEventOrganizer(userId, eventId);
-    if (isOrganizer) {
+    if (isOrganizer)
       return res.status(403).json({
         status: "fail",
-        message: `Access denied. You're Not organizer in event ID ${eventId}.`,
+        message: `Access denied. You're not the organizer of event ID ${eventId}.`,
       });
-    }
 
-    // Find the event
-    const event = await models.Event.findByPk(eventId);
-    if (!event) {
-      return res
-        .status(404)
-        .json({ status: "fail", message: "Event not found." });
-    }
-
-    // Check if the participant is registered for the event
-    const registration = await models.Registration.findOne({
-      where: {
-        event_id: eventId,
-        registration_id: registrationId,
-      },
-    });
-    if (!registration) {
+    // Find registration
+    const registration = await models.Registration.findByPk(registrationId);
+    if (!registration || registration.event_id !== eventId)
       return res.status(404).json({
         status: "fail",
         message: "Participant is not registered for this event.",
       });
-    }
 
+    // Toggle status
     registration.status =
       registration.status === "approved" ? "rejected" : "approved";
 
-    if (registration.status === "approved") {
-      registration.registrationHash = hashJsonObject(registration);
-    } else {
-      registration.registrationHash = null;
-    }
-
     await registration.save();
+
+    if (registration.status === "approved") {
+      // Create attendance rows for all sessions of this event
+      const sessions = await models.EventSession.findAll({
+        where: { event_id: eventId },
+      });
+
+      for (const session of sessions) {
+        await models.EventAttendance.findOrCreate({
+          where: {
+            event_session_id: session.event_session_id,
+            registration_id: registrationId,
+          },
+          defaults: {
+            attendance_status: "pending",
+            check_in_time: null,
+          },
+        });
+      }
+    } else {
+      // Remove all attendance records if rejected
+      const sessionIds = (
+        await models.EventSession.findAll({ where: { event_id: eventId } })
+      ).map((s) => s.event_session_id);
+
+      // Delete attendance records
+      await models.EventAttendance.destroy({
+        where: {
+          registration_id: registrationId,
+          event_session_id: { [Op.in]: sessionIds },
+        },
+      });
+    }
 
     return res.status(200).json({
       status: "success",
       message: `Participant status has been ${registration.status}.`,
-      data: {
-        registration: registration,
-      },
     });
   } catch (error) {
     console.error("Toggle Participant Status Error:", error);
