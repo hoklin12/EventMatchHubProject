@@ -3,6 +3,7 @@
 services:
   express_api:
     container_name: emh_express_container
+    command: node ./src/app.js
     build:
       context: ./express-app
       dockerfile: Dockerfile
@@ -31,8 +32,9 @@ services:
       context: ./fastapi_service
       dockerfile: Dockerfile
     image: emh_fastapi
-    expose:
-      - "8000"
+    ports:             # <-- change here
+      - "8000:8000"
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000
     env_file:
       - ./express-app/.env
     restart: always
