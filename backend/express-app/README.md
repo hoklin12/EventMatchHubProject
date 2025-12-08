@@ -110,3 +110,35 @@ npx sequelize-cli db:migrate
 ```bash
 npx sequelize-cli db:seed:all
 ```
+
+## Docker
+
+**Docker Build**
+
+```bash
+docker-compose up -d --build
+```
+
+**Docker Build Only Express JS**
+
+```bash
+docker build -t emh_express ./express-app
+```
+
+**Docker down**
+
+```bash
+docker-compose down -v
+```
+
+**Migrate without Reseed**
+
+```bash
+docker-compose run --rm express_api npm run db:reset:skip-seed
+```
+
+**Migrate with Reseed**
+
+```bash
+docker-compose run --rm express_api npm run db:reset
+```
