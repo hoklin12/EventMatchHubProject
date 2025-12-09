@@ -4,6 +4,7 @@ const { hashJsonObject } = require("../utils/encryptUtils");
 const { uploadFile, replaceFile } = require("../services/storageService");
 const { FOLDERS, BUCKET_NAME } = require("../config/supabaseConfig");
 const { getSignatureBase64 } = require("../utils/urlImageUtils");
+const { Op } = require("sequelize");
 
 const { fileTypeFromBuffer } = require("file-type");
 const {
@@ -186,7 +187,7 @@ exports.createCertificates = async (req, res, next) => {
       where: {
         event_id: eventId,
         status: "approved",
-        end_date: { [Op.lte]: new Date() },
+        // end_date: { [Op.lte]: new Date() },
       },
     });
     if (registrations.length === 0) {
