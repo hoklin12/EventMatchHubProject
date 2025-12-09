@@ -1,18 +1,8 @@
 "use client"
 
 import { RecommendedEventCard } from "../recommended-event-card"
-import { Empty } from "../../ui/empty"
-
-interface Event {
-  id: number
-  title: string
-  category: string
-  date: string
-  location: string
-  attendees: number
-  image: string
-  featured?: boolean
-}
+import { Empty } from "@/app/components/ui/empty"
+import { Event } from "@/app/types"
 
 interface EventListProps {
   events: Event[]

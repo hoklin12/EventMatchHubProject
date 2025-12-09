@@ -29,6 +29,9 @@
     --input-border: #e5e5e5;
 
     --ring: #4b63ff;
+
+    --active: #DCFCE7;          /* light green background */
+    --green-foreground: #166534; /* dark green text */  
   }
 }
 

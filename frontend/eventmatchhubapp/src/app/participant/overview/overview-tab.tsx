@@ -21,49 +21,21 @@ import {
 } from "lucide-react";
 import { Event } from "@/app/types";
 import { EventList } from "@/app/components/sections/elements/event-list";
+import { getRecommendedEvents } from "@/lib/data/event-datas";
+import { getCertificate } from "@/lib/data/certificates";
 
 interface OverviewTabProps {
   upcomingEvents: Event[];
   setActiveTab: (value: string) => void;
 }
 
-export function OverviewTab({ upcomingEvents, setActiveTab }: OverviewTabProps) {
+export function OverviewTab({
+  upcomingEvents,
+  setActiveTab,
+}: OverviewTabProps) {
+  const certificates = getCertificate();
 
-  const certificates = [
-    {
-      id: 1,
-      title: "Design Thinking Bootcamp",
-      issuer: "Event Match Hub",
-      date: "Feb 15, 2025",
-      verified: true,
-    },
-    {
-      id: 2,
-      title: "Python Programming Workshop",
-      issuer: "Event Match Hub",
-      date: "Jan 20, 2025",
-      verified: true,
-    },
-  ];
-
-  const recommendedEvents = [
-    {
-      id: 3,
-      title: "Web Development Bootcamp",
-      category: "Technology",
-      date: "Apr 5, 2025",
-      attendees: 120,
-      image: "/web-development-concept.png",
-    },
-    {
-      id: 4,
-      title: "UX Design Workshop",
-      category: "Design",
-      date: "Apr 12, 2025",
-      attendees: 85,
-      image: "/ux-design-workshop.png",
-    },
-  ];
+  const recommendedEvents = getRecommendedEvents();
 
   return (
     <TabsContent value="overview" className="space-y-6">
@@ -80,15 +52,17 @@ export function OverviewTab({ upcomingEvents, setActiveTab }: OverviewTabProps) 
                   Events you’re registered for
                 </CardDescription>
               </div>
-              <Button variant="outline" className="text-xs" onClick={() => setActiveTab("upcoming")}>
+              <Button
+                variant="outline"
+                className="text-xs"
+                onClick={() => setActiveTab("upcoming")}
+              >
                 View All
               </Button>
             </div>
           </CardHeader>
           <CardContent>
-            <EventList
-              events={upcomingEvents.slice(0, 2)}
-            />
+            <EventList events={upcomingEvents.slice(0, 2)} />
           </CardContent>
         </Card>
 
@@ -104,8 +78,8 @@ export function OverviewTab({ upcomingEvents, setActiveTab }: OverviewTabProps) 
                   Your latest achievements
                 </CardDescription>
               </div>
-              <Button variant="outline" className="text-xs">
-                <Link href="/certificates">View All</Link>
+              <Button variant="outline" asChild className="text-xs">
+                <Link href="/participant/profile">View All</Link>
               </Button>
             </div>
           </CardHeader>
@@ -124,7 +98,7 @@ export function OverviewTab({ upcomingEvents, setActiveTab }: OverviewTabProps) 
                     <p className="text-xs text-muted-foreground">
                       Issued by {cert.issuer}
                     </p>
-                    <p className="text-xs text-muted-foreground">{cert.date}</p>
+                    <p className="text-xs text-muted-foreground">{cert.issueDate}</p>
                   </div>
                   {cert.verified && (
                     <Badge
@@ -206,7 +180,7 @@ export function OverviewTab({ upcomingEvents, setActiveTab }: OverviewTabProps) 
                     size="sm"
                     className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:shadow-lg transition-shadow"
                   >
-                    <Link href={`/registration?event=${event.id}`}>Register Now</Link>
+                    <Link href={`/events/${event.id}/register`}>Register Now</Link>
                   </Button>
                 </div>
               </div>

@@ -77,16 +77,13 @@ export default function SignupPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
+    localStorage.setItem("userRole", userType)
 
     // Simulate API call
     await new Promise((resolve) => setTimeout(resolve, 1500));
 
     // Redirect to appropriate dashboard based on user type
-    if (userType === "participant") {
-      router.push("/overview/participant");
-    } else {
-      router.push("/dashboard/organizer/pending");
-    }
+    router.push(`${userType}/overview`);
   };
 
   const handleOrganizerNext = () => {

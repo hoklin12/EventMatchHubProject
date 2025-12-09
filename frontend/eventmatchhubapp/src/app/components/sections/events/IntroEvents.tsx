@@ -2,23 +2,8 @@
 
 import { useState } from "react";
 import { Tabs, TabsList, TabsTrigger } from "../../ui/tabs";
+import { allEvents } from "@/lib/data/event-datas";
 
-interface Event {
-  id: number;
-  title: string;
-  category: string;
-  date: string;
-  time: string;
-  location: string;
-  organizer: string;
-  attendees: number;
-  maxAttendees: number;
-  price: number;
-  rating: number;
-  image: string;
-  featured: boolean;
-  tags: string[];
-}
 import {
   Select,
   SelectContent,
@@ -34,92 +19,8 @@ import { EventList } from "./event-components/event-list";
 import { EventFilters } from "./event-components/event-filter";
 import { useEventFilters } from "./event-components/hooks/use-event-hooks";
 
-// Example events data (replace with your real data or fetch)
-const events: Event[] = [
-  {
-    id: 1,
-    title: "AI & Machine Learning Summit 2025",
-    category: "Technology",
-    date: "2025-11-22",
-    time: "9:00 AM - 10:30 AM",
-    location: "Phnom Penh",
-    organizer: "Cambodia Academy of Digital Technology",
-    attendees: 450,
-    maxAttendees: 500,
-    price: 0,
-    rating: 4.8,
-    image: "/ai-conference.png",
-    featured: false,
-    tags: ["AI", "ML", "Tech"],
-  },
-  {
-    id: 2,
-    title: "Digital Marketing Workshop 2025",
-    category: "Technology",
-    date: "November 24, 2025",
-    time: "9:00 AM - 10:30 AM",
-    location: "Siem Reap",
-    organizer: "by Cambria Academy of Digital Technology",
-    attendees: 120,
-    maxAttendees: 150,
-    price: 0,
-    rating: 4.6,
-    image: "/digital_mkt.png",
-    featured: false,
-    tags: ["Marketing", "Digital", "Business"],
-  },
-  {
-    id: 3,
-    title: "Khmer Art & Culture Exhibition",
-    category: "Arts & Culture",
-    date: "November 26, 2025",
-    time: "9:00 AM - 10:30 AM",
-    location: "Phnom Penh",
-    organizer: "by Cambodia Academy of Digital Technology",
-    attendees: 200,
-    maxAttendees: 300,
-    price: 0,
-    rating: 4.9,
-    image: "/art-exhibition.png",
-    featured: false,
-    tags: ["Art", "Exhibition", "Culture"],
-  },
-  {
-    id: 4,
-    title: "Web Development Bootcamp",
-    category: "Technology",
-    date: "November 28, 2025",
-    time: "9:00 AM - 10:30 AM",
-    location: "Battambang",
-    organizer: "by Cambria Academy of Digital Technology",
-    attendees: 80,
-    maxAttendees: 100,
-    price: 0,
-    rating: 4.7,
-    image: "/web-development-concept.png",
-    featured: false,
-    tags: ["Web Dev", "Coding", "Technology"],
-  },
-  {
-    id: 5,
-    title: "Business Growth Strategy Summit",
-    category: "Business",
-    date: "November 30, 2025",
-    time: "9:00 AM - 10:30 AM",
-    location: "Phnom Penh",
-    organizer: "by Cambria Academy of Digital Technology",
-    attendees: 45,
-    maxAttendees: 60,
-    price: 0,
-    rating: 4.8,
-    image: "/marketing-strategy-meeting.png",
-    featured: false,
-    tags: ["Business", "Strategy", "Growth"],
-  },
-];
-
 export default function IntroEvents() {
-  const { filters, updateFilter, filteredEvents } = useEventFilters(events);
+  const { filters, updateFilter, filteredEvents } = useEventFilters(allEvents); // use allEvents
   const [currentPage, setCurrentPage] = useState(1);
   const [showFilters, setShowFilters] = useState(false);
   const itemsPerPage = 6;
@@ -149,7 +50,7 @@ export default function IntroEvents() {
             />
           </div>
         </div>
-        
+
         {/* Layout with Sidebar */}
         <div className="grid gap-8 md:grid-cols-4 lg:grid-cols-5 mb-12">
           <div
@@ -171,7 +72,17 @@ export default function IntroEvents() {
                 <div className="flex gap-2 items-center">
                   <Select
                     value={filters.sortBy}
-                    onValueChange={(val) => updateFilter("sortBy", val as "date" | "popular" | "price-low" | "price-high" | "rating")}
+                    onValueChange={(val) =>
+                      updateFilter(
+                        "sortBy",
+                        val as
+                          | "date"
+                          | "popular"
+                          | "price-low"
+                          | "price-high"
+                          | "rating"
+                      )
+                    }
                   >
                     <SelectTrigger className="w-[160px]">
                       <SelectValue placeholder="Sort by"></SelectValue>
@@ -188,7 +99,7 @@ export default function IntroEvents() {
                       <SelectItem value="rating">Highest Rated</SelectItem>
                     </SelectContent>
                   </Select>
-                      <FilterIcon className="h-4 w-4 text-gray-400" />
+                  <FilterIcon className="h-4 w-4 text-gray-400" />
 
                   <Button
                     variant="outline"
@@ -200,11 +111,13 @@ export default function IntroEvents() {
                   </Button>
                 </div>
               </div>
-      <div className="border-t border-gray-200 my-4"/>
+              <div className="border-t border-gray-200 my-4" />
 
               <Tabs
                 value={filters.timeframe}
-                onValueChange={(val) => updateFilter("timeframe", val as "all" | "today" | "weekend")}
+                onValueChange={(val) =>
+                  updateFilter("timeframe", val as "all" | "today" | "weekend")
+                }
                 className="w-full"
               >
                 <TabsList className="bg-transparent border-b border-border rounded-none h-auto p-0">
