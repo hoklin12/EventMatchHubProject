@@ -338,15 +338,17 @@ exports.updateEvent = async (req, res, next) => {
       await event.save();
     } else {
       // Delete theme from storage if themeFile is null and request has theme as empty string
-      const themeCurrentURL = event.theme;
-      const parts = themeCurrentURL.split(".");
-      const extension = parts[parts.length - 1];
-      await deleteFile(
-        BUCKET_NAME.EVENT,
-        `${FOLDERS.THEME}/${eventId}.${extension}`
-      );
-      event.theme = null;
-      await event.save();
+      if (event.theme) {
+        const themeCurrentURL = event.theme;
+        const parts = themeCurrentURL.split(".");
+        const extension = parts[parts.length - 1];
+        await deleteFile(
+          BUCKET_NAME.EVENT,
+          `${FOLDERS.THEME}/${eventId}.${extension}`
+        );
+        event.theme = null;
+        await event.save();
+      }
     }
 
     // Update event
@@ -1107,6 +1109,31 @@ exports.toggleParticipantEventApprove = async (req, res, next) => {
       const sessions = await models.EventSession.findAll({
         where: { event_id: eventId },
       });
+
+      const attendanceList = await models.EventAttendance.findAll({
+        attributes: [
+          [
+            models.Sequelize.fn(
+              "DISTINCT",
+              models.Sequelize.col("registration_id")
+            ),
+            "registration_id",
+          ],
+        ],
+        raw: true,
+      });
+
+      const eventTickets = await models.EventTicket.findOne({
+        where: { event_id: eventId },
+        attributes: ["quantity"],
+      });
+
+      if (attendanceList.length >= eventTickets.quantity) {
+        return res.status(400).json({
+          status: "fail",
+          message: "Event attendance is full.",
+        });
+      }
 
       for (const session of sessions) {
         await models.EventAttendance.findOrCreate({
