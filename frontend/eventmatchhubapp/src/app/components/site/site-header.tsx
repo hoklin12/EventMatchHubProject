@@ -208,7 +208,7 @@ export function SiteHeader({ userName, userAvatar }: SiteHeaderProps) {
                     </DropdownMenuItem>
                     <DropdownMenuItem asChild>
                       <Link
-                        href="/participant/settings"
+                        href="/participant/account-settings"
                         className="cursor-pointer"
                       >
                         <Settings className="mr-2 h-4 w-4" />
