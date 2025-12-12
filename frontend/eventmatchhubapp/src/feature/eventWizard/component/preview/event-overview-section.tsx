@@ -1,4 +1,4 @@
-import { Badge } from "@/components/ui/badge"
+import { Badge } from "@/app/components/ui/badge"
 import type { EventPreviewData } from "@/lib/types/event-preview"
 
 interface EventOverviewSectionProps {

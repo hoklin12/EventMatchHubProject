@@ -1,7 +1,7 @@
 "use client"
 
-import { Badge } from "@/components/ui/badge"
-import { Card } from "@/components/ui/card"
+import { Badge } from  "@/app/components/ui/badge";
+import { Card } from  "@/app/components/ui/card";
 import { EventRowMenu } from "../actions/event-row-menu"
 import type { Event } from "@/lib/types/event"
 
@@ -16,13 +16,13 @@ export function EventsGrid({ events }: EventsGridProps) {
         const capacity = event.location.capacity ?? 0
         const registered = event.registered ?? 0
         const progress = capacity > 0 ? (registered / capacity) * 100 : 0
-
-        const statusVariant =
-          event.status === "draft" ? "draft" :
-          event.status === "active" ? "active" :
-          "completed" // fallback
-
-
+        const statusMap: Record<string, "default" | "destructive" | "outline" | "secondary" | "active"> = {
+          draft: "outline",
+          active: "active",
+          completed: "secondary"
+        };
+        
+        const statusBadgeVariant = statusMap[event.status];
         return (
           <Card
             key={event.id}
@@ -38,7 +38,7 @@ export function EventsGrid({ events }: EventsGridProps) {
 
                   {/* Updated date */}
                   <p className="text-sm text-muted-foreground">
-                    {event.dateTime.date}
+                    {event.dateTime.eventDate}
                   </p>
                 </div>
                 <EventRowMenu eventId={event.id} />
@@ -67,7 +67,7 @@ export function EventsGrid({ events }: EventsGridProps) {
               <div className="flex items-center justify-between pt-2">
                 <span className="font-medium">Free</span>
 
-                <Badge variant={statusVariant}>{event.status}</Badge>
+                <Badge variant={statusBadgeVariant}>{event.status}</Badge>
               </div>
             </div>
           </Card>

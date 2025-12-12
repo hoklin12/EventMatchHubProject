@@ -4,7 +4,7 @@ import type React from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { Calendar, MapPin, Users, Ticket } from "lucide-react";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent } from "@/app/components/ui/card";
 import type { EventPreviewData } from "@/lib/types/event-preview";
 
 interface EventPreviewCardProps {

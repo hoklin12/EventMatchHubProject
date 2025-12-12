@@ -16,7 +16,7 @@ export function EventCard({ event }: EventCardProps) {
           <h3 className="font-semibold text-foreground text-sm">{event.title}</h3>
           <div className="flex items-center gap-2 text-muted-foreground text-xs mt-2">
             <Calendar size={14} />
-            <span>{event.dateTime.date} - {event.dateTime.endTime}</span>
+            <span>{event.dateTime.eventDate} - {event.dateTime.endTime}</span>
           </div>
           <div className="flex items-center gap-2 text-muted-foreground text-xs mt-1">
             <MapPin size={14} />

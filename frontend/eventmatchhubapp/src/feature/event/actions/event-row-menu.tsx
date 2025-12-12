@@ -1,14 +1,14 @@
 "use client"
 
 import { MoreVertical, Eye, Edit, Copy, CopyX as Copy2, Trash2 } from "lucide-react"
-import { Button } from "@/components/ui/button"
+import { Button } from "@/app/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
+} from "@/app/components/ui/dropdown-menu";
 import { useRouter } from "next/navigation"
 
 interface EventRowMenuProps {

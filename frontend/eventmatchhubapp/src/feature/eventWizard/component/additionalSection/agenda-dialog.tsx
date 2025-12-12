@@ -1,8 +1,8 @@
 "use client"
 
 import { useState } from "react"
-import { Dialog, DialogContent } from "@/components/ui/dialog"
-import { Button } from "@/components/ui/button"
+import { Dialog, DialogContent } from "@/app/components/ui/dialog"
+import { Button } from "@/app/components/ui/button"
 import { FileUpload } from "@/components/shared/FileUpload"
 
 interface AgendaDialogProps {

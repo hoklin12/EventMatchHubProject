@@ -1,5 +1,5 @@
 import Image from "next/image"
-import { Card } from "@/components/ui/card"
+import { Card } from "@/app/components/ui/card"
 import type { Speaker } from "@/lib/types/speaker"
 
 interface FeatureSpeakersSectionProps {

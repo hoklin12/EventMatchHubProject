@@ -2,14 +2,6 @@
 
 import type React from "react"
 import type { Ticket } from "@/lib/types/ticket"
-import { Button } from "@/components/ui/button"
-import { MoreVertical } from "lucide-react"
-import {
-  DropdownMenu,
-  DropdownMenuTrigger,
-  DropdownMenuContent,
-  DropdownMenuItem,
-} from "@/components/ui/dropdown-menu"
 import { format, parseISO } from "date-fns"
 
 interface TicketCardProps {

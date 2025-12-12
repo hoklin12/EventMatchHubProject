@@ -3,10 +3,9 @@
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { ArrowLeft, Pencil } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { Eye } from "lucide-react"
 
-import { Badge } from "@/components/ui/badge";
+import { Badge } from "@/app/components/ui/badge";
 import { EventHeroSection } from "@/feature/eventWizard/component/preview/event-hero-section";
 import { EventOverviewSection } from "@/feature/eventWizard/component/preview/event-overview-section";
 import { ScheduleHighlightsSection } from "@/feature/eventWizard/component/preview/schedule-highlight-section";

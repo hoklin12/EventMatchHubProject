@@ -4,7 +4,7 @@ import { useState } from "react"
 import type { Ticket, TicketFormData } from "@/lib/types/ticket"
 import { TicketCard } from "./ticket-card"
 import { TicketInlineForm } from "./ticket-inline-form"
-import { Button } from "@/components/ui/button"
+import { Button } from "@/app/components/ui/button"
 import { Plus } from "lucide-react"
 
 interface TicketListProps {

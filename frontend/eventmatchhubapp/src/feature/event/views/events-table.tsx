@@ -1,7 +1,7 @@
 "use client"
 
-import { Badge } from "@/components/ui/badge"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { Badge } from  "@/app/components/ui/badge";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from  "@/app/components/ui/table";
 import { EventRowMenu } from "../actions/event-row-menu"
 import { FiCalendar, FiMapPin } from "react-icons/fi"
 import type { Event } from "@/lib/types/event"
@@ -49,7 +49,7 @@ export function EventsTable({ events }: EventsTableProps) {
                     {/* Updated date */}
                     <p className="text-sm text-muted-foreground flex items-center">
                       <FiCalendar className="mr-2" />
-                      {event.dateTime.date}
+                      {event.dateTime.eventDate}
                     </p>
 
                     {/* Updated location */}

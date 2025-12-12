@@ -2,8 +2,8 @@
 
 import Image from "next/image";
 import { Calendar, MapPin, Users, ExternalLink } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
+import { Button } from "@/app/components/ui/button";
+import { Card } from "@/app/components/ui/card";
 import type { EventPreviewData } from "@/lib/types/event-preview";
 
 interface EventHeroSectionProps {

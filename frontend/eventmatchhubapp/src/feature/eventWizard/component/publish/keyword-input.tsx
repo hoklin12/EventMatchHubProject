@@ -3,8 +3,8 @@
 import type React from "react";
 import { useState } from "react";
 import { X } from "lucide-react";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
+import { Input } from "@/app/components/ui/input";
+import { Button } from "@/app/components/ui/button";
 
 interface KeywordInputProps {
   keywords: string[];
