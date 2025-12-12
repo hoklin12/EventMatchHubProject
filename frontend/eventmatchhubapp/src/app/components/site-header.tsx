@@ -35,7 +35,7 @@ export function SiteHeader({ variant = "default", userName, userAvatar }: SiteHe
       case "organizer":
         return [
           { href: "/dashboard/organizer", label: "Dashboard" },
-          { href: "/event-management", label: "My Events" },
+          { href: "/organizer/general", label: "My Events" },
           { href: "/messages", label: "Messages" },
           { href: "#analytics", label: "Analytics" },
         ]
@@ -44,7 +44,7 @@ export function SiteHeader({ variant = "default", userName, userAvatar }: SiteHe
           { href: "/", label: "Home" },
           { href: "/events", label: "Browse Events" },
           { href: "/about", label: "About" },
-          { href: "/eventmodule/general", label: "Manage Event" }, // testing
+          { href: "/organizer/general", label: "Manage Event" }, // testing
         ]
     }
   }

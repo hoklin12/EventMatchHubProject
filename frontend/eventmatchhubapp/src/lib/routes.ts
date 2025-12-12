@@ -1,7 +1,7 @@
 // src/lib/routes.ts
 export const actionRoutes: Record<string, string> = {
-    "start-event": "/eventmodule/event/create",
-    "view-events": "/eventmodule/event",
+    "start-event": "/organizer/event/create",
+    "view-events": "/organizer/event",
     "dashboard": "/dashboard" 
   }
   

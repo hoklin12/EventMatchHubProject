@@ -86,9 +86,9 @@ export default function AdditionalSectionsPage() {
       </div>
 
       <WizardButtons
-        onBack={() => router.push(`/eventmodule/event/${eventId}/ticket-registration`)}
+        onBack={() => router.push(`/organizer/event/${eventId}/ticket-registration`)}
         onSaveDraft={() => console.log("Save draft current state")}
-        onSaveAndContinue={() => router.push(`/eventmodule/event/${eventId}/publish-sections`)}
+        onSaveAndContinue={() => router.push(`/organizer/event/${eventId}/publish-sections`)}
       />
 
       <CustomizeRegistrationDialog open={dialogOpen} onOpenChange={setDialogOpen} onSave={handleSaveRegistrationForm} />

@@ -16,7 +16,7 @@ export const EventPreviewCard: React.FC<EventPreviewCardProps> = ({ preview }) =
 
   const handlePreviewClick = (e: React.MouseEvent) => {
     e.stopPropagation();
-    router.push(`/eventmodule/event/${preview.id}/preview`);
+    router.push(`/organizer/event/${preview.id}/preview`);
   };
 
   // Extract values safely

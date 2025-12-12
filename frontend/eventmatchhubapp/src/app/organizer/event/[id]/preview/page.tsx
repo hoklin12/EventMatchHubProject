@@ -61,11 +61,11 @@ export default function EventPreviewPage() {
   };
 
   const handleEditEvent = () => {
-    router.push(`/eventmodule/event/create`);
+    router.push(`/organizer/event/create`);
   };
 
   const handleClosePreview = () => {
-    router.push(`/eventmodule/event/${eventId}/publish-sections`);
+    router.push(`/organizer/event/${eventId}/publish-sections`);
   };
 
   return (

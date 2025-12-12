@@ -5,9 +5,8 @@ import { NavItem } from './nav-item'
 import { usePathname } from 'next/navigation'
 
 const navLinks = [
-  { icon: Home, href: "/eventmodule/general" },
-  { icon: Calendar, href: "/eventmodule/event" },
-  { icon: Grid3x3, href: "/profile" },
+  { icon: Home, href: "/organizer/general" },
+  { icon: Calendar, href: "/organizer/event" },
 ]
 
 export function SidebarNav() {

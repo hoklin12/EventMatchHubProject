@@ -55,7 +55,7 @@ export default function PublishSettingsPage() {
     console.log("Publishing event:", eventId, settings);
     // TODO: Replace with actual API call
     alert("Event published!");
-    router.push("/eventmodule/event");
+    router.push("/organizer/event");
   };
 
   return (
@@ -161,7 +161,7 @@ export default function PublishSettingsPage() {
 
       {/* Wizard Buttons for Publish */}
       <WizardButtons
-        onBack={() => router.push(`/eventmodule/event/${eventId}/additional-sections`)}
+        onBack={() => router.push(`/organizer/event/${eventId}/additional-sections`)}
         onSaveDraft={() => console.log("Save draft current state for publish")}
         onSaveAndContinue={handlePublish}
         nextLabel="Publish"

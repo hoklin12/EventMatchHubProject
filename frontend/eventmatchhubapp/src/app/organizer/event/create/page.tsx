@@ -12,7 +12,7 @@ export default function CreateEventPage() {
     // TODO: Replace this with real API call that returns eventId
     const eventId = await saveDraftToServer(data); // <- dynamic
 
-    router.push(`/eventmodule/event/${eventId}/ticket-registration`);
+    router.push(`/organizer/event/${eventId}/ticket-registration`);
   };
 
   const handleSaveAndContinue = async (data: any) => {
@@ -21,7 +21,7 @@ export default function CreateEventPage() {
     // TODO: Replace this with real API call that returns eventId
     const eventId = await createEvent(data); // <- dynamic
 
-    router.push(`/eventmodule/event/${eventId}/ticket-registration`);
+    router.push(`/organizer/event/${eventId}/ticket-registration`);
   };
 
   return (

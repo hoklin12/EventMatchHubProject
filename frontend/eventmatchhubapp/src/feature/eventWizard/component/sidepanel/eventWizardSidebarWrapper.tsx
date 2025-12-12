@@ -13,8 +13,8 @@ export function EventWizardSidebarWrapper() {
   const currentStep = steps.find(step => pathname.includes(step)) || "create";
 
   // Show on create page or any wizard page
-  const isCreate = pathname.startsWith("/eventmodule/event/create");
-  const isWizard = /\/eventmodule\/event\/[^/]+\/(ticket-registration|additional-sections|publish)/.test(pathname);
+  const isCreate = pathname.startsWith("/organizer/event/create");
+  const isWizard = /\/organizer\/event\/[^/]+\/(ticket-registration|additional-sections|publish)/.test(pathname);
 
   if (!isCreate && !isWizard) return null;
 

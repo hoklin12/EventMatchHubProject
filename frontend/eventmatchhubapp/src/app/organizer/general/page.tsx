@@ -1,4 +1,4 @@
-// src/app/eventmodule/general/page.tsx
+// src/app/organizer/general/page.tsx
 import { Greeting } from "@/feature/general/greeting"
 import { QuickStart } from "@/feature/general/quick-start"
 import { UpcomingEvents } from "@/feature/general/upcoming-events"

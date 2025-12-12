@@ -33,12 +33,13 @@ export function EventsTable({ events }: EventsTableProps) {
             const registered = event.registered ?? 0
             const progress = capacity > 0 ? (registered / capacity) * 100 : 0
 
-            const statusVariant =
-              event.status === "draft" ? "draft" :
-              event.status === "active" ? "active" :
-              "completed" // fallback
-
-
+            const statusMap: Record<string, "default" | "destructive" | "outline" | "secondary" | "active"> = {
+              draft: "outline",
+              active: "active",
+              completed: "secondary"
+            };
+            
+            const statusBadgeVariant = statusMap[event.status];
             return (
               <TableRow key={event.id} className="table-row">
                 {/* Event Info */}
@@ -86,7 +87,7 @@ export function EventsTable({ events }: EventsTableProps) {
 
                 {/* Status */}
                 <TableCell>
-                  <Badge variant={statusVariant}>{event.status}</Badge>
+                  <Badge variant={statusBadgeVariant}>{event.status}</Badge>
                 </TableCell>
 
                 {/* Actions */}

@@ -95,9 +95,9 @@ export default function TicketRegistrationPage() {
           onSaveDraft={handleSaveDraft}
           onSaveAndContinue={() => {
             handleSaveAndContinue()
-            router.push(`/eventmodule/event/${eventId}/additional-sections`)
+            router.push(`/organizer/event/${eventId}/additional-sections`)
           }}
-          onBack={() => router.push(`/eventmodule/event/create`)}
+          onBack={() => router.push(`/organizer/event/create`)}
 
           nextLabel="Continue"
           backLabel="Go Back"

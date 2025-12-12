@@ -21,10 +21,10 @@ export function SetupSection({ currentStep, eventId }: Props) {
   };
 
   const stepRoutes: Record<string, string> = {
-    form: `/eventmodule/event/${eventId}/create`,
-    ticket: `/eventmodule/event/${eventId}/ticket-registration`,
-    additional: `/eventmodule/event/${eventId}/additional-sections`,
-    publish: `/eventmodule/event/${eventId}/publish`,
+    form: `/organizer/event/${eventId}/create`,
+    ticket: `/organizer/event/${eventId}/ticket-registration`,
+    additional: `/organizer/event/${eventId}/additional-sections`,
+    publish: `/organizer/event/${eventId}/publish`,
   };
 
   const handleClick = (stepId: string) => {
