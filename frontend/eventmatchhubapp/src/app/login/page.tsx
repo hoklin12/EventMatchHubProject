@@ -28,7 +28,12 @@ export default function LoginPage() {
     await new Promise((resolve) => setTimeout(resolve, 1500))
 
     // Redirect to appropriate dashboard based on user type
-    router.push(`/${userType}/overview`);
+     const routeMap = {
+      participant: "/participant/overview",
+      organizer: "/organizer/general",
+    };
+  
+    router.push(routeMap[userType]);
   }
 
   return (

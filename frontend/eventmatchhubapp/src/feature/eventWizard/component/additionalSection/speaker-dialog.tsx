@@ -11,7 +11,7 @@ import { UserPlus, ImageIcon, MoreVertical, Copy, Trash2 } from "lucide-react"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/app/components/ui/dropdown-menu"
 import type { Speaker, SpeakerFormData } from "@/lib/types/speaker"
 
-import { FileUpload } from "@/components/shared/FileUpload"
+import { FileUpload } from "@/app/components/shared/FileUpload"
 
 interface SpeakersDialogProps {
   open: boolean

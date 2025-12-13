@@ -1,7 +1,7 @@
 "use client"
 
 import React, { useState, useEffect } from "react"
-import { FileUpload } from "@/components/shared/FileUpload"
+import { FileUpload } from "@/app/components/shared/FileUpload"
 
 interface EventThemeSectionProps {
   imageUrl: string

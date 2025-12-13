@@ -3,7 +3,7 @@
 import { useState } from "react"
 import { Dialog, DialogContent } from "@/app/components/ui/dialog"
 import { Button } from "@/app/components/ui/button"
-import { FileUpload } from "@/components/shared/FileUpload"
+import { FileUpload } from "@/app/components/shared/FileUpload"
 
 interface AgendaDialogProps {
   open: boolean
