@@ -65,8 +65,8 @@ export function SiteHeader({ userName, userAvatar }: SiteHeaderProps) {
     } else if (role === "organizer") {
       return [
         ...baseLinks,
-        { href: "/overview/organizer", label: "Overview" },
-        { href: "/event-management", label: "My Events" },
+        { href: "/organizer/general", label: "Overview" },
+        { href: "/organizer/event", label: "My Events" },
         { href: "/messages", label: "Messages" },
       ];
     }

@@ -44,7 +44,7 @@ export function SiteHeader({ variant = "default", userName, userAvatar }: SiteHe
           { href: "/", label: "Home" },
           { href: "/events", label: "Browse Events" },
           { href: "/about", label: "About" },
-          { href: "/organizer/general", label: "Manage Event" }, // testing
+          { href: "/organizer/general", label: "Manage Event" }, 
         ]
     }
   }
