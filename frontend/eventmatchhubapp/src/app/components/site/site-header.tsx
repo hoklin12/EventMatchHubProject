@@ -64,10 +64,10 @@ export function SiteHeader({ userName, userAvatar }: SiteHeaderProps) {
       ];
     } else if (role === "organizer") {
       return [
-        ...baseLinks,
-        { href: "/organizer/general", label: "Overview" },
+        // ...baseLinks,
+        { href: "/", label: "Home" },
+        { href: "/organizer/general", label: "General" },
         { href: "/organizer/event", label: "My Events" },
-        { href: "/messages", label: "Messages" },
       ];
     }
 

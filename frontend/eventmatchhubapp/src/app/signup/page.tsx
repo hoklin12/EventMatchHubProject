@@ -84,8 +84,8 @@ export default function SignupPage() {
 
     // Redirect to appropriate dashboard based on user type
     const routeMap = {
-      participant: "/overview",
-      organizer: "/general",
+      participant: "/participant/overview",
+      organizer: "/organizer/general",
     };
   
     router.push(routeMap[userType]);
