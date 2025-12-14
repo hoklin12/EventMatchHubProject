@@ -1,89 +1,100 @@
-// use-event-hooks.tsx
-import { useState, useCallback, useMemo } from "react"
-import { Event } from "@/app/types"
+// src/components/event-components/hooks/use-event-hooks.ts
+import { useState, useMemo } from "react";
+import { allEvents } from "@/lib/data/event-datas";
+import { Event } from "@/app/types";
 
-export interface FilterState {
-  searchQuery: string
-  categories: string[]
-  eventType: string[]
-  dateRange: string
-  timeframe: "all" | "today" | "weekend"
-  sortBy: "date" | "popular" | "price-low" | "price-high" | "rating"
+type Timeframe = "all" | "today" | "weekend";
+type SortBy = "date" | "popular" | "price-low" | "price-high" | "rating";
+
+interface Filters {
+  searchQuery: string;
+  location: string;
+  category: string;
+  timeframe: Timeframe;
+  sortBy: SortBy;
 }
 
-
-export function useEventFilters(events: Event[]) {
-  const [filters, setFilters] = useState<FilterState>({
+export function useEventFilters(initialEvents: Event[]) {
+  const [filters, setFilters] = useState<Filters>({
     searchQuery: "",
-    categories: [],
-    eventType: [],
-    dateRange: "",
+    location: "all",
+    category: "all",
     timeframe: "all",
     sortBy: "date",
-  })
+  });
 
-  type FilterKey = keyof FilterState
-  type FilterValue<K extends FilterKey> = FilterState[K]
-
-  const updateFilter = useCallback(
-    <K extends FilterKey>(key: K, value: FilterValue<K>) => {
-      setFilters((prev) => ({ ...prev, [key]: value }))
-    },
-    []
-  )
+  const updateFilter = <K extends keyof Filters>(key: K, value: Filters[K]) => {
+    setFilters((prev) => ({ ...prev, [key]: value }));
+  };
 
   const filteredEvents = useMemo(() => {
-    let result = [...events]
+    let events = [...initialEvents];
 
-    // Search
     if (filters.searchQuery) {
-      result = result.filter((e) =>
-        e.title.toLowerCase().includes(filters.searchQuery.toLowerCase())
-      )
+      const query = filters.searchQuery.toLowerCase();
+      events = events.filter((event) => {
+        const titleMatch = event.title.toLowerCase().includes(query);
+        const descMatch = (event.description ?? "").toLowerCase().includes(query);
+        const tagsMatch = (event.tags ?? []).some((tag) =>
+          tag.toLowerCase().includes(query)
+        );
+        return titleMatch || descMatch || tagsMatch;
+      });
     }
 
-    // Categories
-    if (filters.categories.length > 0) {
-      result = result.filter((e) => filters.categories.includes(e.category))
+    // Location filter
+    if (filters.location && filters.location !== "all") {
+      events = events.filter(
+        (event) => event.location.toLowerCase() === filters.location.toLowerCase()
+      );
     }
 
-    // Timeframe
-    const today = new Date()
+    // Category filter
+    if (filters.category && filters.category !== "all") {
+      events = events.filter(
+        (event) => event.category.toLowerCase() === filters.category.toLowerCase()
+      );
+    }
+
+    // Timeframe filter
+    const today = new Date();
+    const todayStr = today.toISOString().split("T")[0];
+
+    const isToday = (date: string) => date === todayStr;
+
+    const isThisWeekend = (date: string) => {
+      const eventDate = new Date(date);
+      const dayOfWeek = eventDate.getDay(); // 0 = Sunday, 6 = Saturday
+      return dayOfWeek === 0 || dayOfWeek === 6;
+    };
+
     if (filters.timeframe === "today") {
-      result = result.filter(
-        (e) => new Date(e.date).toDateString() === today.toDateString()
-      )
+      events = events.filter((event) => isToday(event.date));
     } else if (filters.timeframe === "weekend") {
-      const nextSaturday = new Date(today)
-      nextSaturday.setDate(today.getDate() + (6 - today.getDay()))
-      const nextSunday = new Date(nextSaturday)
-      nextSunday.setDate(nextSaturday.getDate() + 1)
-      result = result.filter((e) => {
-        const eventDate = new Date(e.date)
-        return eventDate >= nextSaturday && eventDate <= nextSunday
-      })
+      events = events.filter((event) => isThisWeekend(event.date));
     }
+    // "all" → no filter
 
     // Sorting
-    switch (filters.sortBy) {
-      case "popular":
-        result.sort((a, b) => b.attendees - a.attendees)
-        break
-      case "price-low":
-        result.sort((a, b) => a.price - b.price)
-        break
-      case "price-high":
-        result.sort((a, b) => b.price - a.price)
-        break
-      case "rating":
-        result.sort((a, b) => b.rating - a.rating)
-        break
-      default:
-        result.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
-    }
+    events.sort((a, b) => {
+      switch (filters.sortBy) {
+        case "date":
+          return a.date.localeCompare(b.date);
+        case "popular":
+          return b.attendees - a.attendees; // higher attendees first
+        case "price-low":
+          return a.price - b.price;
+        case "price-high":
+          return b.price - a.price;
+        case "rating":
+          return (b.rating ?? 0) - (a.rating ?? 0);
+        default:
+          return 0;
+      }
+    });
 
-    return result
-  }, [events, filters])
+    return events;
+  }, [initialEvents, filters]);
 
-  return { filters, updateFilter, filteredEvents }
+  return { filters, updateFilter, filteredEvents };
 }

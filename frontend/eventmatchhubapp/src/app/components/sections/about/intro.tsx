@@ -1,15 +1,16 @@
-/* eslint-disable @next/next/no-img-element */
-"use client"
+"use client";
+
 import {
   Zap,
   Users,
   Shield,
   Brain,
   Lock,
-  Lightbulb, Target,
+  Lightbulb,
+  Target,
   SearchCode,
   FileText,
-  BadgeCheck
+  BadgeCheck,
 } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
@@ -101,9 +102,7 @@ export default function IntroPage() {
     <div className="min-h-screen bg-background">
       <main>
         {/* Hero Section */}
-        <section
-          className="container mx-auto px-4 py-16"
-        >
+        <section className="container mx-auto px-4 py-16">
           <div className="grid gap-12 md:grid-cols-2 md:items-center">
             <div>
               <h1 className="mb-6 text-4xl font-bold tracking-tight text-balance">
@@ -135,11 +134,12 @@ export default function IntroPage() {
               <img
                 src="/ai-conference.png"
                 alt="Event venue with attendees"
-                className="w-full h-auto rounded-lg object-cover"
+                className="w-full h-auto rounded-lg object-cover shadow-xl"
               />
             </div>
           </div>
         </section>
+
         {/* Divider */}
         <div className="border-t border-gray-200" />
 
@@ -159,14 +159,15 @@ export default function IntroPage() {
             </p>
           </div>
         </section>
+
         {/* Divider */}
-      <div className="border-t border-gray-200" />
+        <div className="border-t border-gray-200" />
 
         {/* Values Section */}
         <section className="py-16">
           <div className="container mx-auto px-4">
             <div className="mb-12 text-center">
-              <h2 className="mb-4 text-3xl font-bold">Our Value</h2>
+              <h2 className="mb-4 text-3xl font-bold">Our Values</h2>
               <p className="text-muted-foreground">
                 The principles that guide everything we do
               </p>
@@ -205,49 +206,55 @@ export default function IntroPage() {
             </div>
           </div>
         </section>
+
         {/* Divider */}
-      <div className="border-t border-gray-200" />
+        <div className="border-t border-gray-200" />
 
         {/* Platform Features Section */}
         <section className="py-16" style={{ backgroundColor: "var(--background-light)" }}>
-          <div className="container mx-auto px-4" >
+          <div className="container mx-auto px-4">
             <div className="mb-12 text-center">
               <h2 className="mb-4 text-3xl font-bold">
                 A Platform Built for Everyone
               </h2>
-              <p className="text-muted-foreground mb-8">
+              <p className="text-muted-foreground mb-10">
                 Whether you`re looking for opportunities or organizing them, we
                 have the tools you need to succeed.
               </p>
-              <div className="flex justify-center gap-4">
-                <button
-                  onClick={() => setActiveTab("participants")}
-                  className={`px-6 py-2 rounded-lg font-medium transition-colors ${
-                    activeTab === "participants"
-                      ? "bg-muted text-foreground"
-                      : "bg-transparent text-muted-foreground hover:text-foreground"
-                  }`}
-                >
-                  For Participants
-                </button>
-                <button
-                  onClick={() => setActiveTab("organizers")}
-                  className={`px-6 py-2 rounded-lg font-medium transition-colors ${
-                    activeTab === "organizers"
-                      ? "bg-muted text-foreground"
-                      : "bg-transparent text-muted-foreground hover:text-foreground"
-                  }`}
-                >
-                  For Organizers
-                </button>
+
+              {/* Perfect Pill Toggle - Matches your screenshot exactly */}
+              <div className="flex justify-center">
+                <div className="inline-flex rounded-full bg-gray-200 p-1 shadow-inner">
+                  <button
+                    onClick={() => setActiveTab("participants")}
+                    className={`px-8 py-3 rounded-full font-semibold text-base transition-all duration-300 ${
+                      activeTab === "participants"
+                        ? "bg-white text-foreground shadow-md"
+                        : "text-gray-500 hover:text-gray-700"
+                    }`}
+                  >
+                    For Participants
+                  </button>
+                  <button
+                    onClick={() => setActiveTab("organizers")}
+                    className={`px-8 py-3 rounded-full font-semibold text-base transition-all duration-300 ${
+                      activeTab === "organizers"
+                        ? "bg-white text-foreground shadow-md"
+                        : "text-gray-500 hover:text-gray-700"
+                    }`}
+                  >
+                    For Organizer
+                  </button>
+                </div>
               </div>
             </div>
+
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
               {(activeTab === "participants"
                 ? platformFeatures.participants
                 : platformFeatures.organizers
               ).map((feature) => (
-                <Card key={feature.title}>
+                <Card key={feature.title} className="hover:shadow-lg transition-shadow">
                   <CardContent className="p-6">
                     <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-lg bg-indigo-100">
                       <feature.icon className="h-6 w-6 text-indigo-600" />
@@ -262,8 +269,9 @@ export default function IntroPage() {
             </div>
           </div>
         </section>
+
         {/* Divider */}
-      <div className="border-t border-gray-200" />
+        <div className="border-t border-gray-200" />
 
         {/* How It Works Section */}
         <section className="py-16">
@@ -276,16 +284,25 @@ export default function IntroPage() {
             </div>
             <div className="grid gap-8 md:grid-cols-3">
               {howItWorks.map((step, index) => (
-                <Card key={index} className="border-1 bg-white shadow-md hover:shadow-lg transition-shadow rounded-xl">
+                <Card
+                  key={index}
+                  className="border bg-white shadow-md hover:shadow-xl transition-shadow rounded-2xl"
+                >
                   <CardContent className="p-8">
                     <div className="mb-6 flex items-start justify-between">
                       <div className="inline-flex h-14 w-14 items-center justify-center rounded-lg bg-indigo-600">
-                        <step.icon className="h-5 w-5 text-white" />
+                        <step.icon className="h-7 w-7 text-white" />
                       </div>
-                      <div className="text-4xl font-bold text-gray-200">{String(index + 1).padStart(2, "0")}</div>
+                      <div className="text-5xl font-bold text-gray-100">
+                        {String(index + 1).padStart(2, "0")}
+                      </div>
                     </div>
-                    <h3 className="mb-3 font-bold text-lg text-foreground">{step.title}</h3>
-                    <p className="text-base text-muted-foreground leading-relaxed">{step.description}</p>
+                    <h3 className="mb-3 text-xl font-bold text-foreground">
+                      {step.title}
+                    </h3>
+                    <p className="text-base text-muted-foreground leading-relaxed">
+                      {step.description}
+                    </p>
                   </CardContent>
                 </Card>
               ))}
