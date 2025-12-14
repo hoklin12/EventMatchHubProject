@@ -32,7 +32,7 @@ export default function HomePage() {
       title: "Digital Marketing Masterclass",
       category: "Business",
       date: "Mar 22, 2025",
-      location: "Online",
+      location: "dfed",
       attendees: 320,
       image: "/digital_mkt.png",
       featured: false,
