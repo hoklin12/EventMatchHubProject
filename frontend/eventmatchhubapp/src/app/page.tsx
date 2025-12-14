@@ -40,7 +40,7 @@ export default function HomePage() {
     {
       id: 3,
       title: "Contemporary Art Exhibition",
-      category: "Arts & Culture",
+      category: "Arts & Cultur",
       date: "Apr 5, 2025",
       location: "New York, NY",
       attendees: 280,
