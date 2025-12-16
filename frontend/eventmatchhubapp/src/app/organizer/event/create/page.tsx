@@ -1,45 +1,20 @@
-"use client";
 
-import { CreateEventForm } from "@/feature/eventWizard/component/form/create-event-overview-form";
-import { useRouter } from "next/navigation";
+// // app/events/create/page.tsx
 
-export default function CreateEventPage() {
-  const router = useRouter();
+import EventCreationWizard from "../../EventCreationWizard";
 
-  const handleSaveDraft = async (data: any) => {
-    console.log("Saving as draft:", data);
+// import CreateEvent from "../CreateEvent";
 
-    // TODO: Replace this with real API call that returns eventId
-    const eventId = await saveDraftToServer(data); // <- dynamic
+// export default function EventsPage() {
+//   return (
+//     <div className="mx-auto px-6 py-8">
+//       <CreateEvent />
+//     </div>
+//   );
+// }
 
-    router.push(`/organizer/event/${eventId}/ticket-registration`);
-  };
+// app/events/create/page.tsx
 
-  const handleSaveAndContinue = async (data: any) => {
-    console.log("Saving and continuing:", data);
-
-    // TODO: Replace this with real API call that returns eventId
-    const eventId = await createEvent(data); // <- dynamic
-
-    router.push(`/organizer/event/${eventId}/ticket-registration`);
-  };
-
-  return (
-    <CreateEventForm
-      onSaveDraft={handleSaveDraft}
-      onSaveAndContinue={handleSaveAndContinue}
-    />
-  );
-}
-
-// Example mock API functions for now:
-async function saveDraftToServer(data: any) {
-  console.log("Mock saving draft:", data);
-  // return a dynamic id instead of hardcoding
-  return "evt_" + Math.floor(Math.random() * 10000);
-}
-
-async function createEvent(data: any) {
-  console.log("Mock creating event:", data);
-  return "evt_" + Math.floor(Math.random() * 10000);
+export default function EventsPage() {
+  return <EventCreationWizard />;
 }

@@ -1,12 +1,14 @@
 "use client"
 
-import { Home, Calendar, Grid3x3 } from 'lucide-react'
+import { Home, Calendar, Grid3x3, ReceiptIcon } from 'lucide-react'
 import { NavItem } from './nav-item'
 import { usePathname } from 'next/navigation'
 
 const navLinks = [
   { icon: Home, href: "/organizer/general" },
   { icon: Calendar, href: "/organizer/event" },
+  { icon: ReceiptIcon, href: "/organizer/receipts" },
+
 ]
 
 export function SidebarNav() {
@@ -30,3 +32,5 @@ export function SidebarNav() {
     </nav>
   )
 }
+
+
