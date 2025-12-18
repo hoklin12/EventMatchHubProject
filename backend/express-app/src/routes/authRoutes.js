@@ -33,5 +33,3 @@ router.post("/login", validateLogin, authController.login);
 router.post("/logout", authMiddleware, authController.logout); // Implement logout if needed
 
 module.exports = router;
-
-

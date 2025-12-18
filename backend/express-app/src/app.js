@@ -84,4 +84,3 @@ db.authenticate()
     console.error("Unable to connect to the database:", err);
     process.exit(1); // Exit if DB connection fails
   });
-
