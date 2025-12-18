@@ -1,7 +1,6 @@
-// src/app/organizer/general/page.tsx
-import { UpcomingEvents } from "@/app/feature/general/upcoming-events"
-import { Greeting } from "../../feature/general/greeting"
-import { QuickStart } from "../../feature/general/quick-start"
+import { Greeting } from "../greeting";
+import { QuickStart } from "../quick-start";
+import { UpcomingEvents } from "../upcoming-events";
 
 
 export default function GeneralPage() {

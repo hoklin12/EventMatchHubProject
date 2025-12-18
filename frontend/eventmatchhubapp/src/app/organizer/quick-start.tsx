@@ -36,7 +36,7 @@ export function QuickStart() {
         {quickStartItems.map((item) => (
           <QuickStartCard
             key={item.action}
-            href={actionRoutes[item.action]} // ✅ dynamic route
+            href={actionRoutes[item.action]} 
             icon={item.icon}
             title={item.title}
             description={item.description}

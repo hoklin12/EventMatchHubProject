@@ -2,11 +2,11 @@
 
 
 import { usePathname } from "next/navigation";
-import { OrganizerHeader } from "@/app/components/organizer-header";
-import { Sidebar } from "../feature/sidebar/sidebar";
+
 import { ReactNode } from "react";
-import EventWizardSidebarWrapper from "../feature/eventWizard/component/sidepanel/eventWizardSidebarWrapper";
+// import EventWizardSidebarWrapper from "../feature/eventWizard/component/sidepanel/eventWizardSidebarWrapper";
 import { SiteHeader } from "../components/site/site-header";
+import { Sidebar } from "./sidebar/sidebar";
 
 
 interface EventModuleLayoutProps {

@@ -810,7 +810,6 @@ import {
   Shield,
   Globe,
   Building2,
-  Phone,
 } from "lucide-react";
 
 export default function SignupPage() {
@@ -846,6 +845,7 @@ export default function SignupPage() {
     const password = formData.get("password") as string;
     const confirmPassword = formData.get("confirmPassword") as string;
 
+    // Client-side password match validation
     if (password !== confirmPassword) {
       setError("Passwords do not match");
       setIsLoading(false);
@@ -855,14 +855,15 @@ export default function SignupPage() {
     const payload: any = {
       full_name: `${formData.get("firstName")} ${formData.get("lastName")}`.trim(),
       email: formData.get("email"),
-      password_hash: password,
-      phone_number: formData.get("phone_number") || "", // Real value from input
-      userType,
+      password_hash: formData.get("password"),  // Send as password_hash
+      phone_number: "",  // Temporary empty string (or add real field later)
+      userType,  // Keep for your proxy routing
     };
 
-    if (userType === "organizer") {
+   if (userType === "organizer") {
       payload.organization_name = formData.get("organization");
       payload.position = formData.get("position");
+      // Optional extra fields — backend ignores if not used
       payload.org_website = formData.get("orgWebsite");
       payload.org_registration = formData.get("orgRegistration");
       payload.org_description = formData.get("orgDescription");
@@ -881,6 +882,7 @@ export default function SignupPage() {
         throw new Error(data.message || "Signup failed");
       }
 
+      // Success message
       const successMessage =
         userType === "organizer"
           ? "Application submitted! We'll review it within 1-2 business days."
@@ -888,8 +890,10 @@ export default function SignupPage() {
 
       alert(successMessage);
 
+      // Redirect to login page with pre-filled email
       const email = encodeURIComponent(payload.email as string);
       router.push(`/login?email=${email}`);
+
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -1008,26 +1012,6 @@ export default function SignupPage() {
                   <div className="space-y-2">
                     <Label htmlFor="email">Email</Label>
                     <Input name="email" type="email" placeholder="you@example.com" required />
-                  </div>
-
-                  {/* NEW: Phone Number Field */}
-                  <div className="space-y-2">
-                    <Label htmlFor="phone_number">
-                      Phone Number {userType === "organizer" && <span className="text-red-600">*</span>}
-                    </Label>
-                    <div className="relative">
-                      <Phone className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
-                      <Input
-                        name="phone_number"
-                        type="tel"
-                        placeholder="+855 12 345 678"
-                        className="pl-10"
-                        required={userType === "organizer"} // Required only for organizer
-                      />
-                    </div>
-                    {userType === "participant" && (
-                      <p className="text-xs text-muted-foreground">Optional</p>
-                    )}
                   </div>
 
                   {userType === "organizer" && (
@@ -1187,3 +1171,4 @@ export default function SignupPage() {
     </div>
   );
 }
+

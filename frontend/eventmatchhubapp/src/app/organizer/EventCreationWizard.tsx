@@ -1,34 +1,4 @@
 
-// // components/EventCreationWizard.tsx
-// "use client";
-
-// import { useState } from "react";
-// import CreateEvent from "./event/CreateEvent";
-// import TicketsRegistration from "./event/TicketsRegistration";
-// import AdditionalSections from "./event/AdditionalSections";
-
-// export default function EventCreationWizard() {
-//   const [currentStep, setCurrentStep] = useState<"overview" | "tickets" | "additional">("overview");
-
-//   const handleToTickets = () => setCurrentStep("tickets");
-//   const handleToAdditional = () => setCurrentStep("additional");
-//   const handleBackFromTickets = () => setCurrentStep("overview");
-//   const handleBackFromAdditional = () => setCurrentStep("tickets");
-
-//   return (
-//     <>
-//       {currentStep === "overview" && <CreateEvent onContinue={handleToTickets} currentStep="overview" />}
-//       {currentStep === "tickets" && (
-//         <TicketsRegistration onBack={handleBackFromTickets} onContinue={handleToAdditional} currentStep="tickets" />
-//       )}
-//       {currentStep === "additional" && (
-//         <AdditionalSections onBack={handleBackFromAdditional} currentStep="additional" />
-//       )}
-//     </>
-//   );
-// }
-
-
 // components/EventCreationWizard.tsx
 "use client";
 

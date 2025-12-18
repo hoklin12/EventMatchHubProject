@@ -1,40 +1,35 @@
+// src/lib/data/certificates.ts
 export const certificates = [
-    {
-        id: 1,
-        title: "Design Thinking Bootcamp",
-        eventOrganizer: "Design Academy",
-        issueDate: "February 15, 2025",
-        issuer: "Event Match Hub",
-        certificateId: "DT-2025-001234",
-        verified: true,
-    },
-    {
-        id: 2,
-        title: "Advanced UI/UX Workshop",
-        eventOrganizer: "Creative Labs",
-        issueDate: "March 10, 2025",
-        issuer: "Event Match Hub",
-        certificateId: "UX-2025-005678",
-        verified: true,
-    },
-    {
-        id: 3,
-        title: "Frontend Development Masterclass",
-        eventOrganizer: "CodeCraft",
-        issueDate: "April 22, 2025",
-        issuer: "Event Match Hub",
-        certificateId: "FE-2025-009012",
-        verified: false,
-    },
-    {
-        id: 4,
-        title: "Project Management Essentials",
-        eventOrganizer: "PM Institute",
-        issueDate: "May 5, 2025",
-        issuer: "Event Match Hub",
-        certificateId: "PM-2025-003456",
-        verified: true,
-    },
+  {
+    id: 1,
+    title: "Advanced React Workshop Completion",
+    eventOrganizer: "Tech Events Inc.",
+    issueDate: "October 15, 2024",
+    certificateId: "CERT-2024-REA-001",
+    verified: true,
+  },
+  {
+    id: 2,
+    title: "Next.js Mastery Certification",
+    eventOrganizer: "Frontend Masters Hub",
+    issueDate: "November 20, 2024",
+    certificateId: "CERT-2024-NJS-045",
+    verified: true,
+  },
+  {
+    id: 3,
+    title: "UI/UX Design Principles",
+    eventOrganizer: "Design Collective PH",
+    issueDate: "September 5, 2024",
+    certificateId: "CERT-2024-UXD-112",
+    verified: true,
+  },
+  {
+    id: 4,
+    title: "Full Stack Development Bootcamp",
+    eventOrganizer: "CodeCamp Cambodia",
+    issueDate: "August 10, 2024",
+    certificateId: "CERT-2024-FSD-089",
+    verified: false, // Example of unverified
+  },
 ];
-
-export const getCertificate = () => certificates.slice(0, 2)
