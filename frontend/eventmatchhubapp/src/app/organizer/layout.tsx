@@ -40,3 +40,5 @@ export default function EventModuleLayout({ children }: EventModuleLayoutProps) 
     </div>
   );
 }
+
+

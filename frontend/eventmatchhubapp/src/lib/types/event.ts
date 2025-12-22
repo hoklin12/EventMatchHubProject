@@ -15,6 +15,15 @@ export interface Event {
   status: EventStatus
   createdAt: string
   updatedAt: string
+
+  isPaid?: boolean              // Is this a paid event? (false = free)
+  ticketPrice?: number          // Base price (e.g., 199.00)
+  currency?: string             // e.g., "USD", "KHR"
+  ticketTiers?: Array<{
+    name: string
+    price: number
+    availableUntil?: string | null  // Date string like "2025-09-30"
+  }>
 }
 
   
@@ -90,3 +99,5 @@ export interface Event {
     locationName: string
     address: string
   }
+
+
