@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Tabs, TabsList, TabsTrigger } from "@/app/components/ui/tabs";
-import { SiteHeader } from "@/app/components/site/site-header";
+import { SiteHeader } from "@/app/components/site-header";
 import { SiteFooter } from "@/app/components/site/site-footer";
 import { OverviewTab } from "./overview-tab";
 import { UpcomingTab } from "./upcoming-tab";

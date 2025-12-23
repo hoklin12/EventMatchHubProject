@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { Tabs, TabsList, TabsTrigger } from "@/app/components/ui/tabs";
 import { Calendar, Award } from "lucide-react";
-import { SiteHeader } from "@/app/components/site/site-header";
+import { SiteHeader } from "@/app/components/site-header";
 import { SiteFooter } from "@/app/components/site/site-footer";
 import { ProfileCard } from "./profile-card";
 import { RegisteredEvent } from "./registered-event";

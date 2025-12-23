@@ -1,5 +1,5 @@
 import { SiteFooter } from "@/app/components/site/site-footer";
-import { SiteHeader } from "@/app/components/site/site-header";
+import { SiteHeader } from "@/app/components/site-header";
 import PortfoliosManager from "./Portfolios-Manager";
 
 export default function PortfolioPage() {

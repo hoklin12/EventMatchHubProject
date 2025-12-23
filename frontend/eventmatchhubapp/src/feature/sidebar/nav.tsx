@@ -13,7 +13,7 @@ export function SidebarNav() {
   const pathname = usePathname()
 
   return (
-    <nav className="flex flex-col gap-6">
+    <nav className="flex flex-col gap-6 pt-24">
       {navLinks.map((link) => (
         <NavItem
           key={link.href}

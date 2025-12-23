@@ -6,7 +6,7 @@ import { RecommendedEventsSection } from "./components/sections/events/recommend
 import { CategoryGrid } from "./components/sections/home/category-grid"
 import { HeroSection } from "./components/sections/home/hero-section"
 import { SiteFooter } from "./components/site/site-footer"
-import { SiteHeader } from "./components/site/site-header"
+import { SiteHeader } from "./components/site-header"
 import { getRecommendedEvents } from "@/lib/data/event-datas"
 
 export default function HomePage() {

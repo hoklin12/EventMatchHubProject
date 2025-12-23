@@ -1,4 +1,5 @@
-import { SiteFooter } from "@/app/components/site-footer";
+
+import { SiteFooter } from "@/app/components/site/site-footer";
 import { SiteHeader } from "@/app/components/site-header";
 import PortfolioViewPage from "../PortfolioViewPage";
 

@@ -3,7 +3,7 @@
 import type { ReactNode } from "react";
 import { usePathname } from "next/navigation";
 import { Sidebar } from "@/feature/sidebar/sidebar";
-import { SiteHeader } from "../components/site/site-header";
+import { SiteHeader } from "../components/site-header";
 import { EventWizardSidebarWrapper } from "@/feature/eventWizard/component/sidepanel/eventWizardSidebarWrapper";
 
 interface EventModuleLayoutProps {
