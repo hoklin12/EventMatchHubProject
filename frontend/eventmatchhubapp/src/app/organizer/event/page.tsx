@@ -4,7 +4,7 @@ import { EventsContent } from "@/feature/event/events-content"
 
 export default function EventsPage() {
   return (
-    <div className="flex-1 flex flex-col overflow-auto bg-background">
+    <div className="flex-1 flex flex-col overflow-auto bg-background pt-24">
       <EventsContent />
     </div>
   )
