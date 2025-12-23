@@ -364,7 +364,7 @@ exports.login = async (req, res, next) => {
         email: user.email,
         full_name: user.full_name,
         phone_number: user.phone_number,
-        roles: user.Roles.map((r) => r.role_name),
+        roles: user.Roles[0].role_name,
         skills: skillNames,
         Plan: user.plan,
       },

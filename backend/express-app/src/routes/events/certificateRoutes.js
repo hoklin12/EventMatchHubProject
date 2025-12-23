@@ -44,6 +44,13 @@ router.get(
   certificateController.viewAllCertificates
 );
 
+// router.get(
+//   "/:event_id/certificates/participant/All",
+//   authMiddleware,
+//   rbacMiddleware(["participant"]),
+//   certificateController.getParticipantCertificateAll
+// );
+
 //GET /api/v1/events/certificates/template - Get certificate template (accessible only to organizers)
 router.get(
   "/certificates/template",

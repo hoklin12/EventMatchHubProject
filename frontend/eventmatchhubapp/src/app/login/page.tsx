@@ -1,163 +1,13 @@
-// "use client";
-
-// import type React from "react";
-// import { useState } from "react";
-// import { useRouter } from "next/navigation";
-// import Link from "next/link";
-// import { Button } from "../components/ui/button";
-// import { Input } from "../components/ui/input";
-// import { Label } from "../components/ui/label";
-// import {
-//   Card,
-//   CardContent,
-//   CardDescription,
-//   CardFooter,
-//   CardHeader,
-//   CardTitle,
-// } from "../components/ui/card";
-// import { Tabs, TabsList, TabsTrigger } from "../components/ui/tabs";
-// import { Checkbox } from "../components/ui/checkbox";
-// import { Eye, EyeOff, Users, Briefcase } from "lucide-react";
-// import { dummyLogin } from "@/lib/dummyAuth"; // Adjust path as needed
-
-// export default function LoginPage() {
-//   const router = useRouter();
-//   const [showPassword, setShowPassword] = useState(false);
-//   const [userType, setUserType] = useState<"participant" | "organizer">("participant");
-//   const [isLoading, setIsLoading] = useState(false);
-//   const [error, setError] = useState("");
-
-//   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-//     e.preventDefault();
-//     setIsLoading(true);
-//     setError("");
-
-//     const formData = new FormData(e.currentTarget);
-//     const email = formData.get("email") as string;
-//     const password = formData.get("password") as string;
-
-//     const result = await dummyLogin(email, password);
-
-//     if (!result.success) {
-//       setError(result.error);
-//       setIsLoading(false);
-//       return;
-//     }
-
-//     // Optional: enforce role match
-//     if (result.role !== userType) {
-//       setError(`This account is registered as ${result.role}. Please switch to ${result.role} tab.`);
-//       setIsLoading(false);
-//       return;
-//     }
-
-//     // Success redirect
-//     const routeMap = {
-//       participant: "/participant/overview",
-//       organizer: "/organizer/general",
-//     };
-//     router.push(routeMap[userType]);
-//   };
-
-//   return (
-//     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 flex items-center justify-center p-4">
-//       {/* ... same layout ... */}
-
-//       <Card className="w-full max-w-md shadow-xl">
-//         <CardHeader className="space-y-1 text-center">
-//           <CardTitle className="text-3xl font-bold">Welcome Back</CardTitle>
-//           <CardDescription>Sign in to your Event Match Hub account</CardDescription>
-//         </CardHeader>
-
-//         <CardContent className="space-y-6">
-//           <Tabs value={userType} onValueChange={(v) => setUserType(v as any)}>
-//             <TabsList className="grid w-full grid-cols-2">
-//               <TabsTrigger value="participant" className="flex items-center justify-center gap-2">
-//                 <Users className="w-4 h-4" /> Participant
-//               </TabsTrigger>
-//               <TabsTrigger value="organizer" className="flex items-center justify-center gap-2">
-//                 <Briefcase className="w-4 h-4" /> Organizer
-//               </TabsTrigger>
-//             </TabsList>
-//           </Tabs>
-
-//           <form className="space-y-4" onSubmit={handleSubmit}>
-//             {error && <p className="text-red-600 text-sm text-center">{error}</p>}
-
-//             <div className="space-y-2">
-//               <Label htmlFor="email">Email</Label>
-//               <Input name="email" type="email" placeholder="you@example.com" required />
-//             </div>
-
-//             <div className="space-y-2">
-//               <Label htmlFor="password">Password</Label>
-//               <div className="relative">
-//                 <Input
-//                   name="password"
-//                   type={showPassword ? "text" : "password"}
-//                   placeholder="Enter your password"
-//                   required
-//                 />
-//                 <button
-//                   type="button"
-//                   onClick={() => setShowPassword(!showPassword)}
-//                   className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-//                 >
-//                   {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-//                 </button>
-//               </div>
-//             </div>
-
-//             {/* Remember me & Forgot password */}
-//             <div className="flex items-center justify-between">
-//               <div className="flex items-center space-x-2">
-//                 <Checkbox id="remember" />
-//                 <label htmlFor="remember" className="text-sm font-medium leading-none">
-//                   Remember me
-//                 </label>
-//               </div>
-//               <Link href="/forgot-password" className="text-sm text-blue-600 hover:underline">
-//                 Forgot password?
-//               </Link>
-//             </div>
-
-//             <Button
-//               type="submit"
-//               className="w-full bg-gradient-to-r from-blue-600 to-purple-600"
-//               size="lg"
-//               disabled={isLoading}
-//             >
-//               {isLoading ? "Signing In..." : `Sign In as ${userType.charAt(0).toUpperCase() + userType.slice(1)}`}
-//             </Button>
-//           </form>
-
-//           {/* Social buttons and footer remain the same */}
-//           {/* ... rest of your original code ... */}
-//         </CardContent>
-
-//         <CardFooter className="flex flex-col space-y-4">
-//           <div className="text-sm text-center text-muted-foreground">
-//             Don't have an account?{" "}
-//             <Link href="/signup" className="text-blue-600 hover:underline font-medium">
-//               Sign up
-//             </Link>
-//           </div>
-//         </CardFooter>
-//       </Card>
-//     </div>
-//   );
-// }
-
-
 "use client";
 
 import type React from "react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 import { Label } from "../components/ui/label";
+import { login } from "../../app/api/auth/authAPI";
 import {
   Card,
   CardContent,
@@ -174,10 +24,13 @@ import { dummyLogin } from "@/lib/dummyAuth"; // Adjust path if needed
 export default function LoginPage() {
   const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
-  const [userType, setUserType] = useState<"participant" | "organizer">("participant");
+  const [userType, setUserType] = useState<"participant" | "organizer">(
+    "participant"
+  );
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
 
+  // Updated the login check to ensure proper redirection based on user roles
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsLoading(true);
@@ -187,28 +40,49 @@ export default function LoginPage() {
     const email = formData.get("email") as string;
     const password = formData.get("password") as string;
 
-    const result = await dummyLogin(email, password);
+    try {
+      const res = await login({ email, password_hash: password });
 
-    if (!result.success) {
-      setError(result.error);
+      // Only access res.data if request succeeded
+      const data = res.data;
+
+      // Save token
+      if (data.token) {
+        localStorage.setItem("authToken", data.token);
+      }
+
+      console.log("Login successful:", data.user.roles);
+
+      // Determine user type based on roles
+      const userRole = data.user.roles;
+      if (userRole !== "participant" && userRole !== "organizer") {
+        throw new Error("Unknown user role");
+      }
+
+      // Success — redirect
+      const routeMap = {
+        participant: "/participant/overview",
+        organizer: "/organizer/general",
+      };
+      router.push(routeMap[userRole]);
+
+      setTimeout(() => {
+        window.location.reload();
+      }, 500);
+    } catch (err: any) {
+      console.error(err);
+
+      // Handle backend error message if available
+      if (err.response?.data?.message) {
+        setError(err.response.data.message);
+      } else if (err.response?.status === 401) {
+        setError("Invalid email or password");
+      } else {
+        setError("An unexpected error occurred");
+      }
+    } finally {
       setIsLoading(false);
-      return;
     }
-
-    // Optional: enforce role tab match
-    if (result.role !== userType) {
-      setError(`This account is a ${result.role}. Please switch to the ${result.role} tab.`);
-      setIsLoading(false);
-      return;
-    }
-
-    // Success — redirect
-    const routeMap = {
-      participant: "/participant/overview",
-      organizer: "/organizer/general",
-    };
-    router.push(routeMap[userType]);
-    setIsLoading(false);
   };
 
   return (
@@ -224,27 +98,44 @@ export default function LoginPage() {
       <Card className="w-full max-w-md shadow-xl">
         <CardHeader className="space-y-1 text-center">
           <CardTitle className="text-3xl font-bold">Welcome Back</CardTitle>
-          <CardDescription>Sign in to your Event Match Hub account</CardDescription>
+          <CardDescription>
+            Sign in to your Event Match Hub account
+          </CardDescription>
         </CardHeader>
 
         <CardContent className="space-y-6">
-          <Tabs value={userType} onValueChange={(v) => setUserType(v as any)}>
+          {/* <Tabs value={userType} onValueChange={(v) => setUserType(v as any)}>
             <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="participant" className="flex items-center justify-center gap-2">
+              <TabsTrigger
+                value="participant"
+                className="flex items-center justify-center gap-2"
+              >
                 <Users className="w-4 h-4" /> Participant
               </TabsTrigger>
-              <TabsTrigger value="organizer" className="flex items-center justify-center gap-2">
+              <TabsTrigger
+                value="organizer"
+                className="flex items-center justify-center gap-2"
+              >
                 <Briefcase className="w-4 h-4" /> Organizer
               </TabsTrigger>
             </TabsList>
-          </Tabs>
+          </Tabs> */}
 
           <form className="space-y-4" onSubmit={handleSubmit}>
-            {error && <p className="text-red-600 text-sm text-center font-medium">{error}</p>}
+            {error && (
+              <p className="text-red-600 text-sm text-center font-medium">
+                {error}
+              </p>
+            )}
 
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
-              <Input name="email" type="email" placeholder="you@example.com" required />
+              <Input
+                name="email"
+                type="email"
+                placeholder="you@example.com"
+                required
+              />
             </div>
 
             <div className="space-y-2">
@@ -261,7 +152,11 @@ export default function LoginPage() {
                   onClick={() => setShowPassword(!showPassword)}
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
                 >
-                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  {showPassword ? (
+                    <EyeOff className="w-4 h-4" />
+                  ) : (
+                    <Eye className="w-4 h-4" />
+                  )}
                 </button>
               </div>
             </div>
@@ -269,11 +164,17 @@ export default function LoginPage() {
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-2">
                 <Checkbox id="remember" />
-                <label htmlFor="remember" className="text-sm font-medium leading-none">
+                <label
+                  htmlFor="remember"
+                  className="text-sm font-medium leading-none"
+                >
                   Remember me
                 </label>
               </div>
-              <Link href="/forgot-password" className="text-sm text-blue-600 hover:underline">
+              <Link
+                href="/forgot-password"
+                className="text-sm text-blue-600 hover:underline"
+              >
                 Forgot password?
               </Link>
             </div>
@@ -284,12 +185,12 @@ export default function LoginPage() {
               size="lg"
               disabled={isLoading}
             >
-              {isLoading ? "Signing In..." : `Sign In as ${userType.charAt(0).toUpperCase() + userType.slice(1)}`}
+              Signing In
             </Button>
           </form>
 
           {/* Optional: Show test credentials */}
-          <div className="mt-6 p-4 bg-gray-50 rounded-lg text-xs text-gray-600 space-y-2">
+          {/* <div className="mt-6 p-4 bg-gray-50 rounded-lg text-xs text-gray-600 space-y-2">
             <p className="font-semibold text-gray-800">Test Accounts:</p>
             <div>
               <strong>Participant:</strong> participant@example.com / 123456
@@ -300,33 +201,46 @@ export default function LoginPage() {
             <div>
               <strong>Admin Organizer:</strong> admin@example.com / admin123
             </div>
-          </div>
+          </div> */}
 
-          <div className="relative">
+          {/* <div className="relative">
             <div className="absolute inset-0 flex items-center">
               <span className="w-full border-t" />
             </div>
             <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-background px-2 text-muted-foreground">Or continue with</span>
+              <span className="bg-background px-2 text-muted-foreground">
+                Or continue with
+              </span>
             </div>
-          </div>
+          </div> */}
 
-          <div className="grid grid-cols-2 gap-4">
+          {/* <div className="grid grid-cols-2 gap-4">
             <Button variant="outline" type="button">
-              <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24"> {/* Google SVG */} </svg>
+              <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24">
+                {" "}
+              </svg>
               Google
             </Button>
             <Button variant="outline" type="button">
-              <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 24 24"> {/* GitHub SVG */} </svg>
+              <svg
+                className="w-5 h-5 mr-2"
+                fill="currentColor"
+                viewBox="0 0 24 24"
+              >
+                {" "}
+              </svg>
               GitHub
             </Button>
-          </div>
+          </div> */}
         </CardContent>
 
         <CardFooter className="flex flex-col space-y-4">
           <div className="text-sm text-center text-muted-foreground">
             Don't have an account?{" "}
-            <Link href="/signup" className="text-blue-600 hover:underline font-medium">
+            <Link
+              href="/signup"
+              className="text-blue-600 hover:underline font-medium"
+            >
               Sign up
             </Link>
           </div>

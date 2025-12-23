@@ -24,6 +24,7 @@ import {
 import { Event } from "@/app/types";
 import { EventList } from "@/app/components/sections/elements/event-list";
 import { certificates } from "@/lib/data/certificates";
+import { useEffect, useState } from "react";
 
 interface OverviewTabProps {
   upcomingEvents: Event[];
@@ -34,7 +35,12 @@ export function OverviewTab({
   upcomingEvents,
   setActiveTab,
 }: OverviewTabProps) {
-  const userName = localStorage.getItem("userName") || "Participant";
+  const [userName, setUserName] = useState("Participant");
+
+  useEffect(() => {
+    const storedUserName = localStorage.getItem("userName") || "Participant";
+    setUserName(storedUserName);
+  }, []);
 
   // Recommended events with local images
   const recommendedEvents = [
@@ -55,13 +61,52 @@ export function OverviewTab({
   ];
 
   // Certificate button handlers
-  const handleCertDownload = (title: string) => {
-    alert(`Downloading certificate: "${title}"\n\nIn a real app, this would generate a PDF.`);
+  const handleCertDownload = async (title: string) => {
+    const fileUrl =
+      "https://vauvenyaixseqagokokz.supabase.co/storage/v1/object/public/certificate/generated/a1b2c3d4-e5f6-7890-abcd-ef1234567890/8fa18b42-d2d4-47d6-8bc7-25e648cabbc7.png";
+
+    try {
+      const response = await fetch(fileUrl);
+      if (!response.ok) throw new Error("Download failed");
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `${title.replace(/\s+/g, "_")}.png`;
+
+      document.body.appendChild(link);
+      link.click();
+
+      link.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error("Certificate download error:", error);
+      alert("Failed to download certificate");
+    }
+    alert(
+      `Downloading certificate: "${title}"\n\nIn a real app, this would generate a PDF.`
+    );
+  };
+
+  const callCertiticate: () => void = () => {
+    useEffect(() => {
+      const fetchProfile = async () => {
+        // const res = await ();
+        // setUserName(res.data);
+      };
+      fetchProfile();
+    }, []);
   };
 
   const handleCertShare = async (title: string) => {
-    const shareUrl = `${window.location.origin}/certificate/${encodeURIComponent(title.replace(/\s+/g, '-').toLowerCase())}`;
-    
+    const shareUrl = `${
+      window.location.origin
+    }/certificate/${encodeURIComponent(
+      title.replace(/\s+/g, "-").toLowerCase()
+    )}`;
+
     if (navigator.share) {
       try {
         await navigator.share({
@@ -83,14 +128,14 @@ export function OverviewTab({
   return (
     <TabsContent value="overview" className="space-y-8">
       {/* Greeting */}
-      <div className="pb-4">
+      {/* <div className="pb-4">
         <h1 className="text-3xl font-bold text-gray-900">
           Welcome, {userName.split(" ")[0]}!
         </h1>
         <p className="text-gray-600 mt-1">
           Here's what's happening with your events
         </p>
-      </div>
+      </div> */}
 
       {/* Main Grid: Upcoming + Certificates */}
       <div className="grid lg:grid-cols-2 gap-6">

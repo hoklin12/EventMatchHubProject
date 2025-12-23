@@ -3,12 +3,38 @@
 import { useParams } from "next/navigation";
 import { SiteHeader } from "@/app/components/site/site-header";
 import { Button } from "@/app/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/app/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/app/components/ui/card";
 import { Badge } from "@/app/components/ui/badge";
 import { Separator } from "@/app/components/ui/separator";
-import { Avatar, AvatarFallback, AvatarImage } from "@/app/components/ui/avatar";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/app/components/ui/tabs";
-import { Calendar, MapPin, Users, Clock, Star, Share2, Heart, CheckCircle2, Award, Globe, Mail } from "lucide-react";
+import {
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+} from "@/app/components/ui/avatar";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "@/app/components/ui/tabs";
+import {
+  Calendar,
+  MapPin,
+  Users,
+  Clock,
+  Star,
+  Share2,
+  Heart,
+  CheckCircle2,
+  Award,
+  Globe,
+  Mail,
+} from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -18,7 +44,7 @@ import { Event } from "@/app/types";
 export default function EventDetailsPage() {
   const params = useParams();
   const idParam = Array.isArray(params.id) ? params.id[0] : params.id;
-  const eventId = parseInt(idParam!, 10);
+  const eventId = idParam;
   const event: Event | undefined = allEvents.find((e) => e.id === eventId);
 
   if (!event) {
@@ -28,7 +54,9 @@ export default function EventDetailsPage() {
         <main className="container mx-auto px-4 py-8">
           <div className="text-center py-16">
             <h1 className="text-3xl font-bold mb-4">Event not found</h1>
-            <p className="text-muted-foreground mb-6">The event you&apos;re looking for doesn&apos;t exist.</p>
+            <p className="text-muted-foreground mb-6">
+              The event you&apos;re looking for doesn&apos;t exist.
+            </p>
             <Button asChild>
               <Link href="/events">Back to Events</Link>
             </Button>
@@ -41,7 +69,9 @@ export default function EventDetailsPage() {
   // Optional: compute daysUntil
   const today = new Date();
   const eventDate = new Date(event.date);
-  const daysUntil = Math.ceil((eventDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+  const daysUntil = Math.ceil(
+    (eventDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)
+  );
 
   return (
     <div className="min-h-screen bg-background">
@@ -54,7 +84,12 @@ export default function EventDetailsPage() {
           <div className="lg:col-span-2">
             {/* Event Image */}
             <div className="relative mb-6 aspect-video overflow-hidden rounded-lg">
-              <Image src={event.image || "/placeholder.svg"} alt={event.title} fill className="object-cover" />
+              <Image
+                src={event.image || "/placeholder.svg"}
+                alt={event.title}
+                fill
+                className="object-cover"
+              />
               {event.featured && (
                 <Badge className="absolute left-4 top-4 bg-gradient-to-r from-indigo-600 to-purple-600">
                   <Star className="mr-1 h-3 w-3" />
@@ -78,19 +113,27 @@ export default function EventDetailsPage() {
                 ))}
               </div>
 
-              <h1 className="mb-4 text-4xl font-bold tracking-tight text-balance">{event.title}</h1>
+              <h1 className="mb-4 text-4xl font-bold tracking-tight text-balance">
+                {event.title}
+              </h1>
 
               {/* Organizer Info */}
               {event.organizer && (
                 <div className="flex items-center gap-3">
                   <Avatar className="h-12 w-12">
-                    <AvatarImage src={event.organizer.logo || "/placeholder.svg"} />
+                    <AvatarImage
+                      src={event.organizer.logo || "/placeholder.svg"}
+                    />
                     <AvatarFallback>TI</AvatarFallback>
                   </Avatar>
                   <div>
                     <div className="flex items-center gap-2">
-                      <span className="font-semibold">{event.organizer.name}</span>
-                      {event.organizer.verified && <CheckCircle2 className="h-4 w-4 text-blue-600" />}
+                      <span className="font-semibold">
+                        {event.organizer.name}
+                      </span>
+                      {event.organizer.verified && (
+                        <CheckCircle2 className="h-4 w-4 text-blue-600" />
+                      )}
                     </div>
                     <div className="flex items-center gap-3 text-sm text-muted-foreground">
                       <span className="flex items-center gap-1">
@@ -111,7 +154,9 @@ export default function EventDetailsPage() {
                 <TabsTrigger value="about">About</TabsTrigger>
                 <TabsTrigger value="schedule">Schedule</TabsTrigger>
                 <TabsTrigger value="speakers">Speakers</TabsTrigger>
-                <TabsTrigger value="reviews">Reviews ({event.reviews ?? 0})</TabsTrigger>
+                <TabsTrigger value="reviews">
+                  Reviews ({event.reviews ?? 0})
+                </TabsTrigger>
               </TabsList>
 
               {/* About */}
@@ -121,7 +166,9 @@ export default function EventDetailsPage() {
                     <CardTitle>About This Event</CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-4">
-                    <p className="whitespace-pre-line leading-relaxed text-muted-foreground">{event.description}</p>
+                    <p className="whitespace-pre-line leading-relaxed text-muted-foreground">
+                      {event.description}
+                    </p>
 
                     <Separator />
 
@@ -129,7 +176,10 @@ export default function EventDetailsPage() {
                       <h3 className="mb-3 font-semibold">Event Highlights</h3>
                       <div className="grid gap-2 sm:grid-cols-2">
                         {event.highlights?.map((highlight) => (
-                          <div key={highlight} className="flex items-center gap-2">
+                          <div
+                            key={highlight}
+                            className="flex items-center gap-2"
+                          >
                             <CheckCircle2 className="h-4 w-4 text-green-600" />
                             <span className="text-sm">{highlight}</span>
                           </div>
@@ -175,7 +225,9 @@ export default function EventDetailsPage() {
                       {event.speakers?.map((speaker) => (
                         <div key={speaker.name} className="flex gap-4">
                           <Avatar className="h-16 w-16">
-                            <AvatarImage src={speaker.image || "/placeholder.svg"} />
+                            <AvatarImage
+                              src={speaker.image || "/placeholder.svg"}
+                            />
                             <AvatarFallback>
                               {speaker.name
                                 .split(" ")
@@ -185,7 +237,9 @@ export default function EventDetailsPage() {
                           </Avatar>
                           <div>
                             <p className="font-semibold">{speaker.name}</p>
-                            <p className="text-sm text-muted-foreground">{speaker.role}</p>
+                            <p className="text-sm text-muted-foreground">
+                              {speaker.role}
+                            </p>
                           </div>
                         </div>
                       ))}
@@ -201,7 +255,9 @@ export default function EventDetailsPage() {
                     <CardTitle>Event Reviews</CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <p className="text-muted-foreground">Reviews will be available after the event.</p>
+                    <p className="text-muted-foreground">
+                      Reviews will be available after the event.
+                    </p>
                   </CardContent>
                 </Card>
               </TabsContent>
@@ -214,21 +270,33 @@ export default function EventDetailsPage() {
               <CardContent className="p-6">
                 {/* Price */}
                 <div className="mb-6">
-                  <div className="mb-2 text-3xl font-bold">${event.price ?? 0}</div>
+                  <div className="mb-2 text-3xl font-bold">
+                    ${event.price ?? 0}
+                  </div>
                   <p className="text-sm text-muted-foreground">per attendee</p>
                 </div>
 
                 {/* CTA Buttons */}
                 <div className="mb-6 space-y-2">
                   <Button className="w-full" size="lg" asChild>
-                    <Link href={`/events/${event.id}/register`}>Register Now</Link>
+                    <Link href={`/events/${event.id}/register`}>
+                      Register Now
+                    </Link>
                   </Button>
                   <div className="flex gap-2">
-                    <Button variant="outline" className="flex-1 bg-transparent" size="sm">
+                    <Button
+                      variant="outline"
+                      className="flex-1 bg-transparent"
+                      size="sm"
+                    >
                       <Heart className="mr-2 h-4 w-4" />
                       Save
                     </Button>
-                    <Button variant="outline" className="flex-1 bg-transparent" size="sm">
+                    <Button
+                      variant="outline"
+                      className="flex-1 bg-transparent"
+                      size="sm"
+                    >
                       <Share2 className="mr-2 h-4 w-4" />
                       Share
                     </Button>
@@ -243,8 +311,12 @@ export default function EventDetailsPage() {
                     <Calendar className="mt-0.5 h-5 w-5 text-muted-foreground" />
                     <div>
                       <p className="font-medium">Date & Time</p>
-                      <p className="text-sm text-muted-foreground">{event.date}</p>
-                      <p className="text-sm text-muted-foreground">{event.time}</p>
+                      <p className="text-sm text-muted-foreground">
+                        {event.date}
+                      </p>
+                      <p className="text-sm text-muted-foreground">
+                        {event.time}
+                      </p>
                     </div>
                   </div>
 
@@ -252,7 +324,9 @@ export default function EventDetailsPage() {
                     <MapPin className="mt-0.5 h-5 w-5 text-muted-foreground" />
                     <div>
                       <p className="font-medium">Location</p>
-                      <p className="text-sm text-muted-foreground">{event.location}</p>
+                      <p className="text-sm text-muted-foreground">
+                        {event.location}
+                      </p>
                     </div>
                   </div>
 
@@ -268,7 +342,9 @@ export default function EventDetailsPage() {
                           <div
                             className="h-full bg-gradient-to-r from-indigo-600 to-purple-600"
                             style={{
-                              width: `${(event.attendees / event.maxAttendees) * 100}%`,
+                              width: `${
+                                (event.attendees / event.maxAttendees) * 100
+                              }%`,
                             }}
                           />
                         </div>
@@ -280,7 +356,9 @@ export default function EventDetailsPage() {
                     <Award className="mt-0.5 h-5 w-5 text-muted-foreground" />
                     <div>
                       <p className="font-medium">Certificate</p>
-                      <p className="text-sm text-muted-foreground">Verified certificate included</p>
+                      <p className="text-sm text-muted-foreground">
+                        Verified certificate included
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -291,13 +369,20 @@ export default function EventDetailsPage() {
                 <div>
                   <h3 className="mb-3 font-semibold">Contact Organizer</h3>
                   <div className="space-y-2">
-                    <Button variant="outline" className="w-full justify-start bg-transparent" asChild>
+                    <Button
+                      variant="outline"
+                      className="w-full justify-start bg-transparent"
+                      asChild
+                    >
                       <Link href="/messages">
                         <Mail className="mr-2 h-4 w-4" />
                         Send Message
                       </Link>
                     </Button>
-                    <Button variant="outline" className="w-full justify-start bg-transparent">
+                    <Button
+                      variant="outline"
+                      className="w-full justify-start bg-transparent"
+                    >
                       <Globe className="mr-2 h-4 w-4" />
                       Visit Website
                     </Button>

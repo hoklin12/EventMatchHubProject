@@ -206,6 +206,7 @@ exports.createCertificates = async (req, res, next) => {
 
     // Generate certificates for each participant
     const generatedCertificates = [];
+    console.log("Total registrations to process:", registrations);
     for (const registration of registrations) {
       // Check full attendance
       const participantId = registration.user_id;
@@ -216,6 +217,10 @@ exports.createCertificates = async (req, res, next) => {
           attendance_status: "present",
         },
       });
+
+      console.log(
+        `Participant ID: ${participantId}, Attendance Count: ${attendanceCount}`
+      );
 
       // Skip participant if not attended all sessions
       if (attendanceCount !== sessionIds.length) continue;

@@ -1,48 +1,48 @@
 // app/types/index.ts
 
 export interface Event {
-  id: number
-  title: string
-  category: string
-  date: string
-  time?: string
-  location: string
+  id: string;
+  title: string;
+  category: string;
+  date: string;
+  time?: string;
+  location: string;
 
   // Organizer object (your original type only had string[])
   organizer?: {
-    name: string
-    logo: string
-    verified: boolean
-    rating: number
-    eventsHosted: number
-  }
+    name: string;
+    logo: string;
+    verified: boolean;
+    rating: number;
+    eventsHosted: number;
+  };
 
-  attendees: number
-  maxAttendees: number
-  price: number
-  rating: number
-  reviews?: number
-  image?: string
-  featured?: boolean
-  tags?: string[]
+  attendees: number;
+  maxAttendees: number;
+  price: number;
+  rating: number;
+  reviews?: number;
+  image?: string;
+  featured?: boolean;
+  tags?: string[];
 
   // NEW: because your events include these
-  description?: string
+  description?: string;
 
-  highlights?: string[]
+  highlights?: string[];
 
   schedule?: {
-    time: string
-    title: string
-  }[]
+    time: string;
+    title: string;
+  }[];
 
   speakers?: {
-    name: string
-    role: string
-    image: string
-  }[]
+    name: string;
+    role: string;
+    image: string;
+  }[];
 
-  daysUntil?: number
+  daysUntil?: number;
   status?: "Completed" | "Cancelled";
   hasCertificate?: boolean;
   attendeesStr?: string;

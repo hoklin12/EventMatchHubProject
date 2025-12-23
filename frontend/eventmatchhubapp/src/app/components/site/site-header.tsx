@@ -1,11 +1,10 @@
-
-
 "use client";
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { Button } from "../ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
+import { getProfile } from "../../../app/api/auth/authAPI";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -25,11 +24,14 @@ import {
   FolderOpen,
 } from "lucide-react";
 import { useState, useEffect } from "react";
+import { duration } from "@mui/material/styles";
 
 export function SiteHeader() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
-  const [userRole, setUserRole] = useState<"guest" | "participant" | "organizer">("guest");
+  const [userRole, setUserRole] = useState<
+    "guest" | "participant" | "organizer"
+  >("guest");
   const [userName, setUserName] = useState("User");
   const [userAvatar, setUserAvatar] = useState("");
 
@@ -37,32 +39,35 @@ export function SiteHeader() {
   const pathname = usePathname();
 
   const handleLogout = () => {
-    localStorage.removeItem("userRole");
-    localStorage.removeItem("userName");
-    localStorage.removeItem("userAvatar");
     localStorage.removeItem("authToken");
-    setUserRole("guest");
-    setUserName("User");
-    setUserAvatar("");
     router.push("/");
+    setTimeout(() => {
+      window.location.reload();
+    }, 500);
   };
 
   useEffect(() => {
-    setMounted(true);
+    const fetchProfile = async () => {
+      setMounted(true);
+      const res = await getProfile();
+      console.log("Fetched profile:", res.data);
+      const data = res.data;
+      const role = data.user.roles[0];
+      const name = data.user.full_name;
+      const avatar = data.user.avatar_url;
 
-    const role = localStorage.getItem("userRole") as "guest" | "participant" | "organizer" | null;
-    const name = localStorage.getItem("userName");
-    const avatar = localStorage.getItem("userAvatar");
+      if (role === "participant" || role === "organizer") {
+        setUserRole(role);
+      }
+      if (name) {
+        setUserName(name);
+      }
+      if (avatar) {
+        setUserAvatar(avatar);
+      }
+    };
 
-    if (role === "participant" || role === "organizer") {
-      setUserRole(role);
-    }
-    if (name) {
-      setUserName(name);
-    }
-    if (avatar) {
-      setUserAvatar(avatar);
-    }
+    fetchProfile();
   }, []);
 
   const getNavLinks = () => {
@@ -81,7 +86,10 @@ export function SiteHeader() {
     ];
 
     if (userRole === "participant") {
-      return [...baseLinks, { href: "/participant/overview", label: "Overview" }];
+      return [
+        ...baseLinks,
+        { href: "/participant/overview", label: "Overview" },
+      ];
     }
 
     return baseLinks; // guest
@@ -90,8 +98,10 @@ export function SiteHeader() {
   const navLinks = mounted ? getNavLinks() : [];
 
   const getLinkClass = (href: string) => {
-    if (!mounted) return "text-muted-foreground hover:text-foreground hover:bg-muted/50";
-    const isActive = href === "/" ? pathname === "/" : pathname.startsWith(href);
+    if (!mounted)
+      return "text-muted-foreground hover:text-foreground hover:bg-muted/50";
+    const isActive =
+      href === "/" ? pathname === "/" : pathname.startsWith(href);
     return isActive
       ? "text-foreground bg-muted/50"
       : "text-muted-foreground hover:text-foreground hover:bg-muted/50";
@@ -106,7 +116,10 @@ export function SiteHeader() {
         <div className="container mx-auto px-4">
           <div className="flex h-16 items-center justify-between">
             {/* Logo */}
-            <Link href="/" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
+            <Link
+              href="/"
+              className="flex items-center gap-3 hover:opacity-80 transition-opacity"
+            >
               <img
                 src="/emh_logo.png"
                 alt="Event Match Hub"
@@ -167,22 +180,33 @@ export function SiteHeader() {
                   <DropdownMenuLabel>
                     <div className="flex flex-col">
                       <p className="font-medium">{userName}</p>
-                      <p className="text-xs text-muted-foreground">Organizer Account</p>
+                      <p className="text-xs text-muted-foreground">
+                        Organizer Account
+                      </p>
                     </div>
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem asChild>
-                    <Link href="/organizer/profile" className="flex items-center">
+                    <Link
+                      href="/organizer/profile"
+                      className="flex items-center"
+                    >
                       <User className="mr-2 h-4 w-4" /> Profile
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem asChild>
-                    <Link href="/organizer/settings" className="flex items-center">
+                    <Link
+                      href="/organizer/settings"
+                      className="flex items-center"
+                    >
                       <Settings className="mr-2 h-4 w-4" /> Settings
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={handleLogout} className="text-red-600">
+                  <DropdownMenuItem
+                    onClick={handleLogout}
+                    className="text-red-600"
+                  >
                     <LogOut className="mr-2 h-4 w-4" /> Log out
                   </DropdownMenuItem>
                 </DropdownMenuContent>
@@ -195,7 +219,11 @@ export function SiteHeader() {
                 className="md:hidden"
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               >
-                {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+                {mobileMenuOpen ? (
+                  <X className="h-5 w-5" />
+                ) : (
+                  <Menu className="h-5 w-5" />
+                )}
               </Button>
             </div>
           </div>
@@ -232,7 +260,10 @@ export function SiteHeader() {
       <div className="container mx-auto px-4 relative z-50">
         <div className="flex h-16 items-center justify-between">
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
+          <Link
+            href="/"
+            className="flex items-center gap-3 hover:opacity-80 transition-opacity"
+          >
             <img
               src="/emh_logo.png"
               alt="Event Match Hub"
@@ -262,7 +293,12 @@ export function SiteHeader() {
           <div className="flex items-center gap-2">
             {userRole === "guest" ? (
               <>
-                <Button variant="ghost" size="sm" className="hidden sm:inline-flex" asChild>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="hidden sm:inline-flex"
+                  asChild
+                >
                   <Link href="/login">Sign In</Link>
                 </Button>
                 <Button
@@ -276,7 +312,11 @@ export function SiteHeader() {
             ) : (
               <>
                 {/* Notification Bell (for logged-in participant) */}
-                <Button variant="ghost" size="icon" className="relative hidden sm:inline-flex">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="relative hidden sm:inline-flex"
+                >
                   <Bell className="w-5 h-5" />
                   <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full" />
                 </Button>
@@ -296,7 +336,9 @@ export function SiteHeader() {
                   <DropdownMenuContent align="end" className="w-56 z-[999]">
                     <DropdownMenuLabel>
                       <div className="flex flex-col space-y-1">
-                        <p className="text-sm font-medium leading-none">{userName}</p>
+                        <p className="text-sm font-medium leading-none">
+                          {userName}
+                        </p>
                         <p className="text-xs leading-none text-muted-foreground">
                           Participant Account
                         </p>
@@ -319,7 +361,10 @@ export function SiteHeader() {
                       </Link>
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
-                    <DropdownMenuItem onClick={handleLogout} className="text-red-600">
+                    <DropdownMenuItem
+                      onClick={handleLogout}
+                      className="text-red-600"
+                    >
                       <LogOut className="mr-2 h-4 w-4" /> Log out
                     </DropdownMenuItem>
                   </DropdownMenuContent>
@@ -334,7 +379,11 @@ export function SiteHeader() {
               className="md:hidden"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             >
-              {mobileMenuOpen ? <X className="h-5 h-5" /> : <Menu className="h-5 h-5" />}
+              {mobileMenuOpen ? (
+                <X className="h-5 h-5" />
+              ) : (
+                <Menu className="h-5 h-5" />
+              )}
             </Button>
           </div>
         </div>
@@ -381,7 +430,6 @@ export function SiteHeader() {
     </header>
   );
 }
-
 
 // "use client";
 
