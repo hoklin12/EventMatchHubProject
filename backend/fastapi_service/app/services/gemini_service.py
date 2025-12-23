@@ -64,6 +64,7 @@ class GeminiGeneratorService:
             detail={
                 "success": True,
                 "data": generated_text,
+                "detail": response
             }
         )
 
